@@ -1,9 +1,23 @@
-import app from "./bin/app";
-import conf from "./config";
+import mongoose from "mongoose";
 
-const start = () => {
+import app from "./bin/app";
+import config from "./config";
+
+const dbConnect = async () => {
     try {
-        const PORT = conf.port;
+        const dbSource = config.mongo.db_source!;
+        await mongoose.connect(dbSource);
+        console.log("Connected to MongoDB success");
+    } catch (e) {
+        console.log("Error: connection to DB failed");
+    }
+};
+
+const start = async () => {
+    try {
+        await dbConnect();
+
+        const PORT = config.port;
         app.listen(PORT, () => console.log(`[server]: Server is running at PORT:${PORT}`));
     }
     catch (e) {
@@ -11,4 +25,4 @@ const start = () => {
     }
 };
 
-start();
+start().catch((err) => console.log("err", err));
