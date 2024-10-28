@@ -5,6 +5,7 @@ import config from "./config";
 
 const dbConnect = async () => {
   try {
+    // eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
     const dbSource = config.mongo.db_source!;
     await mongoose.connect(dbSource);
     console.log("Connected to MongoDB success");
