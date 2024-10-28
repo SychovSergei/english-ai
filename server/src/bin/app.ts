@@ -1,5 +1,7 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import { Express } from "express";
+
+import router from "../routes/index";
 
 const app: Express = express();
 
@@ -10,7 +12,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
+/** ALL ROUTES */
+app.use("/api", router);
+
+app.get("/", (req: Request, res: Response) => {
   res.send("Server is working!");
 });
 
