@@ -1,4 +1,4 @@
-import { model, Model, Schema, Types } from "mongoose";
+import { model, Model, Schema } from "mongoose";
 import { EDbModels } from "../enums/db-models.enum";
 import { ITranslation } from "./interfaces/translation.interface";
 
@@ -6,7 +6,7 @@ type TranslationModel = Model<ITranslation>;
 export const translationSchema: Schema = new Schema<ITranslation, TranslationModel>({
   language: { type: String, required: true },
   wordId: {
-    type: Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: EDbModels.Word,
     required: true,
   },
