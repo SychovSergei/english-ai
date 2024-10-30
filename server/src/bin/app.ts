@@ -21,6 +21,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 /** must be last middleware */
-app.use(errorHandler as express.ErrorRequestHandler);
+app.use(errorHandler as unknown as express.ErrorRequestHandler);
 
 export default app;
