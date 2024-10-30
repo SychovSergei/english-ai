@@ -4,13 +4,16 @@ import { IUser, IUserName } from "./interfaces/user.interface";
 
 type UserModel = Model<IUser>;
 
-const userNameSchema: Schema = new Schema<IUserName>({
-  firstName: { type: String, required: true },
-  lastName: { type: String },
-});
+const userNameSchema: Schema = new Schema<IUserName>(
+  {
+    firstName: { type: String, required: true },
+    lastName: { type: String },
+  },
+  { _id: false },
+);
 
 const userSchema: Schema = new Schema<IUser, UserModel>({
-  userName: [userNameSchema],
+  userName: userNameSchema,
   email: { type: String, required: true },
   password: { type: String, required: true },
 });
