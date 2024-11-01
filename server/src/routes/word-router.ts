@@ -3,11 +3,11 @@ const router = Router();
 
 import wordController from "../controllers/word-controller";
 
-router.get("/all", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   await wordController.getAll(req, res, next);
 });
 
-router.post("/create", async (req: Request, res: Response, next: NextFunction) => {
+router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   await wordController.create(req, res, next);
 });
 
