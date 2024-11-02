@@ -16,7 +16,9 @@
   <mat-drawer-content>
     <div class="layout-main-wrapper">
 
-      <app-toolbar (topbarMenuClick)="drawer.toggle()"></app-toolbar>
+      <div class="toolbar">
+        <app-toolbar (topbarMenuClick)="drawer.toggle()"></app-toolbar>
+      </div>
 
       <main class="container">
         <router-outlet></router-outlet>
