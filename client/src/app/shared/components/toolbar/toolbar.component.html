@@ -1,0 +1,21 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button class="example-icon" (click)="menuClick()" aria-label="Example icon-button with menu icon">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span class="example-spacer"></span>
+
+<!--  <ng-container *ngIf="isOver600px">-->
+<!--    <div class="user-info" *ngIf="userData$ | async as user">-->
+<!--      <div class="user-info-name">{{ user.firstName + " " + user.lastName }}</div>-->
+<!--      <div class="user-info-email">{{ user.email }}</div>-->
+<!--    </div>-->
+<!--  </ng-container>-->
+
+  <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+    <mat-icon>favorite</mat-icon>
+  </button>
+  <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
+    <mat-icon>share</mat-icon>
+  </button>
+</mat-toolbar>
