@@ -1,0 +1,26 @@
+.layout-main-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-menu-container {
+  //width: 260px;
+
+  .layout-menu-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 4rem;
+    width: 100%;
+    color: #fff;
+    background-color: lighten(#5d70d6, 1);
+  }
+  .layout-menu-wrapper {
+    width: 100%;
+  }
+}
+
+.footer {
+  margin-top: auto;
+}
