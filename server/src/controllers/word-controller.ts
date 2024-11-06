@@ -9,7 +9,7 @@ export class WordController {
     try {
       const words = await wordService.getAll();
 
-      return res.json({ words: words });
+      return res.json(words);
     } catch (e) {
       return next(e);
     }
