@@ -1,0 +1,55 @@
+:host {
+  width: 100%;
+}
+.wrap {
+  overflow-x: scroll;
+}
+table {
+  width: 100%;
+}
+
+tr.detail-row {
+  height: 0;
+}
+
+tr.element-row:not(.expanded-row):hover {
+  background: whitesmoke;
+}
+
+tr.element-row:not(.expanded-row):active {
+  background: #efefef;
+}
+
+.element-row td {
+  border-bottom-width: 0;
+}
+
+.element-detail {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.element-diagram {
+  display: flex;
+
+  min-width: 80px;
+  border: 1px solid #7e7e7e;
+  padding: 8px;
+  font-weight: lighter;
+  margin: 8px 0;
+}
+
+.element-symbol {
+  font-weight: bold;
+  font-size: 40px;
+  line-height: normal;
+}
+
+//.element-description {
+//  padding: 16px;
+//}
+
+//.element-description-attribution {
+//  opacity: 0.5;
+//}
