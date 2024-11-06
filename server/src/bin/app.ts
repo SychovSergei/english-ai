@@ -4,10 +4,17 @@ import cors, { CorsOptions } from "cors";
 
 import router from "../routes/index";
 import errorHandler from "../middlewares/error-handler.middleware";
+import ApiError from "../errors/api-error";
 
 const app: Express = express();
 
 app.use(express.json());
+
+// Middleware for logging requests
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
 
 const whiteList = ["http://localhost:4200"];
 const corsOptions: CorsOptions = {
