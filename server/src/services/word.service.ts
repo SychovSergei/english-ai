@@ -1,4 +1,9 @@
+import { Types } from "mongoose";
+
 import { UserError } from "../errors/user-error";
+import { IWordRequestDto, IWordResponseDTO, WordResponseDTO } from "../models/dto/word-dto";
+import { IUser } from "../models/interfaces/user.interface";
+import { WordError } from "../errors/word-error";
 import { IWord } from "../models/interfaces/word.interface";
 import WordModel from "../models/word.model";
 import { Document, Types } from "mongoose";

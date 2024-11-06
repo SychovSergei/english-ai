@@ -1,8 +1,8 @@
 import { Document } from "mongoose";
 import UserModel from "../models/user.model";
 import { IUser } from "../models/interfaces/user.interface";
-import { UserErrors } from "../errors/user-errors";
 import { UserError } from "../errors/user-error";
+import { DocResponseWithId } from "../models/interfaces/mongo.interface";
 
 export class UserService {
   async getAll() {
