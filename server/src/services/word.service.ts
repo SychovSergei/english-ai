@@ -1,3 +1,4 @@
+import { UserError } from "../errors/user-error";
 import { IWord } from "../models/interfaces/word.interface";
 import WordModel from "../models/word.model";
 import { Document, Types } from "mongoose";
@@ -25,7 +26,7 @@ export class WordService {
     //TODO проверка юзера избыточна (если есть запрос то уже юзер должен быть)
     const user: (IUser & Document) | null = await userService.findById(userId);
     if (!user) {
-      throw UserErrors.NotFound();
+      throw UserError.NotFound();
     }
 
     // if (user) {
@@ -40,7 +41,7 @@ export class WordService {
       // console.warn("word DOC", (wordDoc as IWord & { _id: string })._id.toString());
       // TODO ЕСЛИ ЕСТЬ ТО не сохранять его заново, а предупредить пользователя что такое слово есть и
       //  предложить ему добавить переводы к существующему!!!!
-      throw WordErrors.AlreadyExists(newWordDto.originalText);
+      throw WordError.AlreadyExists(newWordDto.originalText);
     }
 
     /** сохраняем каждое значение перевода и возвращаем их id */

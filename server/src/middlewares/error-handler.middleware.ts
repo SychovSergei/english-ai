@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 
-import ApiErrors from "../errors/api-errors";
+import ApiErrors from "../errors/api-error";
 import { EErrorCodes } from "../errors/error-codes.enum";
 import { ErrorResponse } from "../models/interfaces/error-response.interface";
 import { ValidationError } from "../models/interfaces/error-response.interface";
