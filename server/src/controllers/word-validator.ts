@@ -1,4 +1,4 @@
-import { WordErrors } from "../errors/word-errors";
+import { WordError } from "../errors/word-error";
 import { WordRequestDtoSchema } from "../models/schemas/word-schemas";
 
 export class WordValidation {
@@ -7,7 +7,7 @@ export class WordValidation {
   public static validate<T>(data: unknown) {
     const result = this.schema.safeParse(data);
     if (!result.success) {
-      throw WordErrors.fromZodError(result.error);
+      throw WordError.fromZodError(result.error);
     }
     return result.data as T;
   }
