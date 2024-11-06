@@ -5,23 +5,25 @@ import { IWordRequestDto, IWordResponseDTO, WordResponseDTO } from "../models/dt
 import { IUser } from "../models/interfaces/user.interface";
 import { WordError } from "../errors/word-error";
 import { IWord } from "../models/interfaces/word.interface";
+import { DocResponseWithId } from "../models/interfaces/mongo.interface";
 import WordModel from "../models/word.model";
-import { Document, Types } from "mongoose";
-
 import userService from "./user.service";
 import translationService from "./translation.service";
-import { UserErrors } from "../errors/user-errors";
-import { IWordRequestDto } from "../models/dto/word-dto";
-import { IUser } from "../models/interfaces/user.interface";
-import { WordErrors } from "../errors/word-errors";
-
-type WordDoc = IWord & Pick<Document, "_id">;
 
 export class WordService {
-  async getAll() {
-    const words = await WordModel.find({});
+  async getAll(): Promise<IWordResponseDTO> {
+    const words = (await WordModel.find({})) as DocResponseWithId<IWord>[];
+    console.log("words =", words);
+    const wordDtos = [];
 
-    return words;
+    for (const word of words) {
+      const wordDto = new WordResponseDTO(word._id.toString(), word.originalText, word.language);
+      await wordDto.loadTranslations(word.translationIds, translationService.getById);
+      wordDtos.push(wordDto);
+    }
+
+    console.log("wordDtos =", wordDtos);
+    return { length: wordDtos.length, data: wordDtos };
   }
 
   async createNewWord(newWordDto: IWordRequestDto) {
@@ -29,7 +31,7 @@ export class WordService {
     const userId = newWordDto.userId;
 
     //TODO проверка юзера избыточна (если есть запрос то уже юзер должен быть)
-    const user: (IUser & Document) | null = await userService.findById(userId);
+    const user: DocResponseWithId<IUser> | null = await userService.findById(userId);
     if (!user) {
       throw UserError.NotFound();
     }
@@ -83,7 +85,7 @@ export class WordService {
       userId: userId,
       translationIds: [...translationIdsFiltered],
     };
-    const newWordCreated: WordDoc = await WordModel.create(newWordData);
+    const newWordCreated: DocResponseWithId<IWord> = await WordModel.create(newWordData);
 
     return newWordCreated;
     // }
