@@ -1,22 +1,21 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { Injectable } from '@angular/core';
+
 import { Observable } from 'rxjs';
+
+import { environment } from '../../../environments/environment';
 import { IWordResponseData } from '../../shared/interfaces/responses';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WordService {
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getAll(): Observable<IWordResponseData> {
-    return this.http.get<IWordResponseData>(`${this.baseUrl}/api/words`).pipe(
-      // map((data) => this.transformData(data))
-    );
+    return this.http.get<IWordResponseData>(`${this.baseUrl}/api/words`).pipe(); // map((data) => this.transformData(data))
   }
 
   // private transformData(serverData: IWordResponseData[]): IWordTableData[] {
