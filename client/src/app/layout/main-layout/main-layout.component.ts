@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { MatDrawer, MatDrawerContainer, MatDrawerContent } from '@angular/material/sidenav';
 import { RouterOutlet } from '@angular/router';
+
+import { BreakpointService, EBreakpoints } from '../../core/services/breakpoint.service';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
-import { ToolbarComponent } from '../../shared/components/toolbar/toolbar.component';
 import { MenuComponent } from '../../shared/components/menu/menu.component';
 import { Config, MenuItem } from '../../shared/components/menu/menu.interfaces';
-import { BreakpointService, EBreakpoints } from '../../core/services/breakpoint.service';
+import { ToolbarComponent } from '../../shared/components/toolbar/toolbar.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -17,10 +18,10 @@ import { BreakpointService, EBreakpoints } from '../../core/services/breakpoint.
     MatDrawer,
     FooterComponent,
     ToolbarComponent,
-    MenuComponent
+    MenuComponent,
   ],
   templateUrl: './main-layout.component.html',
-  styleUrl: './main-layout.component.scss'
+  styleUrl: './main-layout.component.scss',
 })
 export class MainLayoutComponent {
   isMobile: boolean = false;
@@ -31,51 +32,51 @@ export class MainLayoutComponent {
 
   menus: MenuItem[] = [
     {
-      title: "Dashboard",
+      title: 'Dashboard',
       iconSource: {
-        type: "mat-icon",
+        type: 'mat-icon',
         matIconData: {
-          iconCode: "dashboard",
+          iconCode: 'dashboard',
         },
       },
-      url: "/main/dashboard",
+      url: '/main/dashboard',
       active: false,
     },
     {
-      title: "Words",
+      title: 'Words',
       iconSource: {
-        type: "mat-icon",
+        type: 'mat-icon',
         matIconData: {
-          iconCode: "dashboard",
+          iconCode: 'dashboard',
         },
       },
-      url: "/words",
+      url: '/words',
       active: false,
     },
     {
-      title: "Word Groups",
+      title: 'Word Groups',
       iconSource: {
-        type: "mat-icon",
+        type: 'mat-icon',
         matIconData: {
-          iconCode: "dashboard",
+          iconCode: 'dashboard',
         },
       },
-      url: "/word-groups",
+      url: '/word-groups',
       active: false,
     },
 
     {
-      title: "Auth",
+      title: 'Auth',
       iconSource: {
-        type: "mat-icon", //type: "fontawesome",
+        type: 'mat-icon', //type: "fontawesome",
         matIconData: {
-          iconCode: "dashboard", //iconClass: 'fa fa-mobile',
+          iconCode: 'dashboard', //iconClass: 'fa fa-mobile',
         },
       },
       active: false,
       submenu: [
-        { title: "Login", url: "/auth/login" },
-        { title: "Register", url: "/auth/register" },
+        { title: 'Login', url: '/auth/login' },
+        { title: 'Register', url: '/auth/register' },
       ],
     },
   ];

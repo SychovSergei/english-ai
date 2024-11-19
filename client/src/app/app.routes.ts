@@ -1,26 +1,27 @@
-import { RouterModule, Routes } from '@angular/router';
-import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { NgModule } from '@angular/core';
-import { WordsComponent } from "./features/words/words.component";
+import { RouterModule, Routes } from '@angular/router';
+
+import { WordsComponent } from './features/words/words.component';
+import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
   {
-    path: "",
+    path: '',
     component: MainLayoutComponent,
     children: [
       {
-        path: "words",
+        path: 'words',
         component: WordsComponent,
         data: {
-          title: "Words"
+          title: 'Words',
         },
-      }
+      },
     ],
   },
   {
-    path: "**",
-    redirectTo: "",
-  }
+    path: '**',
+    redirectTo: '',
+  },
 ];
 
 @NgModule({

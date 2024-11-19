@@ -1,6 +1,5 @@
 import { ELangs } from '../../enums/langs.enum';
 
-
 export interface IWord {
   id: string;
   language: ELangs;

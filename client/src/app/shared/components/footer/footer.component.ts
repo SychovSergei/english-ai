@@ -5,13 +5,12 @@ import { Component, OnInit, signal } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './footer.component.html',
-  styleUrl: './footer.component.scss'
+  styleUrl: './footer.component.scss',
 })
 export class FooterComponent implements OnInit {
-  dateNow = signal<string>( "");
+  dateNow = signal<string>('');
 
   ngOnInit() {
     this.dateNow.set(new Date().getFullYear().toString());
   }
-
 }

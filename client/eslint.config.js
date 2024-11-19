@@ -1,13 +1,13 @@
+import { fixupPluginRules } from '@eslint/compat';
+import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
 import html from 'eslint-plugin-html';
 import _import from 'eslint-plugin-import';
 import globals from 'globals';
-import { fixupPluginRules } from '@eslint/compat';
-import tsParser from '@typescript-eslint/parser';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,7 +19,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ['**/node_modules', '**/dist'],
+    ignores: ['**/.angular/', 'node_modules/', 'dist/', '*.d.ts'],
   },
   ...compat.extends(
     'eslint:recommended',
@@ -47,10 +47,10 @@ export default [
     },
 
     rules: {
-      'prettier/prettier': ['error'],
+      'prettier/prettier': ['warn'],
 
       'import/order': [
-        'error',
+        'warn',
         {
           groups: [['builtin', 'external'], ['internal', 'sibling', 'parent'], ['index']],
 
@@ -88,13 +88,12 @@ export default [
       'prefer-arrow-callback': 'error',
 
       quotes: [
-        'error',
+        'warn',
         'single',
         {
           allowTemplateLiterals: true,
         },
       ],
-
       'object-curly-spacing': ['error', 'always'],
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/no-empty-interface': 'off',

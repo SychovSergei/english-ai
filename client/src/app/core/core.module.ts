@@ -5,7 +5,5 @@ NgModule({
   exports: [],
   declarations: [],
   providers: [],
-})
-export class CoreModule {
-
-}
+});
+export class CoreModule {}

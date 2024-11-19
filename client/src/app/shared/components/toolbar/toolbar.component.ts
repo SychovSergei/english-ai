@@ -1,27 +1,21 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { MatToolbar } from '@angular/material/toolbar';
-import { MatIcon } from '@angular/material/icon';
-import { MatIconButton } from '@angular/material/button';
 import { AsyncPipe, NgIf } from '@angular/common';
-import { Observable, of, Subscription } from 'rxjs';
-import { IUserDto } from '../../../core/models/dtos/user.dto';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatToolbar } from '@angular/material/toolbar';
+
+import { Subscription } from 'rxjs';
+
 import { BreakpointService, EBreakpoints } from '../../../core/services/breakpoint.service';
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [
-    MatToolbar,
-    MatIcon,
-    MatIconButton,
-    NgIf,
-    AsyncPipe
-  ],
+  imports: [MatToolbar, MatIcon, MatIconButton, NgIf, AsyncPipe],
   templateUrl: './toolbar.component.html',
-  styleUrl: './toolbar.component.scss'
+  styleUrl: './toolbar.component.scss',
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
-
   // userData$: Observable<IUserDto | null> = of(null);
 
   isOver600px: boolean = true;
@@ -29,13 +23,12 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   @Output() topbarMenuClick: EventEmitter<boolean> = new EventEmitter();
 
-  constructor(public breakpointService: BreakpointService) {
-  }
+  constructor(public breakpointService: BreakpointService) {}
 
   ngOnInit() {
-    this.isOver600pxSubscription = this.breakpointService.getBreakpointState(EBreakpoints.Min600)?.subscribe((res) => {
+    this.isOver600pxSubscription = this.breakpointService.getBreakpointState(EBreakpoints.Min600).subscribe((res) => {
       this.isOver600px = res;
-    })!;
+    });
   }
 
   ngOnDestroy() {
