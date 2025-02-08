@@ -1,0 +1,29 @@
+<div class="w-full md:w-2/3 lg:w-1/2 mx-auto mt-2 lg:mt-5">
+  <mat-card>
+    <mat-card-content>
+      <div *ngIf="!isStartLoading; else isLoading" class="mb-3 md:mb-1">
+        <div class="message-icon">
+          <div class="icon-block">
+            <i class="material-icons"
+               [ngClass]="{'icon-color-success': isSuccess, 'icon-color-danger' : !isSuccess }">
+              {{ isSuccess ? 'check_circle_outline' : 'error_outline' }}
+            </i>
+          </div>
+        </div>
+        <div class="message-header">
+          <h1 class="">{{ isSuccess ? 'Activation success' : 'Activation error' }}</h1>
+          <h2 class="text-center">{{ message }}</h2>
+        </div>
+        <div class="text-center">
+          <button mat-raised-button color="primary" type="button" class="w-1/2" (click)="click()">Login</button>
+        </div>
+      </div>
+      <ng-template #isLoading>
+        <div class="flex justify-center items-center min-h-[100px]">
+          <mat-spinner diameter="40" customSpinner customColor="#000"></mat-spinner>
+        </div>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+</div>
+

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "strict": true,          // Строгая типизация
+    "target": "ES2020",      // Совместимость с целевым JavaScript
+    "moduleResolution": "Node", // Резолвинг модулей
+    "baseUrl": "./",         // Базовая директория
+    "paths": {
+      "@shared/*": ["./*"]   // Устанавливаем алиас для удобного импорта
+    }
+  },
+  "include": ["**/*.ts"],     // Включаем все TypeScript файлы
+  "exclude": ["node_modules"] // Исключаем ненужные
+}

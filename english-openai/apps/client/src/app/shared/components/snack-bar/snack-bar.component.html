@@ -1,0 +1,14 @@
+<div [ngClass]="{
+ 'custom-snackbar-container': type === '',
+ 'success-snackbar-container444': type === 'success',
+ 'error-snackbar-container444': type === 'error',
+ 'info-snackbar-container444': type === 'info',
+ }">
+<!--  class="error-message"-->
+  <span matSnackBarLabel>
+    {{ type }}{{ type ? ': ' : '' }}{{ data.message }}
+  </span>
+  <span matSnackBarActions>
+    <button mat-button matSnackBarAction (click)="snackBarRef.dismissWithAction()">🍕</button>
+  </span>
+</div>

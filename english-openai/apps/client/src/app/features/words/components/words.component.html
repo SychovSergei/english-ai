@@ -1,0 +1,75 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-form-field>
+      <mat-label>Filter</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="filter..." #input>
+    </mat-form-field>
+
+    <div>
+      <button mat-raised-button (click)="addWord()">Add new word<mat-icon>add_circle_outline</mat-icon></button>
+      <button mat-raised-button (click)="reloadWords()">Reload<mat-icon>add_circle_outline</mat-icon></button>
+<!--      <button mat-raised-button (click)="showMessage()">Mess<mat-icon>add_circle_outline</mat-icon></button>-->
+      <button mat-raised-button (click)="checkToggle()">Check / Add to group<mat-icon>library_add</mat-icon></button>
+    </div>
+
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="mat-elevation-z8">
+      <app-table [columnsInitial]="displayedColumns"
+                 [data]="tableData"
+                 [expandedElement]="expandedElement"
+                 [dataSource]="dataWordSource"
+                 [columnsToDisplayWithExpandInput]="columnsToDisplayWithExpand"
+                 [selectionInput]="selection"
+                 [ceilTemplates]="displayedTemplates"
+                 [showSelection]="isShowSelection"
+                 [expandTemplate]="expandTemplate"
+      >
+      </app-table>
+
+    </div>
+
+  </mat-card-content>
+
+</mat-card>
+
+<ng-template #text let-data>
+  <p class="text-xl">{{ data?.text }}
+<!--    <span class="text-sm">{{data?.id}}</span>-->
+  </p>
+</ng-template>
+<ng-template #translateValues let-data>
+<!--  translateValues text-->
+  <p>{{ data?.translations[0].text }}@if(data?.translations[1]){; {{data?.translations[1].text}}; ...} - ({{ data?.translations.length }})</p>
+</ng-template>
+<ng-template #voice>
+  <button mat-icon-button aria-label="Example icon button with a vertical three dot icon"
+          (click)="getVoice($event)">
+    <mat-icon>volume_up</mat-icon>
+  </button>
+</ng-template>
+
+<ng-template #actions let-data>
+  <button mat-raised-button (click)="editWord($event, data)">Edit<mat-icon>add_circle_outline</mat-icon></button>
+</ng-template>
+
+<ng-template #expandTemplate let-translation>
+  <div class="flex sm:flex-row md:flex-col w-full mb-2 flex-col items-center justify-between" style="border: 1px solid red;">
+    <div class="w-full md:w-1/3 h-fit p-2 pl-10 " style="border: 1px solid blue;">
+      <p class="text-xl">{{ translation.text }}</p>
+    </div>
+    <div class="w-full md:w-2/3 h-fit p-2" style="border: 1px solid blue;">
+      <p class="text-xl">{{ translation?.description }}</p>
+    </div>
+  </div>
+  <hr>
+</ng-template>
+<!--  <div class="element-diagram">-->
+<!--    <div class="element-symbol"> {{elem.translations.language}} </div>-->
+<!--    <div class="element-name"> {{elem.translations.translatedText}} </div>-->
+<!--    <div class="element-weight"> {{elem.translations.description}} </div>-->
+<!--  </div>-->
+
+<!--<pre class="font-bold">{{ selection() | json }}</pre>-->
+<pre>{{ userInfo | json }}</pre>

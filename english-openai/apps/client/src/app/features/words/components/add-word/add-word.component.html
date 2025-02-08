@@ -1,0 +1,201 @@
+<ng-template #errorTemplate let-message>
+  <app-form-error-message [errorMessage]="message"></app-form-error-message>
+</ng-template>
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit' : 'Create'}} word - Form valid={{ wordForm.valid }}</h2>
+<mat-dialog-content class="mat-typography mt-3">
+<!--  (ngSubmit)="onSubmit()"-->
+  <form [formGroup]="wordForm">
+      <mat-accordion class="example-headers-align" multi>
+
+        <div class="mt-2">
+          <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title>{{ isEditMode ? 'Update' : 'Add'}} Word Mode - {{ wordId }} '{{ currentWord }}'</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="w-full flex-row md:flex-col mt-3">
+              <mat-form-field class="w-full flex-row md:flex-col">
+                <mat-label>Word</mat-label>
+<!--                       appErrorDisplay-->
+<!--                       [appErrorContainer]="errorTextContainer"-->
+<!--                       [appErrorTemplate]="errorTemplate"-->
+<!--                       [appErrorMessage]="'text ERROR'"-->
+<!--                [disabled]="isEditMode"-->
+                <input matInput formControlName="text">
+                @if (textControl.invalid && textControl.hasError("alreadyExists")) {
+                    <mat-error>The word with this value already exists.</mat-error>
+                }
+                <ng-container #errorTextContainer></ng-container>
+              </mat-form-field>
+
+              @if (textControl.invalid && textControl.hasError("alreadyExists") && !isEditMode) {
+                <div class="w-full flex justify-center mb-5 mt-3">
+                  <button type="button" mat-button mat-raised-button (click)="loadTranslations()">Load values for comparing</button>
+                </div>
+              }
+
+<!--              <mat-form-field class="w-full flex-row md:flex-col">-->
+<!--                <mat-label>Language</mat-label>-->
+<!--&lt;!&ndash;                [disabled]="isEditMode"&ndash;&gt;-->
+<!--                <mat-select formControlName="language">-->
+<!--                  @for (lang of languageValues; track lang) {-->
+<!--                    <mat-option [value]="lang">{{ lang }}</mat-option>-->
+<!--                  }-->
+<!--                </mat-select>-->
+<!--              </mat-form-field>-->
+
+<!--              <mat-form-field class="w-full flex-row md:flex-col">-->
+<!--                <mat-label>Level</mat-label>-->
+<!--                <mat-select formControlName="difficultyLevel">-->
+<!--                  @for (level of levelValues; track level) {-->
+<!--                    <mat-option [value]="level">{{ level }}</mat-option>-->
+<!--                  }-->
+<!--                </mat-select>-->
+<!--              </mat-form-field>-->
+<!--              <div>{{ languageValues | json }}</div>-->
+
+<!--              <div class="w-full flex flex-row">-->
+<!--                <div class="w-full flex flex-row">-->
+<!--                  <div class="w-1/2 flex align-middle">-->
+<!--                    <mat-checkbox formControlName="translateAsDefault">-->
+<!--                      <span style="white-space: nowrap;">As Default</span>-->
+<!--                    </mat-checkbox>-->
+<!--                  </div>-->
+<!--                  <div class="w-1/2">-->
+<!--&lt;!&ndash;                    <mat-form-field class="w-full flex-row md:flex-col">&ndash;&gt;-->
+<!--&lt;!&ndash;                      <mat-label>Translate language (default)</mat-label>&ndash;&gt;-->
+<!--&lt;!&ndash;                      <mat-select formControlName="translateLanguageDefault">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <mat-option value="en">Eng</mat-option>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <mat-option value="ua">Ukr</mat-option>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <mat-option value="ru">Rus</mat-option>&ndash;&gt;-->
+<!--&lt;!&ndash;                      </mat-select>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </mat-form-field>&ndash;&gt;-->
+<!--                    <mat-form-field class="w-full flex-row md:flex-col">-->
+<!--                      <mat-label>Translate language (default)</mat-label>-->
+<!--                      <mat-select formControlName="translateLanguageDefault">-->
+<!--                        @for (lang of languageValues; track lang) {-->
+<!--                          <mat-option [value]="lang">{{ lang }}</mat-option>-->
+<!--                        }-->
+<!--                      </mat-select>-->
+<!--                    </mat-form-field>-->
+<!--&lt;!&ndash;                    <div>{{ languageValues | json }}</div>&ndash;&gt;-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--              </div>-->
+
+            </div>
+          </mat-expansion-panel>
+        </div>
+        <div class="mb-2">
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Translations ({{ translationItems.controls.length }})</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="w-full flex-row md:flex-col">
+              <div formArrayName="translations">
+                <div *ngFor="let translItem of translationItems.controls; let i=index"
+                     [formGroupName]="i">
+
+                  <div *ngIf="i > 0 && translationItems.controls.length > 1" class="mt-5"></div>
+                  <mat-divider *ngIf="i > 0"></mat-divider>
+                  <div *ngIf="i > 0 && translationItems.controls.length > 1" class="mb-5"></div>
+
+                  <mat-form-field class="w-full flex-row md:flex-col">
+                    <mat-label>Translation {{ i+1 }}</mat-label>
+                    <input matInput formControlName="text" placeholder="Translation">
+                    <mat-error *ngIf="translItem.get('text')?.hasError('required')">
+                      Это поле обязательно.
+                    </mat-error>
+                    <mat-error *ngIf="translItem.get('text')?.hasError('translationError')">
+                      {{ translItem.get('text')?.getError('translationError').message }}
+                    </mat-error>
+                    <mat-error *ngIf="translItem.get('text')?.errors?.['serverError']">
+                      {{ translItem.get('text')?.errors?.['serverError'] }}
+                    </mat-error>
+                  </mat-form-field>
+                  @if (wordForm.controls['translateAsDefault'].value !== true) {
+                    <mat-form-field class="w-full flex-row md:flex-col">
+                      <mat-label>Language</mat-label>
+                      <mat-select formControlName="language">
+                        @for (lang of languageValues; track lang) {
+                          <mat-option [value]="lang">{{ lang }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  }
+
+                  <mat-form-field class="w-full flex-row md:flex-col mt-3">
+                    <mat-label>Description</mat-label>
+                    <textarea matInput formControlName="description"></textarea>
+<!--                    <mat-error *ngIf="translItem.get('description')?.hasError('required')">-->
+<!--                      Это поле обязательно.-->
+<!--                    </mat-error>-->
+                  </mat-form-field>
+                  <div class="flex flex-col sm:flex-row sm:space-x-4">
+                    <mat-form-field class="flex-1">
+                      <mat-label>Level</mat-label>
+                      <mat-select formControlName="difficultyLevel">
+                        @for (level of levelValues; track level) {
+                          <mat-option [value]="level">{{ level }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field class="flex-1">
+                      <mat-label>Lexical</mat-label>
+                      <mat-select formControlName="lexicalCategory">
+                        @for (lex of lexicalValues; track lex) {
+                          <mat-option [value]="lex">{{ lex }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+
+<!--                  <span *ngIf="translItem.get('isNew')?.value" class="new-item-badge">New - {{translItem.get('isNew')?.value}}</span>-->
+
+                  <div class="w-full flex flex-row justify-between mb-3">
+                    <button type="button" mat-mini-fab (click)="addItem()" class="mx-2"
+                            aria-label="Example icon button with a menu icon">
+                      <mat-icon>add</mat-icon>
+                    </button>
+
+                    <button *ngIf="translItem.get('isNew')?.value && isEditMode" type="button"
+                            mat-button mat-raised-button
+                            [disabled]="translItem.get('text')?.invalid"
+                            (click)="updateWordTranslation(translItem)">
+                      <mat-icon>add_circle</mat-icon>Add translation invalid={{translItem.get('text')?.invalid}}</button>
+
+                    @if((translationItems.length > 0 && i > 0) || (translationItems.length > 1)) {
+                      <button type="button" mat-mini-fab (click)="removeItem(i)"
+                              aria-label="Example icon button with a menu icon">
+                        <mat-icon>remove</mat-icon>
+                      </button>
+                    }
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        </div>
+
+      </mat-accordion>
+  </form>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button type="button" mat-button mat-raised-button mat-dialog-close>Cancel</button>
+<!--          [disabled]="isDisabled || wordForm.invalid"-->
+<!--    {{ isUpdate ? 'Update' : 'Create' }}-->
+  <button type="button"
+          [disabled]="isDisabled || wordForm.invalid || isLoading || !formChanged"
+          (click)="onSubmit()" mat-button mat-flat-button>
+<!--    || !isTextChanged    {{!isTextChanged}}-->
+    {{ isEditMode ? 'Update' : 'Create'}} - {{isDisabled}} {{wordForm.invalid}} {{isLoading}} - {{!formChanged}}
+  </button>
+<!--  [disabled]="wordForm.invalid"-->
+<!--  cdkFocusInitial-->
+<!--  [mat-dialog-close]="true"-->
+</mat-dialog-actions>
+
+<!--<pre>{{ wordForm.value | json }}</pre>-->
+
