@@ -1,0 +1,34 @@
+<mat-drawer-container [hasBackdrop]="isMobile">
+  <mat-drawer #drawer mode="side" [opened]="!isMobile" >
+    <div class="layout-menu-container">
+
+      <div class="layout-menu-logo">
+        <span>LOGO</span>
+      </div>
+
+      <nav class="layout-menu-wrapper">
+        <app-menu [menuItems]="menus" [options]="options"></app-menu>
+      </nav>
+
+    </div>
+  </mat-drawer>
+
+  <mat-drawer-content>
+    <div class="layout-main-wrapper">
+
+      <div class="toolbar">
+        <app-toolbar (topbarMenuClick)="drawer.toggle()"></app-toolbar>
+      </div>
+
+      <!--      <main class="container">-->
+      <main class="max-w-full box-border overflow-y-auto p-2 md:p-4 ">
+        <router-outlet></router-outlet>
+      </main>
+
+      <div class="footer">
+        <app-footer></app-footer>
+      </div>
+
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>

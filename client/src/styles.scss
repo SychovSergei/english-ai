@@ -1,0 +1,20 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "./app/shared/styles/notification.scss";
+@import "./app/shared/styles/tailwind.scss";
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+:root {
+  .notification-bg {
+    --mdc-snackbar-container-color: red;
+  }
+}
+
+//.fullscreen-dialog .mat-dialog-container {
+//  border-radius: 0 !important;
+//  padding: 0 !important;
+//  height: 100vh !important;
+//}
+

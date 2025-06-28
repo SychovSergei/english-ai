@@ -1,0 +1,6 @@
+{
+  "titleId": "новий id ідентиф",
+	"title.originalKey": "клиент-{{ titleId }}-перевод - {{second}}>>",
+  "demo.interpolation": "demo-{{ name }}",
+  "defText": "УМОЛЧАНИЕ-{{ name }}"
+}

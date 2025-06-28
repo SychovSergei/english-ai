@@ -1,0 +1,11 @@
+<div class="test">
+
+
+  <h1>{{ title | translate }}</h1>
+  <!--  <h1>{{ title | i18n : {first:"some"} : {second:'1234'} | async }} 123</h1>-->
+  <button (click)="useLanguage('en')">en</button>
+  <button (click)="useLanguage('ua')">ua</button>
+  <button (click)="trans()">TRANS</button>
+</div>
+
+<router-outlet></router-outlet>

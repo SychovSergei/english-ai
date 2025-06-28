@@ -1,0 +1,30 @@
+@use '@angular/material' as mat;
+
+.success-snackbar {
+  @include mat.snack-bar-overrides((
+    container-color: #90f37c, // Зеленый фон
+    supporting-text-color: #1e1e1e,
+    button-color: #2f2f2f,
+  ));
+}
+
+.error-snackbar {
+  @include mat.snack-bar-overrides((
+    container-color: #f35449, // Красный фон
+    supporting-text-color: white,
+  ));
+}
+
+.warning-snackbar {
+  @include mat.snack-bar-overrides((
+    container-color: #fbbc5f, // Оранжевый фон
+    supporting-text-color: white,
+  ));
+}
+
+.info-snackbar {
+  @include mat.snack-bar-overrides((
+    container-color: #43a5f2, // Синий фон
+    supporting-text-color: white,
+  ));
+}

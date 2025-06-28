@@ -1,0 +1,130 @@
+.accordion {
+  width: 100%;
+  max-width: 360px;
+  margin: auto;
+  background: #fff;
+  list-style-type: none;
+  padding: 0;
+}
+
+.accordion .menu {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  color: #4d4d4d;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+
+  .menu-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  .icon {
+    height: 26px;
+    width: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .title {
+    padding: 0 0 0 5px;
+  }
+}
+
+.accordion .menu:hover {
+  color: #3f51b5;
+  font-weight: 500;
+  transition: all 0.4s ease;
+}
+
+.accordion li:last-child .menu {
+  border-bottom: 0;
+}
+
+.accordion li i {
+  position: absolute;
+  top: 1.2rem;
+  left: 1rem;
+  color: #595959;
+  transition: all 0.4s ease;
+}
+a {
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.87);
+}
+//.accordion li i.fa-chevron-down {
+//  right: 1rem;
+//  left: auto;
+//}
+
+//.accordion li.active i.fa-chevron-down {
+//  transform: rotate(180deg);
+//}
+
+.accordion li.active .menu,
+.accordion li.active .menu a {
+  color: #3f51b5;
+  font-weight: 500;
+}
+
+.accordion li.selected .menu ,
+.accordion li.selected .menu a {
+  //color: #3f51b5;
+  //font-weight: 500;
+}
+
+.accordion li .menu:hover,
+.accordion li .menu:hover a {
+  color: #3f51b5;
+}
+
+//.accordion li.active i {
+//  color: #b63b4d;
+//}
+
+/* Show submenu */
+.submenu {
+  height: 0;
+  overflow: hidden;
+  background: #fafafa;
+  font-size: 14px;
+  transition: height 0.4s ease;
+
+  list-style-type: none;
+  padding: 0;
+}
+
+.submenu li {
+  padding: 0;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.submenu li.active a {
+  color: #3f51b5;
+  font-weight: 500;
+}
+
+.accordion li:last-child .submenu {
+  border-radius: 0 0 4px 4px;
+}
+
+.accordion li:last-child .submenu li:last-child {
+  border-bottom: 0;
+}
+
+.submenu a {
+  display: block;
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.87);
+  padding: 12px 12px 12px 52px;
+  transition: all 0.25s ease-in-out;
+}
+
+.submenu a:hover {
+  background: #eeeeee;
+}

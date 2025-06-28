@@ -1,0 +1,13 @@
+<div class="flex flex-wrap gap-4 w-full justify-center lg:justify-end pl-0 lg:pl-3">
+
+  @for (action of actions; track action.id) {
+    <div class="flex w-full lg:w-max action-list_item">
+      <button class="flex flex-col w-full justify-center items-center"
+              mat-raised-button
+              (click)="action.cbFunction()">
+        <ng-container #iconContainer></ng-container>
+        <span>{{ action.label }}</span>
+      </button>
+    </div>
+  }
+</div>

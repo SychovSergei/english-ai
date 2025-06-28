@@ -1,0 +1,32 @@
+<ul id="accordion" class="accordion" >
+  <li *ngFor="let item of menuItems; let i = index"
+      [class.selected]="item.active" routerLinkActive="active">
+    <div class="menu" (click)="navigateTo(item.url); toggle(i)">
+      <div class="menu-title">
+        <div class="icon">
+          @if(item.iconSource.type === 'fontawesome') {
+            <i [class]="item.iconSource.matIconData.iconClass"></i>
+          }
+          @else if(item.iconSource.type === 'mat-icon') {
+            <mat-icon aria-hidden="false"
+                      aria-label="Example home icon"
+                      fontIcon="{{ item.iconSource.matIconData.iconCode }}"></mat-icon>
+          }
+        </div>
+        <a [routerLink]="item.url ? [item.url] : null" class="title">{{ item.title }}</a>
+      </div>
+      @if(item.submenu) {
+        <mat-icon aria-hidden="false" aria-label="Example home icon"
+                  [fontIcon]="item.active ? 'keyboard_arrow_down' : 'keyboard_arrow_left'"></mat-icon>
+      }
+    </div>
+    @if(item.submenu) {
+      <ul class="submenu" #submenu
+          [style.height.px]="item.active ? submenu.scrollHeight : 0">
+        <li *ngFor="let submenu of item.submenu" routerLinkActive="active">
+          <a [routerLink]="[submenu.url]">{{ submenu.title }}</a>
+        </li>
+      </ul>
+    }
+  </li>
+</ul>

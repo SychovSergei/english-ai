@@ -1,0 +1,6 @@
+{
+	"titleId": "new id",
+	"title.originalKey": "client-{{ titleId }}-translation - {{second}}<<",
+	"demo.interpolation": "demo-{{ name }}",
+	"defText": "DEFAULT-{{name}}"
+}
