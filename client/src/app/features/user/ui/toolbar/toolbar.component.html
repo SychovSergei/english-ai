@@ -1,0 +1,25 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button class="example-icon" (click)="menuClick()" aria-label="Example icon-button with menu icon">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span class="example-spacer"></span>
+
+  <ng-container *ngIf="isOver600px">
+    <div class="user-info" *ngIf="userInfo$ | async as user">
+      <div class="user-info-name text-base">{{ user.name.firstName + " " + user.name.lastName }}</div>
+<!--      <div class="user-info-email">{{ user.email }}</div>-->
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="userSettings">
+    <p class="text-base" matTooltip="Main / Translation">{{ userSettings.defaultLanguage }}/{{ userSettings.translationLanguage }}</p>
+  </ng-container>
+
+<!--  <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">-->
+<!--    <mat-icon>favorite</mat-icon>-->
+<!--  </button>-->
+  <button mat-icon-button class="example-icon" (click)="logout()" aria-label="Example icon-button with share icon">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>

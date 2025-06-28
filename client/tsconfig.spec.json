@@ -3,11 +3,27 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "baseUrl": "./", // ✅ правильно
     "outDir": "./out-tsc/spec",
     "types": [
-      "jasmine"
-    ]
+      "jasmine",
+      "node",
+      "@angular/localize"
+    ],
+    "paths": {
+      "@shared/*": ["src/app/shared/*"],
+      "@widgets/*": ["src/app/widgets/*"],
+      "@entities/*": ["src/app/entities/*"],
+      "@core/*": ["src/app/core/*"],
+      "@features/*": ["src/app/features/*"],
+      "@pages/*": ["src/app/pages/*"],
+      "@environments/*": ["src/environments/*"],
+      "@test/*": ["src/test/*"]
+    },
   },
+  "files": [
+    "src/test.ts"
+  ],
   "include": [
     "src/**/*.spec.ts",
     "src/**/*.d.ts"

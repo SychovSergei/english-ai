@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<mat-dialog-content class="mat-typography mt-3">
+<!--    <div>-->
+<!--      <pre>{{ wordImportForm.getRawValue() | json }}</pre>-->
+<!--      <pre>{{ resultWordArray | json }}</pre>-->
+<!--    </div>-->
+  <div class="top-block">
+    <form [formGroup]="wordImportForm">
+      <div class="mt-2">
+        <div class="w-full flex-row md:flex-col mt-3">
+          <mat-form-field class="w-full flex-row md:flex-col">
+            <mat-label>Word List</mat-label>
+<!--                      rows="5"-->
+            <textarea matInput formControlName="wordList"
+                      cdkTextareaAutosize #autosize="cdkTextareaAutosize"
+                      cdkAutosizeMinRows="3"
+                      cdkAutosizeMaxRows="7"
+            ></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <app-simple-word-list [list]="resultWordArray"></app-simple-word-list>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <div>
+    <button type="button" mat-button mat-raised-button (click)="closeDialog()">Cancel Import</button>
+    <button type="button"
+            (click)="importData()" mat-button mat-flat-button>
+      Import
+    </button>
+  </div>
+</mat-dialog-actions>

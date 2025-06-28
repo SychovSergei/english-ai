@@ -1,0 +1,87 @@
+<div class="w-full md:w-2/3 lg:w-1/3 mx-auto mt-3">
+  <mat-card>
+    <mat-card-content>
+
+      <h1>Login</h1>
+
+      <form [formGroup]="loginForm" (ngSubmit)="login()">
+
+        <div class="flex flex-wrap mb-2">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Email address:</mat-label>
+            <input matInput placeholder="pat@example.com" formControlName="email">
+            <mat-error *ngIf="loginForm.controls['email'].hasError('email') && !loginForm.controls['email'].hasError('required')">
+              Please enter a valid email address
+            </mat-error>
+            <mat-error *ngIf="loginForm.controls['email'].hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="loginForm.controls['email'].hasError('wrongUserEmail')">
+              User with this email not found
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="flex flex-wrap mb-2">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password">
+            <mat-error *ngIf="loginForm.controls['password'].hasError('required')">
+              Field is required
+            </mat-error>
+            <mat-error *ngIf="loginForm.controls['password'].hasError('minlength')">
+              Min length {{ loginForm.controls['password'].errors?.["minlength"]["requiredLength"] }}
+            </mat-error>
+            <mat-error *ngIf="loginForm.controls['password'].hasError('wrongPassword')">
+              Wrong password
+              {{ loginForm.controls['password'].errors?.["wrongPassword"]}}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="flex flex-wrap" *ngIf="errors.length">
+          <section>
+            <app-error-message [errors]="errors"></app-error-message>
+          </section>
+        </div>
+
+        <div class="flex flex-wrap mt-3 justify-end">
+          <section>
+            <button mat-raised-button color="primary"
+                    type="submit"
+                    [disabled]="loginForm.invalid || isSubmit"
+                    class="w-full"
+            >Login</button>
+          </section>
+        </div>
+
+      </form>
+
+      <section class="mt-4">
+        <div class="links">
+          <p>or enter with: </p>
+          <div class="social">
+            <button mat-raised-button color="primary"
+                    type="button"
+                    class="w-full mx-2" (click)="loginWithFacebook()"
+            >Facebook <mat-icon>facebook</mat-icon></button>
+            <button mat-raised-button color="accent"
+                    type="button"
+                    class="w-full mx-2" (click)="loginWithInstagram()"
+            >Instagram <mat-icon>photo_camera</mat-icon></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-4">
+        <div class="another-links">
+          <p>Don't have an account?
+            <button mat-button (click)="toRegister()">Register</button>
+            <!--            <a routerLink="/auth/register">Register</a>-->
+          </p>
+        </div>
+      </section>
+
+    </mat-card-content>
+  </mat-card>
+</div>

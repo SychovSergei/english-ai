@@ -1,0 +1,136 @@
+<div class="w-full md:w-2/3 lg:w-1/2 mx-auto mt-3">
+  <mat-card>
+    <mat-card-content>
+
+      <h1>Register</h1>
+
+      <form [formGroup]="regForm" (ngSubmit)="register()">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+          <div>
+            <mat-form-field appearance="fill" class="w-full">
+              <mat-label>First name</mat-label>
+              <input matInput formControlName="firstName">
+              <mat-error *ngIf="regForm.controls['firstName'].hasError('required')">
+                Field is required
+              </mat-error>
+              <mat-error *ngIf="regForm.controls['firstName'].hasError('minlength')">
+                Min length {{ regForm.controls['firstName'].errors?.["minlength"]["requiredLength"] }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field appearance="fill" class="w-full">
+              <mat-label>Last name</mat-label>
+              <input matInput formControlName="lastName">
+              <mat-error *ngIf="regForm.controls['lastName'].hasError('required')">
+                Field is required
+              </mat-error>
+              <mat-error *ngIf="regForm.controls['lastName'].hasError('minlength')">
+                Min length {{ regForm.controls['lastName'].errors?.["minlength"]["requiredLength"] }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+
+        <div class="row mb-2">
+          <mat-form-field appearance="fill">
+            <mat-label>Email address:</mat-label>
+            <input matInput placeholder="pat@example.com" formControlName="email">
+            <mat-error *ngIf="regForm.controls['email'].hasError('email') && !regForm.controls['email'].hasError('required')">
+              Please enter a valid email address
+            </mat-error>
+            <mat-error *ngIf="regForm.controls['email'].hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="regForm.controls['email'].hasError('wrongUserEmail')">
+              User with this email already exists
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="row mb-2">
+          <mat-form-field appearance="fill">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password">
+            <mat-error *ngIf="regForm.controls['password'].hasError('required')">
+              Field is required
+            </mat-error>
+            <mat-error *ngIf="regForm.controls['password'].hasError('minlength')">
+              Min length {{ regForm.controls['password'].errors?.["minlength"]["requiredLength"] }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="row mb-2">
+          <mat-form-field appearance="fill">
+            <mat-label>Repeat password:</mat-label>
+            <input matInput type="password" formControlName="passwordConfirm">
+            <mat-error *ngIf="regForm.controls['passwordConfirm'].hasError('required')">
+              Field is required
+            </mat-error>
+            <mat-error *ngIf="regForm.controls['passwordConfirm'].errors?.['valueMismatch']">
+              Password mismatch
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="row mb-2">
+          <mat-checkbox color="primary" formControlName="agree">
+            <!--            Agree with <a href="#" target="_blank">Terms & Conditions</a>-->
+            Agree with Terms & Conditions
+          </mat-checkbox>
+        </div>
+
+        <div class="row" *ngIf="errors.length">
+          <section>
+            <app-error-message [errors]="errors"></app-error-message>
+          </section>
+        </div>
+
+        <div class="row mt-3">
+          <div>
+            <button mat-raised-button color="primary"
+                    type="submit"
+                    [disabled]="regForm.invalid"
+                    class="w-100"
+            >
+              <div class="d-flex">
+                <span>Register</span>
+                <span *ngIf="isLoading" class="ms-2">
+                  <mat-spinner diameter="20" customSpinner customColor="#fff"></mat-spinner>
+                </span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+      </form>
+
+      <section class="mt-4">
+        <div class="links">
+          <p>or enter with: </p>
+          <div class="social">
+            <a routerLink="/">
+              <mat-icon>face</mat-icon>
+            </a>
+            <a routerLink="/">
+              <mat-icon>face</mat-icon>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-4">
+        <div class="another-links">
+          <p>Already have an account?
+            <button mat-button (click)="toLogin()">Log in</button>
+            <!--            <a routerLink="/auth/login">Log in</a>-->
+          </p>
+        </div>
+      </section>
+
+    </mat-card-content>
+  </mat-card>
+</div>

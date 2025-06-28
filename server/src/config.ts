@@ -1,10 +1,28 @@
-import dotenv from "dotenv";
-import path from "path";
+import path from 'path';
 
-const envPath = path.resolve(__dirname, "../", ".env");
-dotenv.config({ path: envPath });
+import dotenv from 'dotenv';
 
-const { PORT, OPENAI_API_KEY, DATABASE_SOURCE } = process.env;
+const envPath = path.resolve(__dirname, '../', '.env');
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: envPath });
+}
+
+export const REFRESH_TOKEN_LIFETIME_SEC = 7 * 24 * 60 * 60; //2 * 24 * 60 * 60; // 7 дней в мс = 7 * 24 * 60 * 60
+export const ACCESS_TOKEN_LIFETIME_SEC = 15 * 60 * 60;
+
+const {
+  PORT,
+  OPENAI_API_KEY,
+  DATABASE_SOURCE,
+  API_URL,
+  COMMON_CLIENT_URL,
+  JWT_SECRET_ACCESS,
+  JWT_SECRET_REFRESH,
+  SMTP_HOST,
+  SMTP_PORT,
+  SMTP_USER,
+  SMTP_PASSWORD,
+} = process.env;
 
 const conf = {
   port: PORT,
@@ -13,6 +31,20 @@ const conf = {
   },
   openAi: {
     api_key: OPENAI_API_KEY,
+  },
+  api_url: API_URL,
+  common: {
+    client_url: COMMON_CLIENT_URL,
+  },
+  jwt: {
+    access_key: JWT_SECRET_ACCESS,
+    refresh_key: JWT_SECRET_REFRESH,
+  },
+  smtp: {
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    user: SMTP_USER,
+    password: SMTP_PASSWORD,
   },
 };
 

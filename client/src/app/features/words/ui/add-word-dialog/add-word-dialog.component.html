@@ -1,0 +1,128 @@
+<app-dialog [title]="title">
+  <div ngProjectAs="content">
+    <form [formGroup]="wordForm">
+      <mat-accordion class="example-headers-align" multi>
+        <div class="mt-2">
+
+          <div class="w-full flex-row md:flex-col mt-3">
+            <mat-form-field class="w-full flex-row md:flex-col">
+              <mat-label>Word</mat-label>
+              <input matInput formControlName="text">
+
+              @if (textControl.invalid && textControl.hasError("alreadyExists")) {
+                <mat-error>The word with this value already exists.</mat-error>
+              }
+            </mat-form-field>
+            @if (textControl.hasError("alreadyExists") && !isEditMode()) {
+              <div class="w-full flex justify-center mb-5 mt-3">
+                <button type="button" mat-button mat-raised-button
+                        (click)="loadWord()">
+
+                  Load values for comparing
+
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="mb-2">
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Translations ({{ translationItems.controls.length }})</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="w-full flex-row md:flex-col">
+              <div formArrayName="translations">
+                <div *ngFor="let translItem of translationItems.controls; let i=index"
+                     [formGroupName]="i">
+
+                  <div *ngIf="i > 0 && translationItems.controls.length > 1" class="mt-5"></div>
+                  <mat-divider *ngIf="i > 0"></mat-divider>
+                  <div *ngIf="i > 0 && translationItems.controls.length > 1" class="mb-5"></div>
+
+                  <mat-form-field class="w-full flex-row md:flex-col">
+                    <mat-label>Translation {{ i+1 }}</mat-label>
+                    <input matInput formControlName="text" placeholder="Translation">
+                    <mat-error *ngIf="translItem.get('text')?.hasError('required')">
+                      This field is required.
+                    </mat-error>
+                    <mat-error *ngIf="translItem.get('text')?.hasError('translationError')">
+                      {{ translItem.get('text')?.getError('translationError').message }}
+                    </mat-error>
+                    <mat-error *ngIf="translItem.get('text')?.errors?.['serverError']">
+                      {{ translItem.get('text')?.errors?.['serverError'] }}
+                    </mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="w-full flex-row md:flex-col mt-3">
+                    <mat-label>Description</mat-label>
+                    <textarea matInput formControlName="description"></textarea>
+                  </mat-form-field>
+                  <div class="flex flex-col sm:flex-row sm:space-x-4">
+                    <mat-form-field class="flex-1">
+                      <mat-label>Level</mat-label>
+                      <mat-select formControlName="difficultyLevel">
+                        @for (level of levelValues; track level) {
+                          <mat-option [value]="level">{{ level }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field class="flex-1">
+                      <mat-label>Lexical</mat-label>
+                      <mat-select formControlName="lexicalCategory">
+                        @for (lex of lexicalValues; track lex) {
+                          <mat-option [value]="lex">{{ lex }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="w-full flex flex-row justify-between mb-3">
+                    <button type="button" mat-mini-fab (click)="addItem()" class="mx-2"
+                            aria-label="Add new translation button">
+                      <mat-icon>add</mat-icon>
+                    </button>
+
+                    <button *ngIf="translItem.get('isNew')?.value && isEditMode()" type="button"
+                            mat-button mat-raised-button
+                            [disabled]="translItem.get('text')?.invalid"
+                            (click)="addTranslationItem(translItem)">
+                      <mat-icon>add_circle</mat-icon>
+                      Add translation
+                    </button>
+
+                    @if((translationItems.length > 0 && i > 0) || (translationItems.length > 1)) {
+                      <button type="button" mat-mini-fab (click)="removeTranslationItem(i)"
+                              aria-label="Example icon button with a menu icon">
+                        <mat-icon>remove</mat-icon>
+                      </button>
+                    }
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        </div>
+
+      </mat-accordion>
+    </form>
+  </div>
+
+  <div ngProjectAs="actions" style="width: 100%;">
+    <div>
+      <button type="button" mat-button mat-raised-button (click)="closeDialog()">Cancel</button>
+      <button type="button"
+              [disabled]="isButtonDisabled() || wordForm.invalid || isLoading() || !isFormChanged()"
+              (click)="onSubmit()" mat-button mat-flat-button>
+        {{ isEditMode() ? 'Update' : 'Create'}}
+      </button>
+    </div>
+<!--    <div style="display: flex; flex-direction: column;">-->
+<!--      <span>isDisabled: {{isButtonDisabled()}}</span>-->
+<!--      <span>wordForm.invalid: {{wordForm.invalid}}</span>-->
+<!--      <span>isLoading: {{isLoading()}}</span>-->
+<!--      <span>-&#45;&#45;&#45;&#45;&#45;&#45;</span>-->
+<!--      <span>!isFormChanged: {{!isFormChanged()}}</span>-->
+<!--    </div>-->
+  </div>
+</app-dialog>
+

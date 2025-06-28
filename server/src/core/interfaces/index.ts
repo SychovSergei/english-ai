@@ -1,0 +1,10 @@
+export { IBcryptService } from './bcrypt.service.interface';
+export { ISortDirection, TableCommonParamsRequest } from './common/table-common-params-request.interface';
+export { IJwtService } from './jwt.service.interface';
+export { IMailService } from './mail.service.interface';
+export { ITokenService } from './token.service.interface';
+export { IUserService } from './user.service.interface';
+export { IValidationService } from './validation.service.interface';
+export { IVerificationService } from './verification.service.interface';
+export { IWordService } from './word.service.interface';
+export { IWordSetService } from './word-set.service.interface';

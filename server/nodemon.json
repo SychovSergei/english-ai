@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "ts,json",
   "ignore": [],
-  "exec": "npm run local"
+  "exec": "npm run local:paths"
 }
