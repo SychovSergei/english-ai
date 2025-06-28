@@ -13,6 +13,7 @@ export class OpenAiController {
       if (!words || !level || !originLanguage || !languages) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
+      console.log('test log for ci-di process');
 
       const sentences = await openAiService.generateSentence(words, level, originLanguage, languages);
       console.log('result sentences', sentences);
