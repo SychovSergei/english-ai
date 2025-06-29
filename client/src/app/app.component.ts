@@ -1,4 +1,3 @@
-import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 import { UserService } from '@features/user/model/user.service';
 import { TranslateModule, TranslatePipe, TranslateService } from '@ngx-translate/core';
 
@@ -29,13 +28,5 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     // this.userService.getCurrentUserInfo();
     this.userService.loadUserFromToken();
-  }
-
-  useLanguage(language: string): void {
-    console.log('--------------');
-    this.translate.use(language);
-    // this.i18nService.initLanguage(language);
-    // const ddd = languages.find((lang) => lang.key === language);
-    // if (ddd) this.i18nService.setLanguage(ddd);
   }
 }
