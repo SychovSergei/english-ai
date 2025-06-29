@@ -34,8 +34,8 @@ export class AuthController {
        *  httpOnly: true - чтобы нельзя было изменять и получать внутри браузера */
       res.cookie('refreshToken', tokens.refreshToken, {
         httpOnly: true, // close access to cookie from JavaScript
-        secure: false, // true for HTTPS in production mode
-        sameSite: 'lax', // for develop mode -> lax or strict
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: REFRESH_TOKEN_LIFETIME_SEC * 1000, // lifetime cookie
         path: '/',
       });
@@ -53,8 +53,8 @@ export class AuthController {
       // res.clearCookie("refreshToken");
       res.clearCookie('refreshToken', {
         httpOnly: true,
-        secure: false, //process.env.NODE_ENV === "production",
-        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/', //  ОБЯЗАТЕЛЬНО
         // domain: "localhost", // Добавь явно
       });
