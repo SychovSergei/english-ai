@@ -18,7 +18,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const whiteList = ['http://localhost:4200', 'http://localhost:3000', 'https://english-ai-learn.netlify.app/'];
+const whiteList = ['http://localhost:4200', 'http://localhost:3000', 'https://english-ai-learn.netlify.app'];
 const corsOptions: CorsOptions = {
   origin: function (origin, callback) {
     console.log('Origin:', origin); // Логирование заголовка origin
