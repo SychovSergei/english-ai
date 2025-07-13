@@ -1,5 +1,5 @@
 import { WordSet } from '@core/domain/entities';
-import { UpdateWordDto } from '@core/domain/entities/word/types/create-word.dto';
+import { UpdateWordDto } from '@core/domain/entities/word/types/word.dto';
 import { WordSetDbDto } from '@core/domain/entities/word-set/types/word-set-db.dto';
 
 export interface IWordSetRepository {

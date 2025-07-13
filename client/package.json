@@ -8,6 +8,7 @@
     "start:lint": "npm run lint && npm run start",
     "lint": "npx eslint . --format stylish",
     "build": "ng build --configuration production",
+    "build:ci": "ng build --configuration production && cp _redirects dist/client/browser",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "docs:client": "typedoc"

@@ -6,8 +6,11 @@ import { WordDbDto } from '@core/domain/entities/word';
 import { CreateWordSetDto, UpdateWordSetDto } from '@core/domain/entities/word-set/types/create-word-set.dto';
 import { IWordService, IWordSetService } from '@core/interfaces';
 import { IUserSettingsService, IWordRepository, IWordSetRepository } from '@core/repositories';
-import { WordMapper } from '@application/mappers/word.mapper';
+import { WordDbMapper } from '@application/mappers/word-db.mapper';
 import { WordSetMapper } from '@application/mappers/word-set.mapper';
+// TODO change ORDER LAYER
+// eslint-disable-next-line boundaries/element-types
+import { WordMapper } from '@infrastructure/db/mappers/word.mapper';
 
 /** TODO БИЗНЕС ЛОГИКА
  *   (Любые методы) */
@@ -30,7 +33,7 @@ export class WordSetService implements IWordSetService {
     const wordsPromises: Promise<Word>[] = [];
     for (const wordDto of dto.words) {
       const word: Word = WordMapper.toDomainFromCreateBasic(wordDto, userId);
-      const wordDbDto: WordDbDto = WordMapper.toEntity(word);
+      const wordDbDto: WordDbDto = WordDbMapper.toEntity(word);
       wordsPromises.push(this.wordRepository.createWord(wordDbDto));
     }
     const words = await Promise.allSettled(wordsPromises);
@@ -79,7 +82,7 @@ export class WordSetService implements IWordSetService {
     const wordsPromises: Promise<Word>[] = [];
     for (const wordDto of dto.words) {
       const word: Word = WordMapper.toDomainFromCreateBasic(wordDto, userId);
-      const wordDbDto: WordDbDto = WordMapper.toEntity(word);
+      const wordDbDto: WordDbDto = WordDbMapper.toEntity(word);
       wordsPromises.push(this.wordRepository.createWord(wordDbDto));
     }
 

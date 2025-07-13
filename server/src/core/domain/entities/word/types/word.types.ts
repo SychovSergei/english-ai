@@ -6,7 +6,7 @@ import { ELangs } from '@core/domain/enums';
 // export type Word = z.infer<typeof wordSchema>;
 export type Word = {
   id?: string;
-  owner?: string;
+  owner: string;
   text: string;
   language: ELangs;
   translations: WordTranslation[];

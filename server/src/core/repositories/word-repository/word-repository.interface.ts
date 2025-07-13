@@ -1,7 +1,13 @@
 import { GetWordsResponse, Word } from '@core/domain/entities';
 import { WordTranslation } from '@core/domain/entities';
 import { WordDbDto } from '@core/domain/entities/word';
-import { UpdateWordDto } from '@core/domain/entities/word/types/create-word.dto';
+import {
+  UpdateWordDto,
+  WordTranslationDeleted,
+  WordTranslationUpdated,
+  WordUpdateBaseOperationResult,
+  WordUpdateTranslationOperationResult,
+} from '@core/domain/entities/word/types/word.dto';
 import { TableCommonParamsRequest } from '@core/interfaces';
 
 export interface IWordRepository {
@@ -15,7 +21,21 @@ export interface IWordRepository {
 
   createWord(newWordData: WordDbDto): Promise<Word>; //: Promise<Word>;
 
-  updateWord(userId: string, updates: UpdateWordDto): Promise<Word>;
+  // updateWord(userId: string, updates: UpdateWordDto): Promise<Word>;
+  deleteWord(userId: string, wordId: string): Promise<Word | null>;
 
-  addTranslation(userId: string, wordId: string, newTransl: WordTranslation): Promise<Word | null>;
+  updateWordBaseInfo(userId: string, wordId: string, dto: UpdateWordDto): Promise<WordUpdateBaseOperationResult>;
+  updateWordTranslations(
+    userId: string,
+    wordId: string,
+    dto: UpdateWordDto,
+  ): Promise<WordUpdateTranslationOperationResult>;
+
+  createTranslation(userId: string, wordId: string, newTransl: WordTranslation): Promise<WordTranslation | null>;
+  updateTranslation(
+    userId: string,
+    wordId: string,
+    updTranslation: WordTranslationUpdated,
+  ): Promise<WordTranslation | null>;
+  deleteTranslation(userId: string, wordId: string, { id }: WordTranslationDeleted): Promise<string | null>;
 }

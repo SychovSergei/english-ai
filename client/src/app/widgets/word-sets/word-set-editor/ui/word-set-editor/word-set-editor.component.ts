@@ -58,11 +58,8 @@ export class WordSetEditorComponent implements OnInit, OnDestroy {
           console.log('component EDIT get data.words', data.words);
         });
     }
-
-    this.widgetDataWords$.subscribe((ddd) => {
-      // console.log('>>>>>> widgetDataWords$ CHANGED', ddd);
-    });
   }
+
   ngOnDestroy(): void {
     console.log('DESTROY WIDGET.....');
     this.facade.wordSetForm.controls['words'].patchValue([]);

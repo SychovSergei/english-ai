@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { z, ZodError, ZodSchema } from 'zod';
 
-import { ServerApiError } from '@core/domain/errors';
+import { BaseApiError } from '@core/domain/errors';
 import { IValidationService } from '@core/interfaces/validation.service.interface';
 
 @injectable()
@@ -15,7 +15,7 @@ export class ValidationService implements IValidationService {
 
     if (!result.success) {
       const formattedError = this.formatZodError(result.error);
-      throw ServerApiError.fromZodError(result.error, `${entityMessage} failed:: ( ${formattedError} )`);
+      throw BaseApiError.fromZodError(result.error, `${entityMessage} failed:: ( ${formattedError} )`);
     }
 
     return result.data;
