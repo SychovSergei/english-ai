@@ -1,3 +1,2 @@
-export type { WordApiInterface } from './api/word-api.interface';
-export type { Word } from './model/word.model';
-export { WordTranslationItemDTO } from '@entities/word/api/WordRepoDTO';
+export type { Word, WordTranslation } from './model/word.types';
+export { WordApi } from '@entities/word/api/word.api';

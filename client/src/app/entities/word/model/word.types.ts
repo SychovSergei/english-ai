@@ -15,9 +15,19 @@ export interface Word extends HasId {
   // createdAt: Date; // Дата создания слова
 }
 
+export type WordTranslation = {
+  id: string;
+  text: string;
+  language?: ELangs;
+  description?: string;
+  difficultyLevel?: ELevels; // Уровень сложности
+  lexicalCategory?: ELexicalCategory; // lexical categories (Noun, Verb)
+};
+
 export type ISortDirection = 'asc' | 'desc' | '';
 
 export interface ISortTable {
+  //TODO переместить на уровень фичи таблицы???
   /** The id of the column being sorted. */
   active: string;
   /** The sort direction. */
@@ -46,11 +56,10 @@ export interface WordIdResponse {
   id: string | null;
 }
 
-export type CreateWordDTO = Pick<Word, 'text' | 'language' | 'translations'>;
-export type UpdateWordDTO = Pick<Word, 'id' | 'text' | 'translations'>;
-//   & {
-//   translations: WordTranslation[];
-// };
+// export type UpdateWordDTO = Pick<Word, 'id' | 'text' | 'translations'>;
+// //   & {
+// //   translations: WordTranslation[];
+// // };
 
 // Интерфейс для редактирования слова (например, через PATCH)
 export interface IWordTranslationDTO {
@@ -69,14 +78,5 @@ export interface DeleteWordResponse {
   success: boolean;
   message: string;
 }
-
-export type WordTranslation = {
-  id: string;
-  text: string;
-  language?: ELangs;
-  description?: string;
-  difficultyLevel?: ELevels; // Уровень сложности
-  lexicalCategory?: ELexicalCategory; // lexical categories (Noun, Verb)
-};
 
 // TODO разобраться в интерфейсах - нужны ли они?

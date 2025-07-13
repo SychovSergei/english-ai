@@ -3,7 +3,9 @@ import path from 'path';
 import dotenv from 'dotenv';
 
 const envPath = path.resolve(__dirname, '../', '.env');
-dotenv.config({ path: envPath });
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: envPath });
+}
 
 export const REFRESH_TOKEN_LIFETIME_SEC = 7 * 24 * 60 * 60; //2 * 24 * 60 * 60; // 7 дней в мс = 7 * 24 * 60 * 60
 export const ACCESS_TOKEN_LIFETIME_SEC = 15 * 60 * 60;
