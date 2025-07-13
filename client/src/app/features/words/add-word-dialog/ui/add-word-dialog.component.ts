@@ -1,8 +1,8 @@
+import { WordUpdateOperationResult, WordUpdateTranslationOperationResult } from '@entities/word/api/word.api';
 import { WordTranslation } from '@entities/word/model/word.types';
 import { WordFormFacade } from '@features/words/add-word-dialog/facade';
 import {
   checkIsFormChanged,
-  getChanges,
   removeFormGroupsWithEmptyValuesIn,
 } from '@features/words/add-word-dialog/model/form.helpers';
 import {
@@ -15,14 +15,13 @@ import { CustomSpinnerDirective } from '@shared/directives/custom-spinner.direct
 import { ELangs, ELevels, ELexicalCategory } from '@shared/enums';
 import { ApiErrorInterface } from '@shared/errors/error-types';
 import { CustomHttpErrorResponse } from '@shared/interfaces';
-// import { ApiErrorInterface } from '@shared/errors/error-types';
-// import { CustomHttpErrorResponse } from '@shared/interfaces/error.interface';
 import { INotificationService } from '@shared/services/notification/notification.interface';
 import { NOTIFICATION_SERVICE_TOKEN } from '@shared/services/notification/notification-service.token';
 import { DialogComponent } from '@shared/ui/dialog';
 import { UiKitModule } from '@shared/ui/ui-kit';
 import { addControlError, removeControlError } from '@shared/utils';
 
+import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { JsonPipe, NgForOf, NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -57,8 +56,6 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { WordUpdateOperationResult, WordUpdateTranslationOperationResult } from '@entities/word/api/word.api';
-import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 
 type PropertyType<T, K extends keyof T> = T[K];
 
@@ -193,20 +190,19 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(1000), // Проверка изменений раз в 300 мс
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-        // filter(() => this.isEditMode()),
-        tap(() => {
-          console.log(
-            'getChanges',
-            this.wordForm.getRawValue(),
-            getChanges(this.wordForm.getRawValue() as WordFormValue, this.initialValues),
-          );
-        }),
+        // tap(() => {
+        //   console.log(
+        //     'getChanges',
+        //     this.wordForm.getRawValue(),
+        //     getChanges(this.wordForm.getRawValue() as WordFormValue, this.initialValues),
+        //   );
+        // }),
         map(() => {
           return checkIsFormChanged<WordFormValue>(this.wordForm.getRawValue() as WordFormValue, this.initialValues);
         }),
         takeUntil(this._destroy$),
         tap((changed) => {
-          console.log('wordForm changed:', changed);
+          // console.log('wordForm changed:', changed);
           this.isFormChanged.set(changed);
         }),
       )
@@ -260,11 +256,15 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting()) {
+      return;
+    }
+
     if (this.wordForm.invalid) {
       this.wordForm.markAllAsTouched();
       this.wordForm.markAsDirty();
       this.focusFirstInvalidControl(this.wordForm);
-      console.log('FORM INVALID => CANCEL');
+      // console.log('FORM INVALID => CANCEL');
       return;
     }
 
@@ -280,7 +280,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this._destroy$))
         .subscribe({
           next: (res: WordUpdateOperationResult) => {
-            console.log(res);
+            // console.log(res);
             this.updateBaseControls(res);
             this.updateTranslationCtrls(res);
             this.memorizeInitialValues(this.wordForm.getRawValue() as WordFormValue);
@@ -307,8 +307,8 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this._destroy$))
         .subscribe({
           next: (res) => {
-            console.log(res);
-            console.log('res.id', res.id);
+            // console.log(res);
+            // console.log('res.id', res.id);
             this._loadedWord = res.text;
 
             this.updateBaseControls(res);
@@ -346,7 +346,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
             this.notificationService.showSuccess('Translation was added successful!');
           },
           error: (error: CustomHttpErrorResponse<ApiErrorInterface>) => {
-            console.log(error.error);
+            // console.log(error.error);
             if (error.error.code === 'word-translation/already-exists') {
               this.notificationService.showError(error.error.message || 'Translation was not added! Try again.');
               this.translationsCtrl
@@ -456,7 +456,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
   }
 
   private updateBaseControls(word: WordFormBaseControls): void {
-    console.log(word);
+    // console.log(word);
     this.wordForm.patchValue(
       {
         id: word.id,
@@ -468,7 +468,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
   }
 
   private updateTranslationControl(transItem: WordFormTranslation<WordTranslation>, index: number): void {
-    console.log(index, transItem);
+    // console.log(index, transItem);
     this.translationsCtrl.controls[index].patchValue(
       {
         id: transItem.id, //TODO delete empty string
@@ -492,12 +492,12 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
 
   private updateTranslationCtrls({ translations }: WordUpdateTranslationOperationResult): void {
     for (const operationKey of Object.keys(translations)) {
-      console.log(operationKey);
+      // console.log(operationKey);
       switch (operationKey) {
         case 'created':
-          console.log('translations.created', translations.created);
+          // console.log('translations.created', translations.created);
           for (const keyElement of translations.created) {
-            console.log('keyElement', keyElement);
+            // console.log('keyElement', keyElement);
             if (keyElement.status === 'success') {
               const ctrl = this.translationsCtrl.controls.find(
                 (ctrl) => ctrl.get('translText')?.value === keyElement.value?.text,
@@ -529,7 +529,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
           console.log('translations.skipped', translations.skipped);
 
           for (const keyElement of translations.skipped) {
-            console.log('keyElement', keyElement);
+            // console.log('keyElement', keyElement);
             if (keyElement.status === 'error') {
               const ctrl = this.translationsCtrl.controls.find(
                 (ctrl) => ctrl.get('translText')?.value === keyElement.id && ctrl.get('id')?.value === '',
@@ -559,17 +559,8 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
   }
 
   closeDialog(): void {
-    console.log('closeDialog _isOperationSuccessful', this._isDataChangedSuccessful);
     this.dialogRef.close({ success: this._isDataChangedSuccessful }); // Передаем данные при закрытии
   }
-
-  // showData(): void {
-  //   console.log('this.wordForm.getRawValue():', this.wordForm.getRawValue());
-  //   console.log('this.initialValues:', this.initialValues);
-  //   console.log(
-  //     this.wordFormFacade.buildWordPatchPayload(this.wordForm.getRawValue() as WordFormValue, this.initialValues),
-  //   );
-  // }
 
   private createForm(data: WordFormValue): WordForm {
     const form: WordForm = this.fb.group({
@@ -607,7 +598,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
   focusFirstInvalidControl(form: FormGroup | FormArray): boolean {
     if (form instanceof FormGroup) {
       for (const key of Object.keys(form.controls)) {
-        console.log(key);
+        // console.log(key);
         const control = form.get(key);
         if (control && control.invalid) {
           if (control instanceof FormGroup || control instanceof FormArray) {
@@ -615,7 +606,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
             if (found) return true;
           } else {
             const el = document.querySelector(`[formcontrolname="${key}"]`) as HTMLElement;
-            console.log('ELEMENT', el);
+            // console.log('ELEMENT', el);
             if (el) {
               el.focus();
               return true; //stop on first
@@ -625,7 +616,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
       }
     } else {
       for (let i = 0; i < form.controls.length; i++) {
-        console.log(i);
+        // console.log(i);
         const group = form.at(i) as FormGroup;
         if (group.invalid) {
           const found = this.focusFirstInvalidControl(group);
