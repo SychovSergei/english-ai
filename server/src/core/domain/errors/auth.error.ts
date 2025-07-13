@@ -1,9 +1,9 @@
 import { ZodError } from 'zod';
 
 import { EErrorCodes } from '@core/domain/enums';
-import { ErrorBody, ServerApiError, ValidationError } from '@core/domain/errors/api.error';
+import { BaseApiError, ErrorBody, ValidationError } from '@core/domain/errors/api.error';
 
-export class AuthError<T = undefined> extends ServerApiError<T> {
+export class AuthError<T = undefined> extends BaseApiError<T> {
   constructor(status: number, code: string, message: string, errors: ValidationError[] = [], body?: ErrorBody<T>) {
     super(status, `auth/${code}`, message, errors, body);
   }

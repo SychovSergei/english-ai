@@ -3,7 +3,7 @@ import { DiTypes } from '@shared/types';
 import { inject, injectable } from 'inversify';
 
 import { User, Word, WordTranslation } from '@core/domain/entities';
-import { CreateWordDto, UpdateWordDto } from '@core/domain/entities/word/types/create-word.dto';
+import { CreateWordDto, UpdateWordDto } from '@core/domain/entities/word/types/word.dto';
 import { UserError, WordError } from '@core/domain/errors';
 import {
   ISortDirection,
@@ -63,7 +63,7 @@ export class WordController {
   }
 
   /** get word by ID */
-  async findWord(req: CustomRequest, res: Response, next: NextFunction) {
+  async getWord(req: CustomRequest, res: Response, next: NextFunction) {
     try {
       const { wordId } = req.params;
       // const { wordId } = req.query;
@@ -96,19 +96,7 @@ export class WordController {
       }
 
       const wordDto: CreateWordDto = req.body;
-
-      const { wordId } = req.params;
-      // TODO валидация входящих данных (соответствие полученных данных схемам zod)
-      // const word = await this.wordService.findByValue(userId, data.text.trim());
-      // // const wordDoc = await word-model.findOne({
-      //   text: data.text.trim(),
-      // });
-
-      /** ЕСЛИ ЕСТЬ ТО не сохранять его заново, а предупредить пользователя что такое слово есть и
-       *  предложить ему добавить переводы к существующему!!!! */
-
-      // const wordValidatedData = this.validationService.validate<CreateWordDto>(wordDto, createWordSchema, 'word');
-      console.log('проверка схемы созданиия - успешно');
+      // TODO check validation data (validation must be in controller)
 
       const wordRes: Word = await this.wordService.createWord(userId, wordDto);
 
@@ -129,8 +117,11 @@ export class WordController {
       if (!userId) {
         throw UserError.NotFound();
       }
-
+      console.log('------- req.body --------------------------------------');
+      console.log(JSON.stringify(req.body, null, 2));
+      console.log('---------------------------------------------');
       const updates = req.body as UpdateWordDto; //: string | undefined
+      // TODO check validation data (validation must be in controller)
       console.log('wordId /', wordId, '/');
       console.log('получен id юзера - ', userId);
       console.log('updates - ', updates);
@@ -190,6 +181,32 @@ export class WordController {
     }
   }
 
+  async deleteWord(req: CustomRequest, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const userId = req.user?.id?.toString(); //: string | undefined
+      console.log('WordController create() userId ', userId);
+      if (!userId) {
+        throw UserError.NotFound();
+      }
+      const user: User | null = await this.userService.findById(userId);
+      if (!user) {
+        throw UserError.NotFound();
+      }
+
+      const { wordId } = req.params;
+      if (!wordId) {
+        throw WordError.BadRequest('word', 'word id not found');
+      }
+
+      console.log('DELETE WORD - wordId', wordId);
+      const wordRes = await this.wordService.deleteWord(userId, wordId);
+
+      return res.status(201).json(wordRes);
+    } catch (e) {
+      return next(e);
+    }
+  }
+
   // TODO всю логику убрать в сервис
   async checkWordExists(req: CustomRequest, res: Response, next: NextFunction) {
     try {
@@ -204,9 +221,6 @@ export class WordController {
       const word = await this.wordService.findByValue(userId, wordTextValue);
       console.log('WordController checkWordExists word', word);
       if (word) {
-        // throw WordError.AlreadyExists<IWordErrorBodyAlreadyExists>(wordTextValue, {
-        //   id: word && word.id ? word.id.toString() : "",
-        // });
         return res.status(200).json({ id: word && word.id ? word.id.toString() : '' });
       }
       console.log(word);
@@ -227,7 +241,8 @@ export class WordController {
         throw UserError.NotFound();
       }
 
-      const translationData = req.body.translation as WordTranslation;
+      console.log('post addTranslation req.body', req.body);
+      const translationData = req.body as WordTranslation;
 
       console.log('translationData', translationData);
       const word = await this.wordService.addTranslation(userId, wordId, translationData);

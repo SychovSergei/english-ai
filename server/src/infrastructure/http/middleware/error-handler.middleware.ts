@@ -3,12 +3,12 @@ import { Error } from 'mongoose';
 import { ZodError } from 'zod';
 
 import { EErrorCodes } from '@core/domain/enums';
-import { ApiErrorInterface, ServerApiError, ValidationError } from '@core/domain/errors';
+import { ApiErrorInterface, BaseApiError, ValidationError } from '@core/domain/errors';
 
 // export default function errorHandler( //<T = undefined>
 export const errorHandler: ErrorRequestHandler = (
   //<T = undefined>
-  error: unknown, //Error | ServerApiError<T> | ZodError,
+  error: unknown, //Error | BaseApiError<T> | ZodError,
   req: Request,
   res: Response,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -25,8 +25,8 @@ export const errorHandler: ErrorRequestHandler = (
   };
 
   // Если ошибка является экземпляром ApiError
-  if (error instanceof ServerApiError) {
-    console.log('ServerApiError');
+  if (error instanceof BaseApiError) {
+    console.log('BaseApiError');
     res.status(error.status).json({
       ...baseResponse,
       code: error.code,

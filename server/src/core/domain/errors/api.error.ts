@@ -4,7 +4,11 @@ import { ZodError } from 'zod';
 import { EErrorCodes } from '@core/domain/enums';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ErrorBody<T> = T extends undefined ? Record<string, any> : T;
+// export type ErrorBody<T> = T extends undefined ? Record<string, any> : T;
+export interface ErrorBody<T = undefined> {
+  [key: string]: unknown;
+  payload?: T;
+}
 
 // interface ErrorBodyDefault {
 //   [key: string]: any;
@@ -29,20 +33,34 @@ export interface ApiErrorInterface<T = undefined> {
   body?: ErrorBody<T>;
 }
 
-export class ServerApiError<T = undefined> extends Error implements ApiErrorInterface<T> {
+export class BaseApiError<T = undefined> extends Error implements ApiErrorInterface<T> {
   status: number;
   code: string;
-  message: string;
+  override message: string;
   validationErrors: ValidationError[];
   body?: ErrorBody<T>;
 
   constructor(status: number, code: string, message: string, errors: ValidationError[] = [], body?: ErrorBody<T>) {
     super(message);
+    // this.name = this.constructor.name;
     this.message = message;
     this.status = status;
     this.code = code;
     this.validationErrors = errors;
     this.body = body;
+
+    // Важно: наследование от Error в TypeScript ломает stack trace без этой строчки
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  toJSON(): ApiErrorInterface<T> {
+    return {
+      status: this.status,
+      code: this.code,
+      message: this.message,
+      validationErrors: this.validationErrors,
+      body: this.body,
+    };
   }
 
   static fromZodError<T = undefined>(error: ZodError, entityMessage = 'Validation', body?: ErrorBody<T>) {
@@ -50,7 +68,7 @@ export class ServerApiError<T = undefined> extends Error implements ApiErrorInte
       path: err.path,
       message: err.message,
     }));
-    return new ServerApiError(
+    return new BaseApiError(
       400,
       EErrorCodes.VALIDATION_ERROR,
       `${entityMessage} validation failed`,
@@ -58,10 +76,10 @@ export class ServerApiError<T = undefined> extends Error implements ApiErrorInte
       body,
     );
   }
-
-  static BadRequest<T = undefined>(code: string, message: string, errors: ValidationError[], body?: ErrorBody<T>) {
-    return new ServerApiError<T>(400, code, message, errors, body);
-  }
+  //
+  // static BadRequest<T = undefined>(code: string, message: string, errors: ValidationError[], body?: ErrorBody<T>) {
+  //   return new BaseApiError<T>(400, code, message, errors, body);
+  // }
 }
 
 // static fromZodError2 = (error: ZodError, entityMessage = "validation") => {

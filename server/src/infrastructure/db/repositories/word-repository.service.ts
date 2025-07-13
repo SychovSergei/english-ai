@@ -2,13 +2,22 @@ import { Types } from 'mongoose';
 import { injectable } from 'inversify';
 
 import { GetWordsResponse, Word, WordTranslation } from '@core/domain/entities';
-import { WordDbDto } from '@core/domain/entities/word';
-import { UpdateWordDto } from '@core/domain/entities/word/types/create-word.dto';
+import { WordDbDto, WordTranslationDbDto } from '@core/domain/entities/word';
+import {
+  UpdateWordDto,
+  WordTranslationDeleted,
+  WordTranslationDto,
+  WordTranslationUpdated,
+  WordUpdateBaseOperationResult,
+  WordUpdateTranslationOperationResult,
+} from '@core/domain/entities/word/types/word.dto';
 import { WordError } from '@core/domain/errors';
+import { WordTranslationError } from '@core/domain/errors/word-translation.error';
 import { TableCommonParamsRequest } from '@core/interfaces';
 import { IWordRepository } from '@core/repositories';
 import { WordModel } from '@infrastructure/db/entities';
-import { WordMapper } from '@application/mappers/word.mapper';
+import { WordTranslationSchemaType } from '@infrastructure/db/entities/word-model/word.model';
+import { WordMapper } from '@infrastructure/db/mappers/word.mapper';
 
 // interface WordSearchQuery {
 //   owner: string; // Или ObjectId, если используется в Mongoose
@@ -28,7 +37,8 @@ export class WordRepositoryService implements IWordRepository {
 
   async findById(wordId: string): Promise<Word | null> {
     const wordResult = await WordModel.findById(wordId); //.lean()
-    const res = wordResult ? wordResult.toObject() : null;
+    // const res = wordResult ? wordResult.toObject() : null;
+    const res = wordResult ? wordResult : null;
     console.log('>> WordApi Impl findById()', res);
     return res ? WordMapper.fromEntityToDomain(res) : res;
   }
@@ -89,7 +99,11 @@ export class WordRepositoryService implements IWordRepository {
       .skip(offset)
       .limit(limit);
 
-    const dataToObject = data.map((wordDoc) => WordMapper.fromEntityToDomain(wordDoc.toObject()));
+    // const dataToObject = data.map((wordDoc) => WordMapper.fromEntityToDomain(wordDoc.toObject()));
+    const dataToObject = data.map((wordDoc) => WordMapper.fromEntityToDomain(wordDoc));
+    // console.log('---------dataToObject--------');
+    console.log(dataToObject);
+
     // const formattedData: Word[] = dataToObject.map((word: Word) => {
     //   return {
     //     ...word,
@@ -121,19 +135,214 @@ export class WordRepositoryService implements IWordRepository {
     // };
   }
 
-  async addTranslation(userId: string, wordId: string, newTransl: WordTranslation): Promise<Word | null> {
+  async createTranslation(userId: string, wordId: string, newTransl: WordTranslation): Promise<WordTranslation | null> {
     const updatedWord = await WordModel.findOneAndUpdate(
       { owner: new Types.ObjectId(userId), _id: wordId },
       {
-        $push: { translations: { $each: [newTransl], $position: 0 } }, // Добавляем в начало или надо просто newTransl
+        // $push: { translations: { $each: [newTransl], $position: 0 } }, // Добавляем в начало или надо просто newTransl
+        $push: { translations: newTransl }, // Add to the END
       },
-      // { $addToSet: { translations: newTranslation } },
+      { new: true }, // return updated document (with new field)
+    );
+
+    console.log('updatedWord === ', updatedWord);
+    if (!updatedWord) throw WordError.NotFound(wordId);
+
+    const createdTranslation = WordMapper.fromEntityToDomain(updatedWord).translations.at(-1);
+    console.log('createdTranslation >>>>>>', createdTranslation, '>>>>>>');
+    return createdTranslation ?? null;
+  }
+
+  async updateTranslation(
+    userId: string,
+    wordId: string,
+    updatedTranslation: WordTranslationUpdated,
+  ): Promise<WordTranslation | null> {
+    const { id, ...rest } = updatedTranslation;
+    const updatedWord = await WordModel.findOneAndUpdate(
+      { owner: new Types.ObjectId(userId), _id: wordId, 'translations._id': id },
+      {
+        $set: {
+          'translations.$[elem]': { ...rest, _id: id },
+        },
+      },
+      { arrayFilters: [{ 'elem._id': id }], new: true }, // return updated document (with new field)
+    );
+
+    console.log('updatedWord === ', updatedWord);
+    if (!updatedWord) throw WordError.NotFound(wordId);
+
+    const updated = WordMapper.fromEntityToDomain(updatedWord).translations.find((t) => t.id === updatedTranslation.id);
+    console.log('updated >>>>>>', updated, '>>>>>>');
+    return updated ?? null;
+  }
+
+  async updateWordBaseInfo(userId: string, wordId: string, dto: UpdateWordDto): Promise<WordUpdateBaseOperationResult> {
+    const word = await WordModel.findById(wordId);
+    if (!word) throw WordError.NotFound(wordId);
+
+    word.text = dto.text ?? word.text;
+    word.language = dto.language ?? word.language;
+
+    const result: WordUpdateBaseOperationResult = {
+      id: wordId,
+      text: word.text,
+      language: word.language,
+    };
+    const resWord = await word.save();
+    console.log('result =-=-=-=- BASE word =-=-=-=-=-', word);
+    console.log('result =-=-=-=- BASE resWord from save =-=-=-=-=-', resWord);
+    console.log('result =-=-=-=- BASE result=-=-=-=-=-', result);
+
+    return result;
+  }
+  // TODO ----->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->->-
+  async updateWordTranslations(
+    userId: string,
+    wordId: string,
+    dto: UpdateWordDto,
+  ): Promise<WordUpdateTranslationOperationResult> {
+    const word = await WordModel.findById(wordId);
+    if (!word) throw WordError.NotFound(wordId);
+
+    // const translation = word?.translations[0];
+    // console.log(typeof translation.toObject); // function
+    // console.log(translation.toObject());
+
+    const result: WordUpdateTranslationOperationResult = {
+      // id: wordId,
+      // text: word.text,
+      // language: word.language,
+      translations: {
+        created: [],
+        updated: [],
+        deleted: [],
+        skipped: [],
+      },
+    };
+
+    // === DELETE ===
+    for (const del of dto.translations.deleted) {
+      const trans = word.translations.find((t) => t._id?.toString() === del.id);
+      if (!trans) {
+        result.translations.deleted.push({
+          id: del.id,
+          status: 'error',
+          value: null,
+          reason: WordError.NotFound(del.id),
+        });
+        continue;
+      }
+
+      const index = word.translations.findIndex((t) => t._id?.toString() === del.id);
+      if (index !== -1) word.translations.splice(index, 1);
+
+      result.translations.deleted.push({
+        id: del.id,
+        status: 'success',
+        value: del.id,
+        reason: null,
+      });
+    }
+
+    // === UPDATE ===
+    for (const upd of dto.translations.updated) {
+      const currTranslationSchema = word.translations.find((t) => t._id?.toString() === upd.id);
+      if (!currTranslationSchema) {
+        result.translations.updated.push({
+          id: upd.id,
+          status: 'error',
+          value: null,
+          reason: WordTranslationError.NotFound(upd.text),
+        });
+        continue;
+      }
+
+      const keys = Object.keys(upd).filter((k) => k !== 'id');
+      console.log('keyskeyskeyskeyskeyskeyskeyskeyskeyskeyskeys', keys);
+
+      const hasChanges = keys.some((key) => {
+        console.log('1', key, upd[key as keyof WordTranslationUpdated]);
+        console.log('2', key, currTranslationSchema[key as keyof WordTranslationDbDto]);
+        return (
+          currTranslationSchema &&
+          upd[key as keyof WordTranslationUpdated] !== currTranslationSchema[key as keyof WordTranslationDbDto]
+        );
+      });
+
+      if (!hasChanges) {
+        result.translations.skipped.push({
+          id: upd.id,
+          status: 'error',
+          value: null,
+          reason: WordError.NotFound(upd.text),
+        });
+        continue;
+      }
+
+      Object.assign(currTranslationSchema, upd);
+      console.log('currTranslationSchema type', typeof currTranslationSchema);
+      result.translations.updated.push({
+        id: upd.id, //_id.toString(), //upd.id.toString(), // TODO ???
+        status: 'success',
+        value: toPlainTranslation(currTranslationSchema), //{ id: _id.toString(), ...rest. },
+        reason: null,
+      });
+    }
+
+    // === CREATE ===
+    for (const newTransl of dto.translations.created) {
+      console.log('newTransl>>>>>>', JSON.stringify(newTransl, null, 2));
+      const alreadyExists = word.translations.some(
+        (t) => t.text === newTransl.text && t.language === newTransl.language,
+      );
+      if (alreadyExists) {
+        result.translations.skipped.push({
+          id: newTransl.text, // + '/' + newTransl.language,
+          status: 'error',
+          value: null,
+          reason: WordTranslationError.AlreadyExists(newTransl.text),
+        });
+        continue;
+      }
+      const newId = new Types.ObjectId();
+      // const { _id, ...rest } = newTransl;
+      const created: WordTranslationDbDto = {
+        ...newTransl,
+        _id: newId,
+      };
+      const createdDto: WordTranslationDto = {
+        ...newTransl,
+        id: newId.toString(),
+      };
+      word.translations.push(created);
+
+      result.translations.created.push({
+        id: created._id.toString(),
+        status: 'success',
+        value: createdDto,
+        reason: null,
+      });
+    }
+    console.log('result =-=-=-=-=-=-=-=-=-', JSON.stringify(result, null, 2));
+    const wordRes = await word.save();
+    console.log('result =-=word transl save result-=-=-=-=-=-=-=-', wordRes);
+
+    return result;
+  }
+
+  async deleteTranslation(userId: string, wordId: string, { id }: WordTranslationDeleted): Promise<string | null> {
+    const updatedWord = await WordModel.findOneAndUpdate(
+      { owner: new Types.ObjectId(userId), _id: wordId },
+      { $pull: { translations: { _id: id } } },
       { new: true },
     );
 
     if (!updatedWord) throw WordError.NotFound(wordId);
 
-    return updatedWord ? WordMapper.fromEntityToDomain(updatedWord) : updatedWord;
+    const stillExists = updatedWord.translations.find((t) => t._id?.toString() === id);
+    if (stillExists) return null;
+    return stillExists ? null : id;
   }
 
   // async createWord(newWordData: AddWordDTO): Promise<Word> {
@@ -144,7 +353,7 @@ export class WordRepositoryService implements IWordRepository {
     const newWord = await WordModel.create(rest);
     console.log('>> createWord WordApi 2', newWord.toObject());
 
-    return newWord ? WordMapper.fromEntityToDomain(newWord.toObject()) : newWord;
+    return newWord ? WordMapper.fromEntityToDomain(newWord) : newWord;
   }
 
   /** use */
@@ -153,7 +362,7 @@ export class WordRepositoryService implements IWordRepository {
   // }
 
   //// eslint-disable-next-line  @typescript-eslint/no-unused-vars
-  async updateWord(userId: string, wordData: UpdateWordDto): Promise<Word> {
+  /**async updateWord(userId: string, wordData: UpdateWordDto): Promise<Word> {
     console.log('>> updateWord WordApi typeof updates.id =', typeof wordData.id);
     console.log('>> updateWord WordApi', userId, wordData);
     // const ddd = await word-model.findOne({ owner: new Types.ObjectId(userId), _id: updateWord.id });
@@ -232,6 +441,14 @@ export class WordRepositoryService implements IWordRepository {
     console.log('updatedWord', updatedWord?.toObject());
     //updatedWord.toObject(); //replaceWordTranslationIds(updatedWord);
     return updatedWord ? WordMapper.fromEntityToDomain(updatedWord.toObject()) : updatedWord;
+  }*/
+
+  async deleteWord(userId: string, wordId: string): Promise<Word | null> {
+    const deletedWord = await WordModel.findOneAndDelete({ owner: new Types.ObjectId(userId), _id: wordId });
+    if (!deletedWord) {
+      throw WordError.NotFound(wordId);
+    }
+    return deletedWord ? WordMapper.fromEntityToDomain(deletedWord) : null;
   }
 }
 
@@ -246,4 +463,16 @@ export class WordRepositoryService implements IWordRepository {
 // Функция для экранирования специальных символов в RegExp
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+// function toPlainTranslation(t: HydratedDocument<WordTranslation>): WordTranslationDto {
+function toPlainTranslation(t: WordTranslationSchemaType): WordTranslationDto {
+  // const plain = t.toObject();
+  return {
+    id: t._id.toString(),
+    text: t.text,
+    language: t.language,
+    description: t.description ?? '',
+    difficultyLevel: t.difficultyLevel,
+    lexicalCategory: t.lexicalCategory,
+  };
 }

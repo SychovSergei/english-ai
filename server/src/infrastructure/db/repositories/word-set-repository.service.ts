@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { injectable } from 'inversify';
 
 import { WordSet } from '@core/domain/entities';
-import { UpdateWordDto } from '@core/domain/entities/word/types/create-word.dto';
+import { UpdateWordDto } from '@core/domain/entities/word/types/word.dto';
 import { WordSetDbDto } from '@core/domain/entities/word-set/types/word-set-db.dto';
 import { WordError } from '@core/domain/errors';
 import { IWordSetRepository } from '@core/repositories';
@@ -89,13 +89,13 @@ export class WordSetRepositoryService implements IWordSetRepository {
       {
         $set: {
           text: wordData.text,
-          translations: wordData.translations.map((t) => {
+          /* translations: wordData.translations.map((t) => {
             const { id, ...rest } = {
               _id: t.id || new Types.ObjectId(),
               ...t,
             };
             return rest;
-          }),
+          }),*/
         },
       },
       { new: true }, // return updated document
