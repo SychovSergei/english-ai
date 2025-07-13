@@ -118,14 +118,14 @@
 
   <div ngProjectAs="actions" style="width: 100%;">
     <div>
-<!--      <button type="button" mat-button mat-raised-button (click)="showData()">Show</button>-->
       <button type="button" mat-button mat-raised-button (click)="closeDialog()">Cancel</button>
-      <button type="button"
-              [disabled]="isButtonDisabled() || isSubmitting() || !isFormChanged()"
+<!--                      for disable attr -> || isSubmitting()-->
+      <button type="button" color="primary"
+              [disabled]="isButtonDisabled() || !isFormChanged()"
               (click)="onSubmit()" mat-button mat-flat-button>
         {{ isEditMode() ? 'Update' : 'Create'}}
-        <mat-icon>
-          <mat-spinner diameter="20" color="accent" *ngIf="isSubmitting()"></mat-spinner>
+        <mat-icon class="custom-icon" *ngIf="isSubmitting()">
+          <mat-spinner diameter="16" class="white-spinner"></mat-spinner>
         </mat-icon>
       </button>
     </div>
