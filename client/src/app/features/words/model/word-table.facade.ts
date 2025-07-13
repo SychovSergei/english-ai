@@ -1,6 +1,5 @@
-import { Word } from '@entities/word';
 import { WordsResponseDTO } from '@entities/word/api/WordRepoDTO';
-import { CreateWordDTO, WordIdResponse, WordsRequest } from '@entities/word/model/word.model';
+import { WordsRequest } from '@entities/word/model/word.types';
 import { WordService } from '@features/words/model';
 import { WordFacadeInterface } from '@features/words/types';
 
@@ -25,13 +24,17 @@ export class WordTableFacade implements WordFacadeInterface {
     return this.wordService.getWords(reqObject).pipe(shareReplay(1)); // 🔥 Кэшируем последний результат;
   }
 
-  createWord(newWord: CreateWordDTO): Observable<Word> {
-    return this.wordService.createWord(newWord);
-  }
-
-  checkWord(word: string): Observable<WordIdResponse> {
-    return this.wordService.checkWord(word);
-  }
+  // createWord(newWord: CreateWordDTO): Observable<WordFormValue> {
+  //   const { translations } = newWord;
+  //   const mappedTranslations = translations.map((tr) => {
+  //     return { ...tr, isNew: true };
+  //   });
+  //   return this.wordService.createWord({ ...newWord, translations: mappedTranslations });
+  // }
+  //
+  // checkWord(word: string): Observable<WordIdResponse> {
+  //   return this.wordService.checkIfWordExists(word);
+  // }
 
   // filterWords(reqObj: WordsRequest): Observable<WordsResponse> {
   //   const reqObject: WordsRequest = {

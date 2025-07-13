@@ -180,9 +180,10 @@ export class WordSetEditorFacade {
   // update(): Observable<void> {
   //   return of();
   // }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   checkTermValue(term: string): void {
-    this.wordService.checkWord(term).subscribe((res) => {
-      console.log(res);
-    });
+    // this.wordService.checkIfWordExists(term).subscribe((res) => {
+    //   console.log(res);
+    // });
   }
 }

@@ -1,11 +1,12 @@
 import { Word } from '@entities/word';
 import { WordsResponseDTO } from '@entities/word/api/WordRepoDTO';
-import { ISortTable, WordsRequest } from '@entities/word/model/word.model';
+import { ISortTable, WordsRequest } from '@entities/word/model/word.types';
+import { AddWordDialogComponent } from '@features/words/add-word-dialog';
+import { mapWordToFormValue } from '@features/words/add-word-dialog/model/word-form.mapper';
 // import { FilterService } from '@features/table-filter/services/table-filter.service';
 import { WordService } from '@features/words/model';
 import { WORD_SERVICE_TOKEN } from '@features/words/model/word.tokens';
 import { OpenDialogWordData } from '@features/words/types/open-dialog-word-data';
-import { AddWordDialogComponent } from '@features/words/ui/add-word-dialog/add-word-dialog.component';
 import { DataTableComponent } from '@shared/ui';
 import { IDataTablePageInfo } from '@shared/ui/data-table/pagination-info.interface';
 import { TableFilterService } from '@shared/ui/table-filter';
@@ -196,11 +197,11 @@ export class WordTableComponent implements OnChanges, OnInit, AfterViewInit {
     event.stopPropagation();
   }
 
-  editWord(event: Event, data: Word): void {
-    // console.log('edit', data);
-    this.dialog
+  editWordDialogOpen(event: Event, data: Word): void {
+    const mappedData = mapWordToFormValue(data);
+    this.dialog // TODO - MAYBE REPLACE WITH FACADE SERVICE ???
       .open<AddWordDialogComponent, OpenDialogWordData, { success: boolean }>(AddWordDialogComponent, {
-        data: { data: data, mode: 'edit' },
+        data: { data: mappedData, mode: 'edit' },
       })
       .afterClosed()
       .subscribe((result) => {
@@ -212,17 +213,17 @@ export class WordTableComponent implements OnChanges, OnInit, AfterViewInit {
   }
 
   addToWordSet(event: Event, data: Word): void {
-    // console.log('add To Word Set', data);
-    this.dialog.open<AddWordDialogComponent, OpenDialogWordData, boolean>(AddWordDialogComponent, {
-      data: { data: data, mode: 'edit' },
-    });
+    console.log('add To Word Set', data);
+    // this.dialog.open<AddWordDialogComponent, OpenDialogWordData, boolean>(AddWordDialogComponent, {
+    //   data: { data: data, mode: 'edit' },
+    // });
   }
 
   deleteWord(event: Event, data: Word): void {
-    // console.log('delete', data);
-    this.dialog.open<AddWordDialogComponent, OpenDialogWordData, boolean>(AddWordDialogComponent, {
-      data: { data: data, mode: 'edit' },
-    });
+    console.log('delete', data);
+    // this.dialog.open<AddWordDialogComponent, OpenDialogWordData, boolean>(AddWordDialogComponent, {
+    //   data: { data: data, mode: 'edit' },
+    // });
   }
 
   onPageChange(value: IDataTablePageInfo): void {

@@ -1,15 +1,13 @@
-import { WordApiInterface } from '@entities/word';
+import { CreateWordDTO, UpdateWordDTO } from '@entities/word/api/word.dto';
 import { WordsResponseDTO } from '@entities/word/api/WordRepoDTO';
 import {
-  CreateWordDTO,
   DeleteWordResponse,
-  UpdateWordDTO,
   Word,
   WordIdResponse,
   WordsRequest,
   WordsResponse,
   WordTranslation,
-} from '@entities/word/model/word.model';
+} from '@entities/word/model/word.types';
 import { HttpApiService } from '@shared/api';
 
 // import { API_MODULE_URL } from '@shared/config/api-tokens';
@@ -17,10 +15,35 @@ import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, throwError } from 'rxjs';
 
+export type WordUpdateOperationResult = WordUpdateBaseOperationResult & WordUpdateTranslationOperationResult;
+export type WordUpdateBaseOperationResult = Pick<Word, 'id' | 'text' | 'language'>;
+export type WordUpdateTranslationOperationResult = {
+  translations: {
+    created: OperationResult<WordTranslation | null>[];
+    updated: OperationResult<WordTranslation | null>[];
+    deleted: OperationResult<string | null>[];
+    skipped: OperationResult<null, { message: string }>[]; // 💡 новый блок // TODO TODO TODO TODO сделать для ошибок интерфейс/класс
+  };
+};
+type OperationResult<T, TError = unknown> = OperationSuccess<T> | OperationError<TError>;
+type OperationSuccess<T> = {
+  id: string | number;
+  status: 'success';
+  value: T;
+  reason: null;
+};
+type OperationError<TError> = {
+  id: string | number;
+  status: 'error';
+  value: null;
+  reason: TError;
+};
+
 @Injectable({
   providedIn: 'root',
 })
-export class WordApi implements WordApiInterface {
+export class WordApi {
+  // TODO  implements WordApiInterface
   apiUrl = 'api/words';
 
   constructor(
@@ -57,8 +80,8 @@ export class WordApi implements WordApiInterface {
     return this.httpService.post<Word, CreateWordDTO>(`${this.apiUrl}`, data);
   }
 
-  updateWord(wordId: string, data: UpdateWordDTO): Observable<Word> {
-    return this.httpService.patch<Word, UpdateWordDTO>(`${this.apiUrl}/${wordId}`, data);
+  updateWord(wordId: string, data: UpdateWordDTO): Observable<WordUpdateOperationResult> {
+    return this.httpService.patch<WordUpdateOperationResult, UpdateWordDTO>(`${this.apiUrl}/${wordId}`, data);
   }
 
   getWordById(wordId: string): Observable<Word> {
@@ -66,10 +89,8 @@ export class WordApi implements WordApiInterface {
     return this.httpService.get<Word>(`${this.apiUrl}/${wordId}`);
   }
 
-  addTranslation(wordId: string, data: WordTranslation): Observable<Word> {
-    return this.httpService.post<Word, { translation: WordTranslation }>(`${this.apiUrl}/${wordId}/translations`, {
-      translation: data,
-    });
+  addTranslation(wordId: string, data: WordTranslation): Observable<WordTranslation> {
+    return this.httpService.post<WordTranslation, WordTranslation>(`${this.apiUrl}/${wordId}/translations`, data);
   }
 
   deleteWord(id: string): Observable<DeleteWordResponse> {

@@ -1,4 +1,4 @@
-import { IWordTranslationDTO, WordsResponse, WordTranslation } from '@entities/word/model/word.model';
+import { IWordTranslationDTO, WordsResponse, WordTranslation } from '@entities/word/model/word.types';
 import { ELangs, ELevels, ELexicalCategory } from '@shared/enums';
 
 export class WordTranslationItemDTO implements WordTranslation {
