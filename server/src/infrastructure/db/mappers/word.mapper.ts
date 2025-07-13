@@ -50,7 +50,7 @@ export const WordMapper = {
       owner: entity.owner.toString(),
       isPublic: entity.isPublic,
       language: entity.language,
-      sentences: entity.sentences.map((s) => s.toString()) ?? [],
+      sentences: entity.sentences?.map((s) => s.toString()) ?? [],
       relatedForms: entity.relatedForms ?? [],
       translations: entity.translations.map((t) => ({
         id: t._id?.toString(),

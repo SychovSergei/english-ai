@@ -29,8 +29,8 @@ export const WordDbMapper = {
       owner: new Types.ObjectId(domain.owner),
       isPublic: domain.isPublic,
       language: domain.language,
-      sentences: domain.sentences.map((id) => new Types.ObjectId(id)) ?? [],
-      relatedForms: domain.relatedForms,
+      sentences: domain.sentences?.map((id) => new Types.ObjectId(id)) ?? [],
+      relatedForms: domain.relatedForms ?? [],
       translations: domain.translations.map((t) => ({
         _id: t.id ? new Types.ObjectId(t.id) : new Types.ObjectId(),
         text: t.text,
@@ -49,7 +49,7 @@ export const WordDbMapper = {
       owner: new Types.ObjectId(userId),
       isPublic: false,
       language: dto.language,
-      sentences: dto.sentences.map((id) => new Types.ObjectId(id)) ?? [],
+      sentences: dto.sentences?.map((id) => new Types.ObjectId(id)) ?? [],
       relatedForms: dto.relatedForms ?? [],
       translations: dto.translations.map((t) => ({
         // _id: t.id ? new Types.ObjectId(t.id) : new Types.ObjectId(),
