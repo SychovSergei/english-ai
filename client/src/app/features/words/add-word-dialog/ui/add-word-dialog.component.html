@@ -7,7 +7,7 @@
           <div class="w-full flex-row md:flex-col mt-3">
             <mat-form-field class="w-full flex-row md:flex-col">
               <mat-label>Word</mat-label><!--  - {{ idCtrl.value | json }} -->
-              <input matInput formControlName="text">
+              <input matInput formControlName="text" autocapitalize="off">
               <mat-icon matSuffix >
                 <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
               </mat-icon>
@@ -42,7 +42,7 @@
 
                   <mat-form-field class="w-full flex-row md:flex-col">
                     <mat-label>Translation {{ i+1 }}</mat-label>
-                    <input matInput formControlName="translText">
+                    <input matInput formControlName="translText" autocapitalize="off">
                     <mat-error *ngIf="translItem.get('translText')?.hasError('required')">
                       This field is required.
                     </mat-error>
