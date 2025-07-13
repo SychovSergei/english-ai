@@ -1,6 +1,5 @@
-import { Word } from '@entities/word';
 import { WordsResponseDTO } from '@entities/word/api/WordRepoDTO';
-import { CreateWordDTO, WordIdResponse, WordsRequest } from '@entities/word/model/word.model';
+import { WordsRequest } from '@entities/word/model/word.types';
 
 import { Observable } from 'rxjs';
 
@@ -9,7 +8,7 @@ export interface WordFacadeInterface {
   // filterWords(reqObj: WordsRequest): Observable<WordsResponse>;
 
   // TODO change WordsRequest/WordsResponse type
-  checkWord(word: string): Observable<WordIdResponse>;
+  //checkWord(word: string): Observable<WordIdResponse>;
 
-  createWord(newWord: CreateWordDTO): Observable<Word>;
+  //createWord(newWord: CreateWordDTO): Observable<WordFormValue>;
 }

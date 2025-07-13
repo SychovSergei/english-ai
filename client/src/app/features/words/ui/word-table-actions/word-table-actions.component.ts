@@ -1,29 +1,25 @@
-import { Word } from '@entities/word';
-import { WordTranslation } from '@entities/word/model/word.model';
+import { AddWordDialogComponent } from '@features/words/add-word-dialog';
 import { OpenDialogWordData } from '@features/words/types/open-dialog-word-data';
-import { AddWordDialogComponent } from '@features/words/ui/add-word-dialog/add-word-dialog.component';
-import { ELangs, ELevels, ELexicalCategory } from '@shared/enums';
 import { ITableActions, TableActionsModule } from '@shared/ui/data-table-actions';
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
-const EMPTY_TRANSLATION: WordTranslation = {
-  id: '',
-  language: ELangs.EN, //TODO config???
-  text: '',
-  description: '',
-  difficultyLevel: ELevels.Empty,
-  lexicalCategory: ELexicalCategory.Empty,
-};
-
-const EMPTY_WORD: Word = {
-  id: '',
-  language: ELangs.EN, //TODO config???
-  owner: '',
-  text: '',
-  translations: [EMPTY_TRANSLATION],
-};
+// const EMPTY_TRANSLATION: WordTranslation = {
+//   id: '',
+//   language: ELangs.EN, //TODO config???
+//   text: '',
+//   description: '',
+//   difficultyLevel: ELevels.Empty,
+//   lexicalCategory: ELexicalCategory.Empty,
+// };
+// const EMPTY_WORD: Word = {
+//   id: '',
+//   language: ELangs.EN, //TODO config???
+//   owner: '',
+//   text: '',
+//   translations: [EMPTY_TRANSLATION],
+// };
 
 @Component({
   selector: 'app-words-data-table-actions',
@@ -64,7 +60,7 @@ export class WordTableActionsComponent {
   private addWordDialog(): void {
     this.dialog
       .open<AddWordDialogComponent, OpenDialogWordData, { success: boolean }>(AddWordDialogComponent, {
-        data: { data: EMPTY_WORD, mode: 'create' },
+        data: { data: null, mode: 'create' },
       })
       .afterClosed()
       .subscribe((result) => {
