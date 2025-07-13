@@ -3,7 +3,6 @@ import { Types } from 'mongoose';
 import { Word, WordSet } from '@core/domain/entities';
 import { CreateWordSetDto } from '@core/domain/entities/word-set/types/create-word-set.dto';
 import { WordSetDbDto } from '@core/domain/entities/word-set/types/word-set-db.dto';
-import { WordDbDto } from '@core/domain/entities/word';
 
 interface IWordSetMapper {
   toDomainFromCreate(dto: CreateWordSetDto, ownerId: string, words: string[]): WordSet;

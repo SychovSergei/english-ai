@@ -26,7 +26,7 @@ router.get('/:wordId', async (req: CustomRequest, res: Response, next: NextFunct
   const { wordId } = req.params;
   console.log('-------------', wordId, '-----------------------');
   try {
-    await wordController.findWord(req, res, next);
+    await wordController.getWord(req, res, next);
   } catch (e) {
     console.log(e);
   }
@@ -38,6 +38,10 @@ router.patch('/:id', async (req: CustomRequest, res: Response, next: NextFunctio
 
 router.post('/:wordId/translations', async (req: CustomRequest, res: Response, next: NextFunction) => {
   await wordController.addTranslation(req, res, next); //TODO проверить нужно ли мне :id в URL
+});
+
+router.delete('/:wordId', async (req: CustomRequest, res: Response, next: NextFunction) => {
+  await wordController.deleteWord(req, res, next);
 });
 
 export const wordRouter = router;

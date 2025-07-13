@@ -3,7 +3,7 @@ import { Express } from 'express';
 import cors, { CorsOptions } from 'cors';
 import cookieParser from 'cookie-parser';
 
-import { ServerApiError } from '@core/domain/errors';
+import { BaseApiError } from '@core/domain/errors';
 import { errorHandler } from '@infrastructure/http/middleware';
 import { mainRouter } from '@infrastructure/http/routes';
 
@@ -27,7 +27,7 @@ const corsOptions: CorsOptions = {
       console.log('Запрос одобрен CORS');
       callback(null, true);
     } else {
-      callback(new ServerApiError(500, 'cors', 'Not allowed by CORS', []));
+      callback(new BaseApiError(500, 'cors', 'Not allowed by CORS', []));
     }
   },
   credentials: true,

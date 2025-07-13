@@ -72,7 +72,7 @@ export interface WordTranslationDbDto {
    * Optional unique identifier for the translation.
    * Usually generated automatically by Mongoose.
    */
-  _id?: Types.ObjectId;
+  _id: Types.ObjectId;
 
   /**
    * The translated text.

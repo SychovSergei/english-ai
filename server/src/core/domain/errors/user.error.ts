@@ -1,9 +1,9 @@
 import { ZodError } from 'zod';
 
 import { EErrorCodes } from '@core/domain/enums';
-import { ErrorBody, ServerApiError, ValidationError } from '@core/domain/errors';
+import { BaseApiError, ErrorBody, ValidationError } from '@core/domain/errors';
 
-export class UserError<T = undefined> extends ServerApiError<T> {
+export class UserError<T = undefined> extends BaseApiError<T> {
   constructor(status: number, code: string, message: string, errors: ValidationError[] = [], body?: ErrorBody<T>) {
     super(status, `user/${code}`, message, errors, body);
   }
@@ -13,7 +13,7 @@ export class UserError<T = undefined> extends ServerApiError<T> {
       path: err.path,
       message: err.message,
     }));
-    return new ServerApiError(
+    return new BaseApiError(
       400,
       EErrorCodes.VALIDATION_ERROR,
       `${entityMessage} validation failed`,

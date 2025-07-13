@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
+import { wordTranslationZodSchema } from '@core/domain/entities/word-translation/schema/word-translation.schema';
 // import { wordTranslationZodSchema } from '@core/domain/entities';
 import { ELangs } from '@core/domain/enums';
 import { CustomZodObjectId } from '@core/domain/utils';
-import { wordTranslationZodSchema } from '@core/domain/entities/word-translation/schema/word-translation.schema';
 
 /** It must be matched with Word interface
  *  It is the source for database properties */
