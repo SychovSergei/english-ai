@@ -21,13 +21,17 @@ app.use((req, res, next) => {
 const whiteList = ['http://localhost:4200', 'http://localhost:3000', 'https://english-ai-learn.netlify.app'];
 const corsOptions: CorsOptions = {
   origin: function (origin, callback) {
-    console.log('Origin:', origin); // Логирование заголовка origin
+    console.log('Origin:', origin);
     // Разрешить пустой origin (для тестирования с Postman)
-    if (!origin || whiteList.indexOf(<string>origin) !== -1) {
-      console.log('Запрос одобрен CORS');
+    if (
+      !origin || // for Postman
+      whiteList.indexOf(<string>origin) !== -1 || // for specific domains
+      origin.startsWith('http://192.168.') // for local devices
+    ) {
+      console.log('Request is Allowed by CORS.');
       callback(null, true);
     } else {
-      callback(new BaseApiError(500, 'cors', 'Not allowed by CORS', []));
+      callback(new Error('Request is Blocked by CORS.'));
     }
   },
   credentials: true,
