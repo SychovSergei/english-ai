@@ -81,7 +81,16 @@
                   "with": "src/environments/environment.development.ts"
                 }
               ]
+            },
+            "remote": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.remote.ts"
+                }
+              ]
             }
+
           },
           "defaultConfiguration": "production"
         },
@@ -93,6 +102,9 @@
             },
             "development": {
               "buildTarget": "client:build:development"
+            },
+            "remote": {
+              "buildTarget": "client:build:remote"
             }
           },
           "defaultConfiguration": "development"

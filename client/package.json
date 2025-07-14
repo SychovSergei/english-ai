@@ -6,6 +6,8 @@
     "ng": "ng",
     "start": "ng serve",
     "start:lint": "npm run lint && npm run start",
+    "start:remote": "ng serve --host 0.0.0.0 --port 4300 --configuration=remote",
+    "start:lint:remote": "npm run lint && npm run start:remote",
     "lint": "npx eslint . --format stylish",
     "build": "ng build --configuration production",
     "build:ci": "ng build --configuration production && cp _redirects dist/client/browser",
