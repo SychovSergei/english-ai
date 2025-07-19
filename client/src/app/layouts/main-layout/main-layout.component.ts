@@ -2,7 +2,7 @@ import { ToolbarComponent } from '@features/user/ui';
 import { SwipeDirective } from '@shared/directives';
 import { BreakpointService } from '@shared/infrastructure';
 import { EBreakpoints } from '@shared/infrastructure/ui/breakpoint.service';
-import { FooterComponent } from '@shared/ui/footer/footer.component';
+import { FooterComponent } from '@shared/ui';
 import { Config, MenuComponent, MenuItem } from '@widgets/menu';
 
 import { Component, ViewChild } from '@angular/core';
