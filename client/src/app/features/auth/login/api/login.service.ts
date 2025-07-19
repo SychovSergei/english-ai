@@ -51,9 +51,8 @@ export class LoginService {
 
   isAuthenticated(): boolean {
     const accessToken = this.tokenService.getAccessToken();
-    if (accessToken) {
-      return this.tokenService.checkTokenValidity(accessToken);
-    }
-    return false;
+    if (!accessToken) return false;
+
+    return this.tokenService.checkTokenValidity(accessToken);
   }
 }
