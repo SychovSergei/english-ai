@@ -1,6 +1,6 @@
+import { WordService } from '@entities/word';
 import { WordsResponseDTO } from '@entities/word/api/WordRepoDTO';
 import { WordsRequest } from '@entities/word/model/word.types';
-import { WordService } from '@features/words/model';
 import { WordFacadeInterface } from '@features/words/types';
 
 import { Injectable } from '@angular/core';

@@ -1,10 +1,9 @@
-import { Word } from '@entities/word';
+import { Word, WordService } from '@entities/word';
 import { WordsResponseDTO } from '@entities/word/api/WordRepoDTO';
 import { ISortTable, WordsRequest } from '@entities/word/model/word.types';
 import { AddWordDialogComponent } from '@features/words/add-word-dialog';
 import { mapWordToFormValue } from '@features/words/add-word-dialog/model/word-form.mapper';
 // import { FilterService } from '@features/table-filter/services/table-filter.service';
-import { WordService } from '@features/words/model';
 import { WORD_SERVICE_TOKEN } from '@features/words/model/word.tokens';
 import { OpenDialogWordData } from '@features/words/types/open-dialog-word-data';
 import { DataTableComponent } from '@shared/ui';

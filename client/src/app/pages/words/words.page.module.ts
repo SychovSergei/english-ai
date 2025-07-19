@@ -1,6 +1,7 @@
 // import { TableActionsModule } from '@features/table-actions';
 // import { WordTableActionsComponent, WordTableComponent } from '@features/words';
-import { WordService } from '@features/words/model';
+
+import { WordService } from '@entities/word';
 import { WORD_SERVICE_TOKEN } from '@features/words/model/word.tokens';
 import { NotificationService } from '@shared/services/notification/notification.service';
 import { NOTIFICATION_SERVICE_TOKEN } from '@shared/services/notification/notification-service.token';

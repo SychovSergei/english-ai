@@ -1,9 +1,10 @@
 import { IUser } from '@entities/user';
 import { LoginService } from '@features/auth';
 import { UserService } from '@features/user/model/user.service';
+import { UserSettingsService } from '@features/user-settings/user-settings.service';
+import { BreakpointService } from '@shared/infrastructure';
+import { EBreakpoints } from '@shared/infrastructure/ui/breakpoint.service';
 import { UserSettings } from '@shared/interfaces/user-settings.interface';
-import { BreakpointService, EBreakpoints } from '@shared/services/breakpoint.service';
-import { UserSettingsService } from '@shared/services/user-settings.service';
 import { UiKitModule } from '@shared/ui/ui-kit';
 
 import { AsyncPipe, NgIf } from '@angular/common';

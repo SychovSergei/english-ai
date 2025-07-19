@@ -1,6 +1,6 @@
 import { AuthApiService } from '@shared/api';
 import { IUserLoginDTO, IUserLoginResponse } from '@shared/api';
-import { TokenService } from '@shared/services';
+import { TokenService } from '@shared/infrastructure';
 
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';

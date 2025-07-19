@@ -1,6 +1,6 @@
 import { IUser } from '@entities/user';
 import { UserApi } from '@features/user/api/user.api';
-import { TokenService } from '@shared/services/token.service';
+import { TokenService } from '@shared/infrastructure';
 
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
@@ -33,6 +33,7 @@ export class UserService {
   // getCurrentUserInfo() {}
   loadUserFromToken(): void {
     this.tokenService.getUserDataFromToken().subscribe((user) => {
+      // TODO подписки в сервисе не должно быть
       this.userSubject.next(user);
     });
   }

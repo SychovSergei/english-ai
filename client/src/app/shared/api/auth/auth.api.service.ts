@@ -1,6 +1,6 @@
 // import { environment } from '@environments/environment';
-import { HttpApiService } from '@shared/api';
 import { IUserLoginDTO, IUserLoginResponse, IUserRegisterDTO, IUserRegisterResponse } from '@shared/api/types/auth.dto';
+import { HttpApiService } from '@shared/infrastructure';
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';

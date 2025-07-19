@@ -1,5 +1,5 @@
-import { HttpApiService } from '@shared/api';
-import { IUserTokenPayload } from '@shared/models/auth/token-payload.model';
+import { IUserTokenPayload } from '@shared/api';
+import { HttpApiService } from '@shared/infrastructure';
 import { jwtDecode } from 'jwt-decode';
 
 import { Injectable } from '@angular/core';
@@ -33,24 +33,11 @@ export class TokenService {
   }
 
   checkTokenValidity(token: string): boolean {
-    try {
-      console.group('START');
-      // console.log(token);
-      // const decodedToken: ITokenInfo | null = JSON.parse(JSON.stringify(jwtDecode(token))) || null;
-      const { exp } = jwtDecode<ITokenInfo>(token);
-      // if (decodedToken) {
-      const expDate = exp * 1000;
-      const now = new Date().getTime();
-      console.log(expDate, now);
-      console.groupEnd();
-      return expDate > now;
-      // }
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
+    const { exp } = jwtDecode<ITokenInfo>(token);
+    const expDate = exp * 1000;
+    const now = new Date().getTime();
 
-    return false;
+    return expDate > now;
   }
 
   refresh(): Observable<ITokens> {

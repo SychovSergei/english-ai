@@ -4,7 +4,7 @@ export interface IUser {
   id?: string;
   name: IUserName;
   email: string;
-  password: string;
+  password?: string;
   role: EUserRole;
   wordSets?: string[];
   sharedWordSets?: string[];

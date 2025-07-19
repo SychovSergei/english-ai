@@ -1,1 +1,1 @@
-export { WordService } from './word.service';
+// export { WordService } from './word.service';

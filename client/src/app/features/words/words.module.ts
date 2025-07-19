@@ -17,7 +17,7 @@
 // })
 // export class WordsModule {}
 
-import { WordService } from '@features/words/model';
+import { WordService } from '@entities/word';
 import { WORD_SERVICE_TOKEN } from '@features/words/model/word.tokens';
 // import { API_MODULE_URL } from '@shared/config/api-tokens';
 import { NotificationService } from '@shared/services/notification/notification.service';

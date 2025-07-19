@@ -1,6 +1,7 @@
 import { ToolbarComponent } from '@features/user/ui';
 import { SwipeDirective } from '@shared/directives';
-import { BreakpointService, EBreakpoints } from '@shared/services/breakpoint.service';
+import { BreakpointService } from '@shared/infrastructure';
+import { EBreakpoints } from '@shared/infrastructure/ui/breakpoint.service';
 import { FooterComponent } from '@shared/ui/footer/footer.component';
 import { Config, MenuComponent, MenuItem } from '@widgets/menu';
 
