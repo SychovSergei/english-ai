@@ -1,13 +1,15 @@
+import { ITableActions } from '@shared/ui/data-table-actions';
 import { IconFactoryService } from '@shared/ui/icon-factory';
+import { UiKitModule } from '@shared/ui/ui-kit';
 
 import { AfterViewInit, Component, Input, QueryList, ViewChildren, ViewContainerRef } from '@angular/core';
-
-import { ITableActions } from './interfaces/table-actions.interface';
 
 @Component({
   selector: 'app-data-table-actions',
   templateUrl: './table-actions.component.html',
   styleUrls: ['./table-actions.component.scss'],
+  standalone: true,
+  imports: [UiKitModule],
 })
 export class TableActionsComponent implements AfterViewInit {
   @ViewChildren('iconContainer', { read: ViewContainerRef }) iconContainers!: QueryList<ViewContainerRef>;
