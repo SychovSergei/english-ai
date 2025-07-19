@@ -7,11 +7,12 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
+import { provideServiceWorker } from '@angular/service-worker';
 
 const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
   new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -38,5 +39,9 @@ export const appConfig: ApplicationConfig = {
       }),
     ]),
     ...CORE_PROVIDERS,
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };
