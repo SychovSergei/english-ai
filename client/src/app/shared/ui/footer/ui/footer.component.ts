@@ -1,12 +1,14 @@
-import { NetworkService } from '@shared/infrastructure/network.service';
+import { NetworkService } from '@shared/infrastructure';
 
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgStyle } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { OfflinePipe } from '@shared/pipes/offline.pipe';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [AsyncPipe],
+  imports: [AsyncPipe, OfflinePipe, NgStyle, MatIcon],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })
