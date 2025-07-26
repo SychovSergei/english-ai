@@ -1,6 +1,6 @@
-import { WordService } from '@entities/word';
 import { WordsResponseDTO } from '@entities/word/api/WordRepoDTO';
 import { WordsRequest } from '@entities/word/model/word.types';
+import { WordService } from '@features/words';
 import { WordFacadeInterface } from '@features/words/types';
 
 import { Injectable } from '@angular/core';
@@ -10,7 +10,7 @@ import { Observable, shareReplay } from 'rxjs';
   providedIn: 'root',
 })
 export class WordTableFacade implements WordFacadeInterface {
-  // constructor(@Inject(WORD_SERVICE_TOKEN) private wordService: IWordService) {}
+  // constructor(@Inject(WORD_SERVICE_TOKEN) private wordService: WordServiceInterface) {}
   constructor(private wordService: WordService) {}
 
   getWords(reqObj: WordsRequest): Observable<WordsResponseDTO> {
