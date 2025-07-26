@@ -1,14 +1,14 @@
-import { Word, WordService } from '@entities/word';
+import { Word } from '@entities/word';
 import { WordsResponseDTO } from '@entities/word/api/WordRepoDTO';
 import { ISortTable, WordsRequest } from '@entities/word/model/word.types';
+import { WordTableFacade } from '@features/words';
 import { AddWordDialogComponent } from '@features/words/add-word-dialog';
 import { mapWordToFormValue } from '@features/words/add-word-dialog/model/word-form.mapper';
-// import { FilterService } from '@features/table-filter/services/table-filter.service';
-import { WORD_SERVICE_TOKEN } from '@features/words/model/word.tokens';
 import { OpenDialogWordData } from '@features/words/types/open-dialog-word-data';
 import { DataTableComponent } from '@shared/ui';
 import { IDataTablePageInfo } from '@shared/ui/data-table/pagination-info.interface';
 import { TableFilterService } from '@shared/ui/table-filter';
+import { UiKitModule } from '@shared/ui/ui-kit';
 
 import { SelectionModel } from '@angular/cdk/collections';
 import {
@@ -27,15 +27,11 @@ import {
   ViewChild,
   WritableSignal,
 } from '@angular/core';
-import { MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { take } from 'rxjs';
-
-import { WordTableFacade } from '../../model/word-table.facade';
 
 @Component({
   selector: 'app-word-table',
@@ -45,9 +41,9 @@ import { WordTableFacade } from '../../model/word-table.facade';
   providers: [
     // { provide: API_DOMAIN, useValue: environment.apiDomain },
     // { provide: API_WORDS_URL, useValue: 'api/words' }, //TODO from entity or feature????
-    { provide: WORD_SERVICE_TOKEN, useClass: WordService },
+    // { provide: WORD_SERVICE_TOKEN, useClass: WordService },
   ],
-  imports: [DataTableComponent, MatIcon, MatMenuItem, MatMenu, MatIconButton, MatMenuTrigger],
+  imports: [DataTableComponent, UiKitModule, MatMenuItem, MatMenu, MatMenuTrigger],
 })
 export class WordTableComponent implements OnChanges, OnInit, AfterViewInit {
   // @Input() filterId: string = '';
@@ -179,7 +175,7 @@ export class WordTableComponent implements OnChanges, OnInit, AfterViewInit {
 
   loadTableData(): void {
     this.wordFacade
-      .getWords(this.reqParamObj())
+      .getWords({ ...this.reqParamObj() })
       .pipe(take(1))
       .subscribe((data: WordsResponseDTO) => {
         // console.log('data from server', data);
