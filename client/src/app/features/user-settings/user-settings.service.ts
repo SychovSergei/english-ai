@@ -1,6 +1,6 @@
 import { environment } from '@environments/environment';
+import { TokenService } from '@shared/infrastructure';
 import { UserSettings, UserUpdateSettings } from '@shared/interfaces/user-settings.interface';
-import { TokenService } from '@shared/services/token.service';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -10,6 +10,7 @@ import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
   providedIn: 'root',
 })
 export class UserSettingsService {
+  // TODO !!! move to application layer (features)
   private readonly apiDomain = environment.apiDomain;
   private readonly apiUrl = 'api/user-settings';
 
