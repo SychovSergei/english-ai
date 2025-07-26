@@ -12,6 +12,9 @@
     "build": "ng build --configuration production",
     "build:ci": "ng build --configuration production && cp _redirects dist/client/browser",
     "watch": "ng build --watch --configuration development",
+    "pwa:build": "ng build --configuration production",
+    "pwa:serve": "http-server ./dist/client/browser --spa -p 8888",
+    "pwa:preview": "npm run pwa:build && npm run pwa:serve",
     "test": "ng test",
     "docs:client": "typedoc"
   },

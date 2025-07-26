@@ -12,7 +12,12 @@
           "/index.html",
           "/manifest.webmanifest",
           "/*.css",
-          "/*.js"
+          "/*.js",
+          "/main.*.js",
+          "/polyfills.*.js",
+          "/runtime.*.js",
+          "/vendor.*.js",
+          "/**/*.js"
         ]
       }
     },

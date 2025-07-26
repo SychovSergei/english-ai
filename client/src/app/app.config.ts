@@ -1,6 +1,7 @@
 import { CoreModule } from '@core/core.module';
 import { authInterceptor, errorInterceptor } from '@core/interceptors';
 import { CORE_PROVIDERS } from '@core/providers/core.providers';
+import { environment } from '@environments/environment';
 import { WordSetsModule } from '@features/word-set/word-sets.module';
 import { WordsModule } from '@features/words/words.module';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -10,6 +11,7 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
+import { provideServiceWorker } from '@angular/service-worker';
 
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -40,7 +42,7 @@ export const appConfig: ApplicationConfig = {
     ]),
     ...CORE_PROVIDERS,
     provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
+      enabled: environment.pwa,
       registrationStrategy: 'registerWhenStable:30000',
     }),
   ],
