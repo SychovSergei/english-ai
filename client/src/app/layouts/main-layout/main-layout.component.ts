@@ -1,11 +1,15 @@
+import { LoginService } from '@features/auth';
+import { LoginDialogComponent } from '@features/auth/login-dialog/login-dialog.component';
+import { UserService } from '@features/user/model/user.service';
 import { ToolbarComponent } from '@features/user/ui';
 import { SwipeDirective } from '@shared/directives';
 import { BreakpointService } from '@shared/infrastructure';
 import { EBreakpoints } from '@shared/infrastructure/ui/breakpoint.service';
-import { FooterComponent } from '@shared/ui';
+import { ConfirmDialogComponent, FooterComponent } from '@shared/ui';
 import { Config, MenuComponent, MenuItem } from '@widgets/menu';
 
 import { Component, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDrawer, MatDrawerContainer, MatDrawerContent } from '@angular/material/sidenav';
 import { RouterOutlet } from '@angular/router';
 
@@ -91,7 +95,12 @@ export class MainLayoutComponent {
     },
   ];
 
-  constructor(public breakpointService: BreakpointService) {
+  constructor(
+    public breakpointService: BreakpointService,
+    public dialog: MatDialog,
+    public loginService: LoginService,
+    public userService: UserService,
+  ) {
     this.breakpointService.getBreakpointState(EBreakpoints.XSmall)?.subscribe((res) => {
       this.isMobile = res;
     });
@@ -102,5 +111,43 @@ export class MainLayoutComponent {
     if (event === 'left') {
       this.drawer.close();
     }
+  }
+
+  onLoggedIn(): void {
+    const dialogRef = this.dialog.open(LoginDialogComponent, {
+      panelClass: 'fullscreen-dialog',
+      maxWidth: '100vw',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('Диалог закрылся с результатом:', result);
+
+      if (result?.success) {
+        this.userService.loadUserFromToken().subscribe();
+      }
+    });
+  }
+
+  onLoggedOut(): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Logout',
+        message: 'Are you sure you want to log out?',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loginService.logout().subscribe({
+          next: () => {
+            console.log('Logout successful');
+            this.userService.loadUserFromToken().subscribe();
+          },
+          error: (error) => {
+            console.error('Logout error:', error);
+          },
+        });
+      }
+    });
   }
 }
