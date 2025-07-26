@@ -1,9 +1,8 @@
 import { Word } from '@entities/word';
 import { CreateWordSetDto, UpdateWordSetDto, WordSetResponseDto } from '@entities/word-set/api/dtos';
 import { IWordSetApi, WordSet } from '@entities/word-set/models';
-import { HttpApiService } from '@shared/api';
-// import { API_MODULE_URL } from '@shared/config/api-tokens';
 import { ELangs, EWordSetVisibility } from '@shared/enums';
+import { HttpApiService } from '@shared/infrastructure';
 
 import { Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
