@@ -1,4 +1,5 @@
 import { EUserRole } from '@shared/enums';
+import { UserSettings } from '@shared/interfaces';
 
 export type IUserLoginDTO = {
   email: string;
@@ -37,7 +38,7 @@ export interface IUserTokenPayload {
   wordSets?: string[];
   sharedWordSets?: string[];
   trainingSessions?: string[];
-  settings?: string;
+  settings?: UserSettings;
   isActivated: boolean;
   activationId: string;
   createdAt?: Date;
