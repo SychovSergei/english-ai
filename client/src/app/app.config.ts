@@ -6,15 +6,16 @@ import { WordSetsModule } from '@features/word-set/word-sets.module';
 import { WordsModule } from '@features/words/words.module';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { provideIndexedDb } from 'ngx-indexed-db';
 
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
 import { routes } from './app.routes';
-import { provideServiceWorker } from '@angular/service-worker';
+import { dbLocalConfig } from './indexed-db-config';
 
 const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
   new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -45,5 +46,6 @@ export const appConfig: ApplicationConfig = {
       enabled: environment.pwa,
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    ...(environment.useIndexedDb ? [provideIndexedDb(dbLocalConfig)] : []),
   ],
 };
