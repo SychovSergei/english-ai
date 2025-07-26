@@ -1,3 +1,4 @@
+import { LoginFormValue } from '@features/auth/login-dialog/login-dialog.component';
 import { AuthApiService } from '@shared/api';
 import { IUserLoginDTO, IUserLoginResponse } from '@shared/api';
 import { TokenService } from '@shared/infrastructure';
@@ -18,8 +19,13 @@ export class LoginService {
     private authApi: AuthApiService,
   ) {}
 
-  login(userData: IUserLoginDTO): Observable<IUserLoginResponse> {
-    return this.authApi.login(userData).pipe(
+  login(userData: LoginFormValue): Observable<IUserLoginResponse> {
+    const user = {
+      email: userData.email.toLowerCase().trim(),
+      password: userData.password,
+    } as IUserLoginDTO;
+
+    return this.authApi.login(user).pipe(
       tap((result) => {
         this.tokenService.setAccessToken(result.accessToken);
         /** redirect to the link that was remembered when logout process executed.
@@ -30,7 +36,8 @@ export class LoginService {
           this.router.navigateByUrl(redirectUrl);
         } else {
           console.log(`this.router.navigate([['words', 'word-sets']])`);
-          this.router.navigate(['words', 'word-set', 'create']); // TODO create default route token
+          // this.router.navigate(['words', 'word-set', 'create']); // TODO create default route token
+          this.router.navigate(['words', 'my-words']);
         }
       }),
       catchError((error) => {
@@ -44,7 +51,7 @@ export class LoginService {
     return this.authApi.logout().pipe(
       tap(() => {
         this.tokenService.removeAccessToken();
-        this.router.navigate(['auth', 'login']);
+        // this.router.navigate(['auth', 'login']);
       }),
     );
   }
