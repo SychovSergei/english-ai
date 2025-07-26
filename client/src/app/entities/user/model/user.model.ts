@@ -1,4 +1,5 @@
 import { EUserRole } from '@shared/enums';
+import { UserSettings } from '@shared/interfaces';
 
 export interface IUser {
   id?: string;
@@ -9,7 +10,7 @@ export interface IUser {
   wordSets?: string[];
   sharedWordSets?: string[];
   trainingSessions?: string[];
-  settings?: string;
+  settings?: UserSettings;
   isActivated: boolean;
   activationId: string;
   createdAt?: Date;
