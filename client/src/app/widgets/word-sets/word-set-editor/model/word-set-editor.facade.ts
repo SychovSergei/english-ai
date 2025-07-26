@@ -1,7 +1,7 @@
-import { WordService } from '@entities/word';
 import { WordSet, WordSetService } from '@entities/word-set';
 import { WordItem, WordItemIsNew } from '@entities/word-set/models';
 import { AddWordsDialogService } from '@features/word-set/word-import/model';
+import { WordService } from '@features/words';
 import { ELangs, EWordSetVisibility } from '@shared/enums';
 import { generateUuid, markAllControlsAsTouchedAndDirty } from '@shared/utils';
 import { WordSetEditorMode } from '@widgets/word-sets/word-set-editor/model/model';
