@@ -1,6 +1,6 @@
 import { ToolbarComponent } from '@features/user/ui';
 import { AuthRoutingModule } from '@pages/auth/auth-routing.module';
-import { FooterComponent } from '@shared/ui/footer/footer.component';
+import { FooterComponent } from '@shared/ui';
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
