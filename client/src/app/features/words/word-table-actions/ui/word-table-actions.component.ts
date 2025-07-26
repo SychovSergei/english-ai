@@ -1,6 +1,6 @@
 import { AddWordDialogComponent } from '@features/words/add-word-dialog';
 import { OpenDialogWordData } from '@features/words/types/open-dialog-word-data';
-import { ITableActions, TableActionsModule } from '@shared/ui/data-table-actions';
+import { ITableActions, TableActionsComponent } from '@shared/ui/data-table-actions';
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -26,7 +26,7 @@ import { MatDialog } from '@angular/material/dialog';
   templateUrl: 'word-table-actions.component.html',
   styleUrls: ['./word-table-actions.component.scss'],
   standalone: true,
-  imports: [TableActionsModule],
+  imports: [TableActionsComponent],
 })
 export class WordTableActionsComponent {
   @Input() wordsList: string[] = []; // TODO ЗАЧЕМ ???
