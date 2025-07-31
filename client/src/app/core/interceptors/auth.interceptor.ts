@@ -1,6 +1,6 @@
 import { LoginService } from '@features/auth';
+import { TokenService } from '@shared/infrastructure';
 import { CustomHttpErrorResponse } from '@shared/interfaces/error.interface';
-import { TokenService } from '@shared/services';
 
 import { HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';

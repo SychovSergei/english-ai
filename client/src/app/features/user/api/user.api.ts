@@ -1,5 +1,5 @@
 import { IUser } from '@entities/user';
-import { HttpApiService } from '@shared/api';
+import { HttpApiService } from '@shared/infrastructure';
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';

@@ -4,6 +4,8 @@ import { TranslateModule, TranslatePipe, TranslateService } from '@ngx-translate
 import { AsyncPipe } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { LoginService } from '@features/auth';
+import { TokenService } from '@shared/infrastructure';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +20,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private userService: UserService,
+    public loginService: LoginService,
+    public tokenService: TokenService,
     private translate: TranslateService,
   ) {
     this.translate.addLangs(['en', 'ua']);
@@ -26,7 +30,17 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.userService.getCurrentUserInfo();
-    this.userService.loadUserFromToken();
+    const token = this.tokenService.getAccessToken();
+    if (token) {
+      if (!this.tokenService.checkTokenValidity(token)) {
+        this.tokenService.removeAccessToken();
+      }
+
+      this.userService.loadUserFromToken().subscribe((user) => {
+        if (!user) {
+          this.loginService.logout().subscribe();
+        }
+      });
+    }
   }
 }

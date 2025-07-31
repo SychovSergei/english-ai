@@ -8,7 +8,7 @@ import {
   WordsResponse,
   WordTranslation,
 } from '@entities/word/model/word.types';
-import { HttpApiService } from '@shared/api';
+import { HttpApiService } from '@shared/infrastructure';
 
 // import { API_MODULE_URL } from '@shared/config/api-tokens';
 import { HttpParams } from '@angular/common/http';
@@ -60,7 +60,7 @@ export class WordApi {
       .set('sortDirection', requestObj.sortDirection.toString());
     console.log(this.apiUrl);
     // return this.httpService.get<WordsResponse>(`${this.apiUrl}`, params).pipe(
-    return this.httpService.get<WordsResponse>(`api/words`, params).pipe(
+    return this.httpService.get<WordsResponse>(this.apiUrl, params).pipe(
       map((response) => new WordsResponseDTO(response)),
       catchError((error) => {
         console.error('Error fetching words:', error);

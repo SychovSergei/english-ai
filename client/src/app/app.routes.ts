@@ -1,4 +1,4 @@
-import { AuthGuard } from '@core/guards/auth.guard';
+// import { AuthGuard } from '@core/guards/auth.guard';
 import { NotFoundPage } from '@pages/not-found';
 import { CreateWordSetComponent, EditWordSetComponent, WordSetsPage } from '@pages/word-sets';
 import { WordsPage } from '@pages/words';
@@ -23,7 +23,7 @@ export const routes: Routes = [
         path: 'words',
         // component: WordsComponent,
         // component: WordsPage,
-        canActivate: [AuthGuard],
+        canActivate: [], // AuthGuard
         data: {
           title: 'Words',
         },
