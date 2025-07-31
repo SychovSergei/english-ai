@@ -14,6 +14,8 @@ const createRefreshTokenSchema = () => {
     // userId: custom,
     userId: CustomZodObjectId.optional(),
     refreshToken: z.string(),
+    origin: z.string(),
+    userAgent: z.string(),
   });
 };
 

@@ -9,6 +9,8 @@ const tokenModelSchema: Schema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: EDbModels.User },
     refreshToken: { type: String, required: true },
+    origin: { type: String, required: true },
+    userAgent: { type: String, required: true },
   },
   { timestamps: true },
 );

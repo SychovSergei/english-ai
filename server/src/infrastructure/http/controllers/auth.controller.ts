@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { DiTypes } from '@shared/types';
+import { getClientMeta } from '@shared/utils';
 import { inject, injectable } from 'inversify';
 
-import { Tokens } from '@core/domain/entities';
-import { UserLogin, UserRegister, UserRegisterResponse } from '@core/domain/entities';
+import { Tokens, UserLogin, UserRegister, UserRegisterResponse } from '@core/domain/entities';
 import { IAuthService } from '@core/repositories';
+import { ClientMeta } from '@core/repositories/auth-repository/auth.service.interface';
 
 import { REFRESH_TOKEN_LIFETIME_SEC } from '../../../config';
 
@@ -28,7 +29,9 @@ export class AuthController {
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       const body = req.body as UserLogin;
-      const tokens: Tokens = await this.authService.login(body);
+      const meta: ClientMeta = getClientMeta(req);
+      console.log('login meta', meta);
+      const tokens: Tokens = await this.authService.login(body, meta);
 
       /** send refreshToken to client in cookie
        *  httpOnly: true - чтобы нельзя было изменять и получать внутри браузера */
@@ -67,7 +70,8 @@ export class AuthController {
   async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
-      const tokens: Tokens = await this.authService.refresh(refreshToken);
+      const meta: ClientMeta = getClientMeta(req);
+      const tokens: Tokens = await this.authService.refresh(refreshToken, meta);
       console.log('tokens refresh =', tokens.refreshToken);
       console.log('tokens access =', tokens.accessToken);
       res.cookie('refreshToken', tokens.refreshToken, { maxAge: REFRESH_TOKEN_LIFETIME_SEC * 1000, httpOnly: true });

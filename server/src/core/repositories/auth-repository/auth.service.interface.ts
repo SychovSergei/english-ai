@@ -3,7 +3,12 @@ import { UserLogin, UserRegister, UserRegisterResponse } from '@core/domain/enti
 
 export interface IAuthService {
   register(data: UserRegister): Promise<UserRegisterResponse>;
-  login(data: UserLogin): Promise<Tokens>;
+  login(data: UserLogin, meta: ClientMeta): Promise<Tokens>;
   logout(refreshToken: string): Promise<string | null>;
-  refresh(refreshToken: string | undefined): Promise<Tokens>;
+  refresh(refreshToken: string | undefined, meta: ClientMeta): Promise<Tokens>;
+}
+
+export interface ClientMeta {
+  origin: string;
+  userAgent: string;
 }
