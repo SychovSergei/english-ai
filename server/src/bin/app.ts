@@ -1,11 +1,9 @@
 import express, { Request, Response } from 'express';
 import { Express } from 'express';
-import cors, { CorsOptions } from 'cors';
 import cookieParser from 'cookie-parser';
 
-import { BaseApiError } from '@core/domain/errors';
-import { errorHandler } from '@infrastructure/http/middleware';
-import { mainRouter } from '@infrastructure/http/routes';
+import { corsMiddleware, errorHandler, logRequestMiddleware } from '@infrastructure/http/middleware';
+import { mainRouter } from '@infrastructure/http/routes/routes';
 
 const app: Express = express();
 
@@ -13,35 +11,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Middleware for logging requests
-app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
-  next();
-});
+app.use(logRequestMiddleware);
 
-const whiteList = ['http://localhost:4200', 'http://localhost:3000', 'https://english-ai-learn.netlify.app'];
-const corsOptions: CorsOptions = {
-  origin: function (origin, callback) {
-    console.log('Origin:', origin);
-    // Разрешить пустой origin (для тестирования с Postman)
-    if (
-      !origin || // for Postman
-      whiteList.indexOf(<string>origin) !== -1 || // for specific domains
-      origin.startsWith('http://192.168.') // for local devices
-    ) {
-      console.log('Request is Allowed by CORS.');
-      callback(null, true);
-    } else {
-      callback(new Error('Request is Blocked by CORS.'));
-    }
-  },
-  credentials: true,
-};
-app.use(cors(corsOptions));
-
-app.use((req, res, next) => {
-  console.log(`Received request: ${req.method} ${req.url}`);
-  next();
-});
+app.use(corsMiddleware);
 
 /** ALL ROUTES */
 app.use('/api', mainRouter);
