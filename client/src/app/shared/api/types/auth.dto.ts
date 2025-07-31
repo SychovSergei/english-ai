@@ -1,11 +1,5 @@
-// import { User } from '@entities/user/api/user.api';
-// import { Tokens } from '@shared/services/token.service';
-
-// export type IUserLoginDTO = Pick<User, 'email' | 'password'>;
-// export type IUserLoginResponse = Pick<Tokens, 'accessToken'>;
-
-// export type IUserRegisterDTO = Pick<User, 'name' | 'email' | 'password'>;
-// export type IUserRegisterResponse = Pick<User, 'name' | 'email'>;
+import { EUserRole } from '@shared/enums';
+import { UserSettings } from '@shared/interfaces';
 
 export type IUserLoginDTO = {
   email: string;
@@ -34,3 +28,24 @@ export type IUserRegisterResponse = {
     lastName: string;
   };
 };
+
+export interface IUserTokenPayload {
+  id?: string;
+  name: IUserTokenPayloadName;
+  email: string;
+  // password: string; // TODO DELETE
+  role: EUserRole;
+  wordSets?: string[];
+  sharedWordSets?: string[];
+  trainingSessions?: string[];
+  settings?: UserSettings;
+  isActivated: boolean;
+  activationId: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface IUserTokenPayloadName {
+  firstName: string;
+  lastName: string;
+}

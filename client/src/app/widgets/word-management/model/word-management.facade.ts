@@ -1,4 +1,4 @@
-import { WordTableFacade } from '@features/words/model/word-table.facade';
+import { WordTableFacade } from '@features/words';
 
 import { Injectable } from '@angular/core';
 

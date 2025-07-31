@@ -4,6 +4,7 @@ import { inject, injectable } from 'inversify';
 
 import {
   ICreateUser,
+  Tokens,
   User,
   UserDataForTokensModify,
   UserLogin,
@@ -14,7 +15,6 @@ import {
   userSchema,
   UserSettings,
 } from '@core/domain/entities';
-import { Tokens } from '@core/domain/entities/';
 import { EUserRole } from '@core/domain/enums';
 import { AuthError, ErrorBody, UserError } from '@core/domain/errors';
 import {
@@ -25,6 +25,7 @@ import {
   IVerificationService,
 } from '@core/interfaces';
 import { IAuthService, IUserSettingsService } from '@core/repositories';
+import { ClientMeta } from '@core/repositories/auth-repository/auth.service.interface';
 import { IConfigService } from '@application/ports/config-service.interface';
 
 /**
@@ -85,11 +86,12 @@ export class AuthService implements IAuthService {
   /**
    * Authenticates a user and generates access and refresh tokens.
    * @param data - The user's login credentials (email and password)
+   * @param meta
    * @returns A Tokens object containing access and refresh tokens
    * @throws UserError.NotFound if the user does not exist
    * @throws UserError.WrongPassword if the password is incorrect
    */
-  public async login(data: UserLogin): Promise<Tokens> {
+  public async login(data: UserLogin, meta: ClientMeta): Promise<Tokens> {
     const { email, password } = this.validationService.validate<UserLogin>(
       data,
       userLoginSchema,
@@ -100,7 +102,7 @@ export class AuthService implements IAuthService {
     const userSetting = await this.getUserSettings(user.settingsId!.toString(), user.email);
     const userWithSettings: UserDataForTokensModify = this.prepareUserData(user, userSetting);
 
-    return await this.saveTokensWithData(userWithSettings);
+    return await this.saveTokensWithData(userWithSettings, meta);
   }
 
   /**
@@ -115,11 +117,12 @@ export class AuthService implements IAuthService {
   /**
    * Refreshes the user's authentication tokens using a valid refresh token.
    * @param refreshToken - The user's refresh token
+   * @param meta
    * @returns A new Tokens object with updated access and refresh tokens
    * @throws AuthError.UnauthorizedRefreshToken if the token is missing or invalid
    * @throws UserError.NotFound if the user or associated token is not found
    */
-  public async refresh(refreshToken: string | undefined): Promise<Tokens> {
+  public async refresh(refreshToken: string | undefined, meta: ClientMeta): Promise<Tokens> {
     if (!refreshToken) {
       throw AuthError.UnauthorizedRefreshToken('Refresh token is missing.');
     }
@@ -135,7 +138,7 @@ export class AuthService implements IAuthService {
       throw AuthError.UnauthorizedRefreshToken('Invalid user ID in token.');
     }
 
-    const userData = await this.tokenService.findRefreshToken(userId); // || ''
+    const userData = await this.tokenService.findRefreshToken(userId, meta); // || ''
     if (!userData) throw UserError.NotFound();
 
     // const userId: string = userData.userId!.toString();
@@ -169,7 +172,7 @@ export class AuthService implements IAuthService {
     //   updatedAt: userUpdated.updatedAt,
     // };*/
 
-    return await this.saveTokensWithData(userDto);
+    return await this.saveTokensWithData(userDto, meta);
   }
 
   /**
@@ -299,12 +302,13 @@ export class AuthService implements IAuthService {
   /**
    * Generates tokens for the user and saves the refresh token.
    * @param userDto - User data used for token generation
+   * @param meta
    * @returns A Tokens object with generated access and refresh tokens
    */
-  private async saveTokensWithData(userDto: UserDataForTokensModify): Promise<Tokens> {
+  private async saveTokensWithData(userDto: UserDataForTokensModify, meta: ClientMeta): Promise<Tokens> {
     const tokens: Tokens = this.tokenService.generateTokens<UserDataForTokensModify>(userDto);
     const id = userDto.id?.toString() || ''; //!.toString(); // as string;
-    await this.tokenService.saveRefreshToken(id, tokens.refreshToken);
+    await this.tokenService.saveRefreshToken(id, tokens.refreshToken, meta);
 
     return tokens;
   }

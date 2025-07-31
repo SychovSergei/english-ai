@@ -6,6 +6,7 @@ import { Tokens, UserRefreshToken } from '@core/domain/entities';
 import { UserLoginRespond } from '@core/domain/entities';
 import { IJwtService, ITokenService } from '@core/interfaces';
 import { ITokenRepositoryService } from '@core/repositories';
+import { ClientMeta } from '@core/repositories/auth-repository/auth.service.interface';
 
 import config, { ACCESS_TOKEN_LIFETIME_SEC, REFRESH_TOKEN_LIFETIME_SEC } from '../../config';
 
@@ -59,22 +60,22 @@ export class TokenService implements ITokenService {
     }
   }
 
-  async findRefreshToken(userId: string): Promise<UserRefreshToken | null> {
-    return await this.tokenRepositoryService.findByUserId(userId);
+  async findRefreshToken(userId: string, meta: ClientMeta): Promise<UserRefreshToken | null> {
+    return await this.tokenRepositoryService.findByUserId(userId, meta);
     // (await TokenModel.findOne({ userId }).lean({
     //   virtuals: true,
     // })) as DocResponseWithId<UserRefreshToken> | null;
   }
 
-  async saveRefreshToken(userId: string, refreshToken: string): Promise<UserRefreshToken | null> {
-    const tokenData = await this.tokenRepositoryService.findByUserId(userId); //await tokenModel.findOne({ userId: userId });
+  async saveRefreshToken(userId: string, refreshToken: string, meta: ClientMeta): Promise<UserRefreshToken | null> {
+    const tokenData = await this.tokenRepositoryService.findByUserId(userId, meta); //await tokenModel.findOne({ userId: userId });
     if (tokenData) {
       return this.tokenRepositoryService.updateToken(userId, refreshToken);
       // tokenData.refreshToken = refreshToken;
       //
       // return tokenData.save();
     }
-    return await this.tokenRepositoryService.createToken(userId, refreshToken);
+    return await this.tokenRepositoryService.createToken(userId, refreshToken, meta);
   }
 
   // : Promise<string | null>

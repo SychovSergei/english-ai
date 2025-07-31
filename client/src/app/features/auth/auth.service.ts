@@ -1,6 +1,6 @@
 // import { UserLogin, UserRegistration, UserRegistrationResponse } from '@core/interfaces/user.interface';
 import { AuthApiService } from '@shared/api';
-import { TokenService } from '@shared/services/token.service';
+import { TokenService } from '@shared/infrastructure';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';

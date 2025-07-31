@@ -1,6 +1,7 @@
 import { WordApi, WordUpdateOperationResult } from '@entities/word/api/word.api';
 import { CreateWordDTO, PatchChange, UpdateWordDTO, WordPatchPayload } from '@entities/word/api/word.dto';
 import { WordIdResponse, WordTranslation } from '@entities/word/model/word.types';
+import { WordService } from '@features/words';
 import { getArrayDiff, getObjectChanges } from '@features/words/add-word-dialog/model/form.helpers';
 import { mapWordToFormValue } from '@features/words/add-word-dialog/model/word-form.mapper';
 import { WordFormTranslation, WordFormValue } from '@features/words/add-word-dialog/model/word-form.types';
@@ -15,6 +16,7 @@ import { map, Observable, tap } from 'rxjs';
 export class WordFormFacade {
   constructor(
     private wordApi: WordApi, //TODO replace to Interface and TOKEN
+    private wordService: WordService, //TODO replace to Interface and TOKEN
   ) {}
 
   createWord(newWord: WordFormValue): Observable<WordFormValue> {
@@ -26,7 +28,7 @@ export class WordFormFacade {
   updateWord(wordValue: WordFormValue, initValue: WordFormValue): Observable<WordUpdateOperationResult> {
     const updateWordDto = this.toWordUpdateDTO(wordValue, initValue);
     console.log('> > > updateWordDto >>', updateWordDto);
-    return this.wordApi.updateWord(wordValue.id, updateWordDto).pipe(
+    return this.wordService.updateWord(wordValue.id, updateWordDto).pipe(
       tap((val) => {
         console.log('**********');
         val.translations.created.forEach((t) => {

@@ -1,3 +1,5 @@
+import { WordUpdateOperationResult } from '@entities/word/api/word.api';
+import { UpdateWordDTO } from '@entities/word/api/word.dto';
 import { WordsResponseDTO } from '@entities/word/api/WordRepoDTO';
 import { DeleteWordResponse, WordIdResponse, WordsRequest, WordTranslation } from '@entities/word/model/word.types';
 import { WordFormTranslation, WordFormValue } from '@features/words/add-word-dialog/model/word-form.types';
@@ -9,7 +11,7 @@ export interface WordServiceInterface {
   // filterWords(reqObj: WordsRequest): Observable<WordsResponse>;
   checkIfWordExists(wordValue: string): Observable<WordIdResponse>;
   createWord(data: WordFormValue): Observable<WordFormValue>;
-  updateWord(wordValue: WordFormValue, initValue: WordFormValue): Observable<WordFormValue>;
+  updateWord(wordId: string, data: UpdateWordDTO): Observable<WordUpdateOperationResult>;
   getWordById(id: string): Observable<WordFormValue>;
 
   deleteWord(id: string): Observable<DeleteWordResponse>;

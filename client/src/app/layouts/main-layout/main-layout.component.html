@@ -18,7 +18,10 @@
     <div class="layout-main-wrapper">
 
       <div class="toolbar">
-        <app-toolbar (topbarMenuClick)="drawer.toggle()"></app-toolbar>
+        <app-toolbar (topbarMenuClicked)="drawer.toggle()"
+                     (loggedIn)="onLoggedIn()"
+                     (loggedOut)="onLoggedOut()"
+        ></app-toolbar>
       </div>
 
       <!--      <main class="container">-->

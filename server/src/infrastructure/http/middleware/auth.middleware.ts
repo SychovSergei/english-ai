@@ -1,11 +1,13 @@
 import { NextFunction, Response } from 'express';
 import { DiTypes } from '@shared/types';
+import { getClientMeta } from '@shared/utils';
 
 import { AuthError } from '@core/domain/errors/auth.error';
 import { ITokenService } from '@core/interfaces';
 import { ITokenRepositoryService } from '@core/repositories';
+import { ClientMeta } from '@core/repositories/auth-repository/auth.service.interface';
 import { container } from '@infrastructure/di/inversify.config';
-import { CustomRequest } from '@infrastructure/http/interfaces/custom-request.interface';
+import { CustomRequest } from '@infrastructure/http/interfaces';
 
 export const authMiddleware = async (req: CustomRequest, res: Response, next: NextFunction) => {
   const tokenService = container.get<ITokenService>(DiTypes.TokenService); // Получаем сервис из DI
@@ -15,12 +17,9 @@ export const authMiddleware = async (req: CustomRequest, res: Response, next: Ne
   const authHeader = req.headers.authorization;
   const refreshToken = req.cookies.refreshToken;
 
-  if (!authHeader) {
-    return next(AuthError.UnauthorizedAccessToken('Access token missing'));
-  }
-  if (!refreshToken) {
-    return next(AuthError.UnauthorizedRefreshToken('Refresh token missing'));
-  }
+  if (!authHeader) return next(AuthError.UnauthorizedAccessToken('Access token missing'));
+
+  if (!refreshToken) return next(AuthError.UnauthorizedRefreshToken('Refresh token missing'));
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const accessToken = req.headers.authorization!.split(' ')[1];
@@ -37,8 +36,10 @@ export const authMiddleware = async (req: CustomRequest, res: Response, next: Ne
     }
 
     // const userSession = await TokenModel.findOne({ userId: decodedAccess.id }).lean();
+    const meta: ClientMeta = getClientMeta(req);
+
     // eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
-    const userSession = await tokenRepository.findByUserId(decodedAccess.id!.toString());
+    const userSession = await tokenRepository.findByUserId(decodedAccess.id!.toString(), meta);
     if (!userSession) {
       return next(AuthError.UnauthorizedRefreshToken('Session is expired!'));
     }
