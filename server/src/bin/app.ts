@@ -11,10 +11,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Middleware for logging requests
-app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
-  next();
-});
+app.use(logRequestMiddleware);
 
 app.use(corsMiddleware);
 
