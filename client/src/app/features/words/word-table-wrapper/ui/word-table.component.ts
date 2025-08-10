@@ -123,21 +123,13 @@ export class WordTableComponent implements OnChanges, OnInit, AfterViewInit {
     //   sortDirection: this.sort().direction,
     // }));
 
-    // console.log(this.filterId);
     effect(() => {
-      // console.log('EFFECT');
       this.filter();
+      this.offset.set(0);
     });
-    effect(
-      () => {
-        // console.log('EFFECT filter changed', this.filter());
-        this.filter();
-        this.offset.set(0);
-      },
-      // { allowSignalWrites: true },
-    );
+
     effect(() => {
-      // console.log('reqParamObj changed >>>>>>', this.reqParamObj());
+      this.reqParamObj();
       this.loadTableData();
     });
   }
@@ -178,7 +170,6 @@ export class WordTableComponent implements OnChanges, OnInit, AfterViewInit {
       .getWords({ ...this.reqParamObj() })
       .pipe(take(1))
       .subscribe((data: WordsResponseDTO) => {
-        // console.log('data from server', data);
         this.tableWordData.set(data.words as Word[]); // TODO!!! "as" разобраться с ИНТЕРФЕЙСАМИ И ДАННЫМИ
         this.totalCount = data.total;
       });

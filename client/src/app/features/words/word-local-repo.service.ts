@@ -1,6 +1,6 @@
 import { Word, WordTranslation } from '@entities/word';
 import { WordItemDTO, WordsResponseDTO } from '@entities/word/api/WordRepoDTO';
-import { DeleteWordResponse, WordIdResponse } from '@entities/word/model/word.types';
+import { DeleteWordResponse, WordIdResponse, WordsRequest } from '@entities/word/model/word.types';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 // import { WordServiceInterface } from '@features/words/types';
@@ -10,6 +10,7 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable, of, tap } from 'rxjs';
 
 import { WordFormTranslation, WordFormValue } from './add-word-dialog/model/word-form.types';
+import { UserSettingsService } from '@features/user-settings/user-settings.service';
 // import { CreateWordDTO } from '@entities/word/api/word.dto';
 
 // interface MyDBV1 extends DBSchema {
@@ -22,18 +23,22 @@ export class WordLocalRepoService {
   // implements WordServiceInterface
   //// eslint-disable-next-line @typescript-eslint/no-explicit-any
   #dbService = inject(NgxIndexedDBService);
+  #userSettingsService = inject(UserSettingsService);
 
-  constructor(/**private db: IDBPDatabase<any>*/) {
-    this.#dbService.getAll('words').subscribe((words) => {
-      console.log('words', words);
-    });
-  }
+  constructor(/**private db: IDBPDatabase<any>*/) {}
 
-  getWords(): Observable<WordsResponseDTO> {
-    // return from(this.indexedDbGetWords());
+  getWords(requestObj: WordsRequest): Observable<WordsResponseDTO> {
     return this.#dbService.getAll<Word>('words').pipe(
       map((words) => {
-        return { words, total: words.length };
+        const length = words.length;
+        const sortDirection = requestObj.sortDirection;
+        const filteredWords = words
+          .sort((a, b) => {
+            const direction = a.text.localeCompare(b.text, this.#userSettingsService.currentSettings?.defaultLanguage);
+            return sortDirection === 'desc' ? -direction : direction;
+          })
+          .splice(requestObj.offset, requestObj.limit);
+        return { words: filteredWords, total: length };
       }),
     );
   }
