@@ -6,8 +6,9 @@ import { WordSetsModule } from '@features/word-set/word-sets.module';
 import { WordsModule } from '@features/words/words.module';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { provideIndexedDb } from 'ngx-indexed-db';
+import { NgxIndexedDBModule } from 'ngx-indexed-db';
 
+// import { NgxIndexedDBModule, provideIndexedDb } from '../../../ngx-indexed-db/dist/ngx-indexed-db';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -28,7 +29,7 @@ const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: Http
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    importProvidersFrom(CoreModule, WordsModule, WordSetsModule),
+    importProvidersFrom(CoreModule, WordsModule, WordSetsModule), //
     provideRouter(routes),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
@@ -42,10 +43,49 @@ export const appConfig: ApplicationConfig = {
       }),
     ]),
     ...CORE_PROVIDERS,
+    // ...(environment.useIndexedDb
+    //   ? [
+    //       provideIndexedDb(dbLocalConfig),
+    //       {
+    //         provide: APP_INITIALIZER,
+    //         useFactory: initIndexedDbFactory,
+    //         deps: [NgxIndexedDBModule],
+    //         multi: true,
+    //       },
+    //     ]
+    //   : []),
+    ...(environment.useIndexedDb
+      ? [
+          importProvidersFrom(NgxIndexedDBModule.forRoot(dbLocalConfig)),
+          // {
+          //   provide: APP_INITIALIZER,
+          //   useFactory: initIndexedDbFactory,
+          //   deps: [NgxIndexedDBModule],
+          //   multi: true,
+          // },
+        ]
+      : []),
     provideServiceWorker('ngsw-worker.js', {
       enabled: environment.pwa,
       registrationStrategy: 'registerWhenStable:30000',
     }),
-    ...(environment.useIndexedDb ? [provideIndexedDb(dbLocalConfig)] : []),
+    // importProvidersFrom(NgxIndexedDBModule.forRoot(dbLocalConfig)),
   ],
 };
+
+// function initIndexedDbFactory(dbService: NgxIndexedDBService) {
+//   return async (): Promise<void> => {
+//     console.log('Initializing IndexedDB...');
+//     if (!dbService || typeof dbService.getAll !== 'function') {
+//       console.warn('IndexedDB service is not available or API changed');
+//       return;
+//     }
+//
+//     try {
+//       const words = await firstValueFrom(dbService.getAll('words'));
+//       console.log('IndexedDB initialized, words count:', words.length);
+//     } catch (err) {
+//       console.error('IndexedDB init failed', err);
+//     }
+//   };
+// }

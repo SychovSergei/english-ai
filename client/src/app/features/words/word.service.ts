@@ -27,7 +27,8 @@ export class WordService implements WordServiceInterface {
     console.log('getWords>> isOnline()>>>>>', this.networkService.isOnline());
     console.log('getWords>> userData>>>>>', this.userService.userData());
 
-    if (this.networkService.isOnline() && this.userService.getCurrentUser()?.id) {
+    // && this.userService.getCurrentUser()?.id
+    if (this.networkService.isOnline()) {
       console.log('ONLINE AUTHORIZED');
       return this.wordApi.getWords(reqObj).pipe(
         tap((words) => {
@@ -37,9 +38,9 @@ export class WordService implements WordServiceInterface {
         }),
       );
     } else {
-      console.log('OFF LINE user => ', this.userService.getCurrentUser()?.id);
+      console.log('OFF LINE user => ', this.userService.getCurrentUser());
       // TODO create IndexedDBService
-      return this.wordLocalRepoService.getWords();
+      return this.wordLocalRepoService.getWords(reqObj); //.pipe(tap((data) => console.log(data)));
     }
   }
 

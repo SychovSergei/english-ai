@@ -21,7 +21,7 @@ export class WordTableFacade implements WordFacadeInterface {
       sortName: reqObj.sortName || '',
       sortDirection: reqObj.sortDirection || '',
     };
-    return this.wordService.getWords(reqObject).pipe(shareReplay(1)); // 🔥 Кэшируем последний результат;
+    return this.wordService.getWords(reqObject).pipe(shareReplay(1));
   }
 
   // createWord(newWord: CreateWordDTO): Observable<WordFormValue> {
