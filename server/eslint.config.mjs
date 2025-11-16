@@ -90,8 +90,15 @@ export default [
             // 🔹 Пакеты из `node_modules` (Express, Mongoose и другие npm-библиотеки)
             ['^express$', '^mongoose$', '^cors$', '^dotenv$', '^jsonwebtoken$', '^bcrypt$', '^@?\\w'],
 
-            // 🔹 Архитектурные слои Clean Architecture
-            ['^@core', '^@application', '^@infrastructure', '^@interfaces'],
+            // 🔹 Архитектурные слои DDD Architecture
+
+            ['^@?\\w'],
+
+            // DDD Layers
+            ['^src/core/domain'],
+            ['^src/core/application'],
+            ['^src/core/infrastructure'],
+            ['^src/core/interface'],
 
             // 🔹 Относительные импорты (сначала на уровень выше, потом локальные файлы)
             ['^\\.\\.(?!/?$)', '^\\.'],
@@ -103,32 +110,42 @@ export default [
       // Запрещает импорт приватных файлов (например, _utils.ts)
       //"boundaries/no-private": "error",
 
-      // 🔹 Запрещает неправильные импорты между слоями FSD
+      // 🔹 Запрещает неправильные импорты между слоями
       'boundaries/element-types': [
         'error',
         {
           default: 'disallow',
           rules: [
-            { from: 'core', allow: [] },
-            { from: 'application', allow: ['core'] },
-            { from: 'infrastructure', allow: ['application', 'core'] },
+            // Domain → nobody
+            { from: 'domain', allow: [] },
+
+            // Application → domain
+            { from: 'application', allow: ['domain'] },
+
+            // Infrastructure → application, domain
+            { from: 'infrastructure', allow: ['application', 'domain'] },
+
+            // Interface → everything except infra
+            { from: 'interface', allow: ['application', 'domain', 'infrastructure'] },
           ],
         },
       ],
     },
 
     settings: {
-      // boundaries: {
-      //   elements: {
-      //     core: ["src/core/**/*.{ts,js}"],
-      //     application: ["src/application/**/*.{ts,js}"],
-      //     infrastructure: ["src/infrastructure/**/*.{ts,js}"],
-      //   },
-      // },
+      // === DDD SLICE DEFINITIONS ===
       'boundaries/elements': [
-        { type: 'core', pattern: 'src/core(/.*)?' },
-        { type: 'application', pattern: 'src/application(/.*)?' },
-        { type: 'infrastructure', pattern: 'src/infrastructure(/.*)?' },
+        // Domain
+        { type: 'domain', pattern: 'src/core/domain(/.*)?' },
+
+        // Application (use cases)
+        { type: 'application', pattern: 'src/core/application(/.*)?' },
+
+        // Infrastructure (adapters, repos)
+        { type: 'infrastructure', pattern: 'src/core/infrastructure(/.*)?' },
+
+        // Interface (controllers, http, ws)
+        { type: 'interface', pattern: 'src/core/interface(/.*)?' },
       ],
       'import/resolver': {
         typescript: {
