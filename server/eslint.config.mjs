@@ -78,30 +78,65 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn', // Предупреждение вместо ошибки
       '@typescript-eslint/no-non-null-assertion': 'warn', // Предупреждение вместо ошибки
       '@typescript-eslint/no-unused-vars': ['warn'], //, { argsIgnorePattern: "^_" } Предупреждение вместо ошибки
+      '@typescript-eslint/explicit-function-return-type': ['warn', { allowExpressions: true }],
 
-      // 🔹 Группировка и сортировка импортов
+      // groping and sorting imports
       'simple-import-sort/imports': [
         'warn',
         {
           groups: [
-            // 🔹 Встроенные модули Node.js (fs, path, os и т. д.)
+            // // 1. Встроенные модули Node.js (fs, path, os и т. д.)
+            // ['^node:.*', '^(fs|path|os|crypto|util|events|http|https|stream|url)$'],
+            //
+            // // 2. External libraries (npm)
+            // [
+            //   '^express$',
+            //   '^mongoose$',
+            //   '^cors$',
+            //   '^dotenv$',
+            //   '^jsonwebtoken$',
+            //   '^jwt$',
+            //   '^bcrypt$',
+            //   '^inversify$',
+            //   '^zod$',
+            // ],
+            // ['^@?\\w'],
+            //
+            // // 3. DDD Layers
+            // ['^src/core/domain'],
+            // ['^src/core/application'],
+            // ['^src/core/infrastructure'],
+            // ['^src/core/interface'],
+            // ['^@ioc'],
+            //
+            // // 4. Relative imports (сначала на уровень выше, потом локальные файлы)
+            // ['^\\.\\.(?!/?$)', '^\\./?$'],
+
+            // 1. Node.js built-ins
             ['^node:.*', '^(fs|path|os|crypto|util|events|http|https|stream|url)$'],
 
-            // 🔹 Пакеты из `node_modules` (Express, Mongoose и другие npm-библиотеки)
-            ['^express$', '^mongoose$', '^cors$', '^dotenv$', '^jsonwebtoken$', '^bcrypt$', '^@?\\w'],
+            // 2. External packages
+            ['^reflect-metadata$', '^@?\\w'],
 
-            // 🔹 Архитектурные слои DDD Architecture
+            ['^@events(/.*)?$'],
 
-            ['^@?\\w'],
+            // 3. Domain
+            ['^@core/domain(/.*)?$', '^@modules/.+/domain(/.*)?$'],
 
-            // DDD Layers
-            ['^src/core/domain'],
-            ['^src/core/application'],
-            ['^src/core/infrastructure'],
-            ['^src/core/interface'],
+            // 4. Application
+            ['^@core/application(/.*)?$', '^@modules/.+/application(/.*)?$'],
 
-            // 🔹 Относительные импорты (сначала на уровень выше, потом локальные файлы)
-            ['^\\.\\.(?!/?$)', '^\\.'],
+            // 8. Infrastructure
+            ['^@infrastructure(/.*)?$', '^@modules/.+/infrastructure(/.*)?$'],
+
+            // 9. DI IOC
+            ['^@core/constants(/.*)?$', '^@modules/.+/constants(/.*)?$'],
+
+            // 10. IOC
+            ['^@ioc(/.*)?$'],
+
+            // 11. Relative imports
+            ['^\\.\\.(?!/?$)', '^\\./'],
           ],
         },
       ],
@@ -116,17 +151,91 @@ export default [
         {
           default: 'disallow',
           rules: [
-            // Domain → nobody
-            { from: 'domain', allow: [] },
+            // // Domain → nobody
+            // { from: 'domain', allow: ['domain'] },
+            //
+            // // Application → domain
+            // { from: 'application', allow: ['domain', 'application'] },
+            //
+            // // Infrastructure → application, domain
+            // { from: 'infrastructure', allow: ['domain', 'application', 'infrastructure', 'ioc'] },
+            //
+            // // Interface → everything except infra
+            // { from: 'interface', allow: ['domain', 'application', 'infrastructure', 'interface', 'ioc'] },
+            //
+            // { from: 'ioc', allow: ['ioc'] }, // ioc только сам с собой
 
-            // Application → domain
-            { from: 'application', allow: ['domain'] },
+            // { from: 'domain', allow: ['shared'] }, // Domain не зависит ни от чего
 
-            // Infrastructure → application, domain
-            { from: 'infrastructure', allow: ['application', 'domain'] },
+            { from: 'core-domain', allow: ['core-domain'] }, // Domain не зависит ни от чего
+            { from: 'core-application', allow: ['core-domain', 'core-application'] },
+            {
+              from: 'module-domain',
+              allow: ['core-domain', 'module-domain'],
+            },
+            {
+              from: 'module-application',
+              allow: ['core-domain', 'core-application', 'module-domain', 'module-application'],
+            },
 
-            // Interface → everything except infra
-            { from: 'interface', allow: ['application', 'domain', 'infrastructure'] },
+            {
+              from: 'module-infrastructure',
+              allow: [
+                'core-domain',
+                'core-application',
+                'module-domain',
+                'module-application',
+                'module-infrastructure',
+                // 'ioc',
+              ],
+            },
+            {
+              from: 'infrastructure',
+              allow: [
+                'core-domain',
+                'core-application',
+                'module-domain',
+                'module-application',
+                'module-infrastructure',
+                'ioc',
+              ],
+            },
+            {
+              from: 'ioc',
+              allow: [
+                'core-domain',
+                'core-application',
+                'module-domain',
+                'module-application',
+                'module-infrastructure',
+                'infrastructure',
+              ],
+            },
+
+            // {
+            //   type: 'domain',
+            //   pattern: 'modules/*/domain/**',
+            // },
+            // {
+            //   type: 'application',
+            //   pattern: 'modules/*/application/**',
+            // },
+            // {
+            //   type: 'infrastructure',
+            //   pattern: 'modules/*/infrastructure/**',
+            // },
+            // {
+            //   type: 'shared',
+            //   pattern: 'shared/**',
+            // },
+            // {
+            //   type: 'ioc',
+            //   pattern: 'ioc/**',
+            // },
+            // {
+            //   type: 'events',
+            //   pattern: 'app/events/**',
+            // },
           ],
         },
       ],
@@ -135,17 +244,33 @@ export default [
     settings: {
       // === DDD SLICE DEFINITIONS ===
       'boundaries/elements': [
-        // Domain
-        { type: 'domain', pattern: 'src/core/domain(/.*)?' },
+        // // Domain
+        // { type: 'domain', pattern: 'src/core/domain(/.*)?' },
+        //
+        // // Application (use cases)
+        // { type: 'application', pattern: 'src/core/application(/.*)?' },
+        //
+        // // Infrastructure (adapters, repos)
+        // { type: 'infrastructure', pattern: 'src/core/infrastructure(/.*)?' },
+        //
+        // // Interface (controllers, http, ws)
+        // { type: 'interface', pattern: 'src/core/interface(/.*)?' },
+        //
+        // // IoC
+        // { type: 'ioc', pattern: 'src/ioc(/.*)?' },
 
-        // Application (use cases)
-        { type: 'application', pattern: 'src/core/application(/.*)?' },
+        // { type: 'domain', pattern: 'src/core/domain(/.*)?' },
 
-        // Infrastructure (adapters, repos)
-        { type: 'infrastructure', pattern: 'src/core/infrastructure(/.*)?' },
+        { type: 'core-domain', pattern: 'core/domain(/.*)?' },
+        { type: 'core-application', pattern: 'core/application(/.*)?' },
 
-        // Interface (controllers, http, ws)
-        { type: 'interface', pattern: 'src/core/interface(/.*)?' },
+        { type: 'module-domain', pattern: 'modules/*/domain(/.*)?' },
+        { type: 'module-application', pattern: 'modules/*/application(/.*)?' },
+        { type: 'module-infrastructure', pattern: 'modules/*/infrastructure(/.*)?' },
+
+        { type: 'infrastructure', pattern: 'infrastructure(/.*)?' },
+        { type: 'ioc', pattern: 'ioc(/.*)?' },
+        // { type: 'shared', pattern: 'shared(/.*)?' },
       ],
       'import/resolver': {
         typescript: {
