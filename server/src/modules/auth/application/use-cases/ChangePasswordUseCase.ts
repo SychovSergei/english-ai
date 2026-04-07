@@ -2,10 +2,9 @@ import { inject, injectable } from 'inversify';
 
 import { PasswordHash } from '@modules/auth/domain/value-objects';
 
-import { IdentityProvider } from '@core/application/ports/auth/IdentityProvider';
-import { PasswordHasher } from '@core/application/ports/auth/PasswordHasher';
-import { UserRepositoryPort } from '@modules/auth/application/ports';
+import { IdentityProvider, PasswordHasher } from '@core/application/ports/auth';
 import { ChangePasswordDTO } from '@modules/auth/application/use-cases/dto';
+import { UserRepositoryPort } from '@modules/users/application/ports';
 
 import { CORE_TYPES } from '@core/constants/types';
 import { AUTH_TYPES } from '@modules/auth/constants/auth.types';

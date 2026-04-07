@@ -1,7 +1,7 @@
-import { ToolbarComponent } from '@features/user/ui';
 import { BreakpointService, EBreakpoints } from '@shared/services/breakpoint.service';
 import { FooterComponent } from '@shared/ui/footer/footer.component';
 import { Config, MenuComponent, MenuItem } from '@widgets/menu';
+import { ToolbarComponent } from '@widgets/toolbar';
 
 import { Component } from '@angular/core';
 import { MatDrawer, MatDrawerContainer, MatDrawerContent } from '@angular/material/sidenav';

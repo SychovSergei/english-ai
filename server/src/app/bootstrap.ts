@@ -1,11 +1,9 @@
 import { bootstrapAuthModule } from '@modules/auth/bootstrapAuthModule';
+import { bootstrapUserModule } from '@modules/users/bootstrapUserModule';
 import { bootstrapWordModule } from '@modules/words/bootstrapWordModule';
 import { Express, Request, Response, Router } from 'express';
 import { Container } from 'inversify';
 
-import { ActorResolver } from '@infrastructure/auth/ActorResolver';
-
-import { CORE_TYPES } from '@core/constants/types';
 import { AUTH_TYPES } from '@modules/auth/constants/auth.types';
 import { WORDS_TYPES } from '@modules/words/constants/words.types';
 
@@ -15,6 +13,7 @@ import { bindEventBus } from '@ioc/bindings/event-bus.bindings';
 
 import { bootstrapDatabase } from './bootstrapDatabase';
 import { createApp } from './createApp';
+import { USER_TYPES } from '@modules/users/constants/user.types';
 
 export async function bootstrapApplication(container: Container): Promise<Express> {
   // DB connection
@@ -27,11 +26,12 @@ export async function bootstrapApplication(container: Container): Promise<Expres
   // Modules
   bootstrapAuthModule(container);
   bootstrapWordModule(container);
+  bootstrapUserModule(container);
   // TODO: const trainingModule = bootstrapTrainingModule(eventBus);
-  // TODO: const userModule = bootstrapUserModule(eventBus);
 
   const authRouter = container.get<Router>(AUTH_TYPES.AuthRouter);
   const wordsRouter = container.get<Router>(WORDS_TYPES.WordsRouter);
+  const usersRouter = container.get<Router>(USER_TYPES.UsersRouter);
   // const actorResolver = container.get<ActorResolver>(CORE_TYPES.ActorResolver);
 
   const app = createApp(
@@ -39,8 +39,8 @@ export async function bootstrapApplication(container: Container): Promise<Expres
     /*actorResolver,*/ (app: Express) => {
       app.use('/api/auth', authRouter);
       app.use('/api/words', wordsRouter);
+      app.use('/api/users', usersRouter);
       // TODO: app.use('/api/training', trainingModule.router);
-      // TODO: app.use('/api/users', userModule.router);
 
       app.get('/', (req: Request, res: Response) => {
         res.send('Server is working!');

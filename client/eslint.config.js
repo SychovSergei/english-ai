@@ -59,6 +59,8 @@ export default [
     rules: {
       'prettier/prettier': ['warn'],
 
+      'import/no-duplicates': ['warn', { considerQueryString: true }],
+
       // Запрещает импорт приватных файлов (например, _utils.ts)
       'boundaries/no-private': 'error',
 
@@ -71,9 +73,40 @@ export default [
             { from: 'core', allow: ['pages', 'widgets', 'features', 'entities', 'shared'] },
             { from: 'pages', allow: ['widgets', 'features', 'entities', 'shared'] },
             { from: 'widgets', allow: ['features', 'entities', 'shared'] },
-            { from: 'features', allow: ['shared', 'entities', 'widgets'] },
-            { from: 'entities', allow: ['shared'] },
-            { from: 'shared', allow: [] },
+            { from: 'features', allow: ['entities', 'shared'] },
+            {
+              from: 'entities',
+              allow: [
+                'shared',
+                'entities',
+                // { type: 'entities', capture: ['slice'] }, // Позволяет импорт между разными сущностями
+              ],
+              message: 'Entities can only rely on other entities or shared layer',
+            },
+
+            { from: 'shared', allow: ['shared'] },
+          ],
+        },
+      ],
+      // Добавляем запрет на глубокие импорты (Public API)
+      'import/no-internal-modules': [
+        'error',
+        {
+          allow: [
+            '**/node_modules/**',
+            // 'src/app/**/index.ts',
+            '**/@x/**', // разрешаем экспорт через Scoped API
+            '**/index.ts', // 1. Разрешаем всем стучаться в публичные API слайсов
+            // './**', // 2. Разрешаем относительные пути (на любую глубину внутри папки)
+            // '../**', // 3. Разрешаем подниматься выше
+            // 3. Разрешаем Shared целиком (потому что там нет слайсов, только общие утилиты)
+            '@shared/**',
+            'src/app/shared/**',
+
+            // '**/api/**', // Разрешаем экспорт из стандартных сегментов FSD
+            // '**/model/**',
+            '**/ui/**',
+            // '**/lib/**',
           ],
         },
       ],
@@ -164,6 +197,7 @@ export default [
       'object-curly-spacing': ['error', 'always'],
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/no-empty-interface': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn'],
       'linebreak-style': ['error', 'unix'],
 
       'import/no-restricted-paths': [
@@ -174,6 +208,13 @@ export default [
               target: './src', // Путь к основному каталогу исходных файлов
               from: './src/features/words-folder', // Папка, которую нужно исключить
               message: 'Запрещен импорт из этой папки', // Сообщение об ошибке
+            },
+            {
+              // Цель: запретить всем
+              target: './src/app/entities/!(word-set)/**/*',
+              // Откуда: папка кросс-импорта для word-set
+              from: './src/app/entities/word/@x/word-set.ts',
+              message: 'Импорт из @entities/word/@x/word-set разрешен ТОЛЬКО для сущности word-set!',
             },
           ],
         },
@@ -206,6 +247,25 @@ export default [
           project: './tsconfig.json',
         },
       },
+    },
+  },
+  {
+    files: ['**/index.ts'], // Применяется ТОЛЬКО к файлам index.ts
+    rules: {
+      'import/no-internal-modules': 'off', // Выключаем проверку для публичных API
+    },
+  },
+  {
+    files: ['**/@x/**/*.ts', '**/@x.ts'], // Применяется к файлам кросс-импортов
+    rules: {
+      // Разрешаем импорт/экспорт внутренних модулей для файлов связи
+      'import/no-internal-modules': 'off',
+    },
+  },
+  {
+    files: ['src/main.ts'], // Применяется ТОЛЬКО к файлу main.ts
+    rules: {
+      'import/no-internal-modules': 'off', // Выключаем проверку
     },
   },
 ];

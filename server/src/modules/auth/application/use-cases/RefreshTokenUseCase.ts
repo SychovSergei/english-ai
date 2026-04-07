@@ -4,9 +4,10 @@ import { AuthError } from '@modules/auth/domain/errors/AuthError';
 import { TokenLifetime } from '@modules/auth/domain/value-objects/TokenLifetime';
 
 import { ConfigServicePort } from '@core/application/ports';
-import { RefreshTokenCommand } from '@modules/auth/application/commands/RefreshTokenCommand';
-import { SessionRepositoryPort, TokenServicePort, UserRepositoryPort } from '@modules/auth/application/ports';
+import { RefreshTokenCommand } from '@modules/auth/application/commands';
+import { SessionRepositoryPort, TokenServicePort } from '@modules/auth/application/ports';
 import { AuthResult } from '@modules/auth/application/use-cases/dto';
+import { UserRepositoryPort } from '@modules/users/application/ports';
 
 import { CORE_TYPES } from '@core/constants/types';
 import { AUTH_TYPES } from '@modules/auth/constants/auth.types';

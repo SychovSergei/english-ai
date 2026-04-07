@@ -5,7 +5,7 @@ import { TranslationId, WordId } from '@modules/words/domain/value-objects';
 
 import { WordResponseDto } from '@modules/words/application/dto/WordDTO';
 
-import { WordPersistence, WordTranslationPersistence } from '@modules/words/infrastructure/db/mongoose/Word.schema';
+import { WordPersistence, WordTranslationPersistence } from '@modules/words/infrastructure/persistence/models';
 import { GuestActor } from '@core/application/identity/GuestActor';
 
 export class WordMapper {

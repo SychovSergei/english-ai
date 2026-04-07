@@ -1,3 +1,3 @@
 export abstract class Entity<TId> {
-  constructor(public readonly id: TId) {}
+  protected constructor(public readonly id: TId) {}
 }

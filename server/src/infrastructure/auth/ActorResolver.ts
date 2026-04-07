@@ -2,18 +2,19 @@ import { Request } from 'express';
 import { inject, injectable } from 'inversify';
 
 import { Actor } from '@core/domain/identity/Actor';
+import { AuthError } from '@modules/auth/domain/errors/AuthError';
 
-import { GuestActor } from '@core/application/identity/GuestActor';
-import { UserActor } from '@core/application/identity/UserActor';
+import { GuestActor } from '@core/application/identity';
+import { UserActor } from '@core/application/identity';
 import { GuestLimits } from '@core/application/limits/GuestLimits';
-import { SessionRepositoryPort, TokenVerifierPort, UserRepositoryPort } from '@modules/auth/application/ports';
-import { IdentifyGuestUseCase } from '@modules/auth/application/use-cases/IdentifyGuestUseCase';
-import { IdentifyGuestCommand } from '@modules/words/application/commands/IdentifyGuestCommand';
+import { SessionRepositoryPort, TokenVerifierPort } from '@modules/auth/application/ports';
+import { IdentifyGuestUseCase } from '@modules/auth/application/use-cases';
+import { UserRepositoryPort } from '@modules/users/application/ports';
+import { IdentifyGuestCommand } from '@modules/words/application/commands';
 
 import { extractToken } from '@infrastructure/http/auth/extract-token';
 
 import { AUTH_TYPES } from '@modules/auth/constants/auth.types';
-import { AuthError } from '@modules/auth/domain/errors/AuthError';
 
 @injectable()
 export class ActorResolver {

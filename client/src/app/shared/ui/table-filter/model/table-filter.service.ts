@@ -1,13 +1,17 @@
-import { Injectable } from '@angular/core';
+import { LoggerService } from '@shared/lib/logger/logger.service';
+import { FilterServiceInterface } from '@shared/ui/table-filter/model/table-filter.interface';
+
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 // import { signal } from '@angular/core';
-import { FilterServiceInterface } from '../model/table-filter.interface';
+// import { FilterServiceInterface } from '../model/table-filter.interface';
 
 @Injectable({
   providedIn: 'root', // Определяет, что сервис будет доступен в корне приложения
 })
 export class TableFilterService implements FilterServiceInterface {
+  private readonly loggerService = inject(LoggerService).createLogger('TableFilterService');
   // private _filters = new Map<string, WritableSignal<string>>();
   private _filters = new Map<string, BehaviorSubject<string>>();
 
@@ -34,6 +38,6 @@ export class TableFilterService implements FilterServiceInterface {
   }
 
   showFilters(): void {
-    console.log(this._filters.entries());
+    this.loggerService.log('this._filters.entries()', this._filters.entries());
   }
 }

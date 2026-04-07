@@ -1,2 +1,2 @@
 export { Actor } from './Actor';
-export { OwnerId } from './OwnerId';
+export { OwnerId, OwnerKind } from './OwnerId';

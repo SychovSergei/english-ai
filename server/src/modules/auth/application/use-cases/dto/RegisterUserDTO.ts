@@ -1,6 +1,15 @@
 export interface RegisterUserDTO {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  name: {
+    firstName: string;
+    lastName: string;
+  };
+}
+export interface RegisterResponseDTO {
+  email: string;
+  name: {
+    firstName: string;
+    lastName: string;
+  };
 }

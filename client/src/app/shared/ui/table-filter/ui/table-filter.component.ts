@@ -1,21 +1,23 @@
+import { LoggerService } from '@shared/lib/logger/logger.service';
 import { TableFilterService } from '@shared/ui/table-filter';
 import { UiKitModule } from '@shared/ui/ui-kit';
 
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   EventEmitter,
+  inject,
   Input,
-  OnDestroy,
   OnInit,
   Optional,
   Output,
   Self,
   // SimpleChanges,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, ControlValueAccessor, FormsModule, NgControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
-import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-data-table-filter',
@@ -26,8 +28,10 @@ import { Subject } from 'rxjs';
   providers: [TableFilterService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TableFilterComponent implements OnInit, OnDestroy, ControlValueAccessor {
-  // { required: true }
+export class TableFilterComponent implements OnInit, ControlValueAccessor {
+  private destroyRef = inject(DestroyRef);
+  private readonly logger = inject(LoggerService).createLogger('TableFilterComponent');
+
   @Input() filterId: string = '';
   @Input() delayVal: number = 500;
 
@@ -40,8 +44,6 @@ export class TableFilterComponent implements OnInit, OnDestroy, ControlValueAcce
   // private fb = inject(FormBuilder);
   public control: AbstractControl | null = null;
   @Output() valueChange: EventEmitter<string> = new EventEmitter();
-
-  private _destroy$ = new Subject<void>();
 
   // public form: FormGroup = this.fb.group({
   //   filter: [''],
@@ -70,20 +72,15 @@ export class TableFilterComponent implements OnInit, OnDestroy, ControlValueAcce
     // this.onInputChange();
 
     this.control = this.ngControl.control;
-    console.log('NG CONTROL', this.control);
+    // console.log('NG CONTROL', this.control);
     this.control?.valueChanges
-      .pipe(debounceTime(this.delayVal), distinctUntilChanged(), takeUntil(this._destroy$))
+      .pipe(debounceTime(this.delayVal), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe((val: string) => {
-        console.log('filter control SUB value is changed', val);
+        // this.logger.log('filter control SUB value is changed', val);
         this.valueChange.emit(val);
         // this.value = val;
         // this.filterService.changeFilterValue(this.filterId, val);
       });
-  }
-
-  ngOnDestroy(): void {
-    this._destroy$.next();
-    this._destroy$.complete();
   }
 
   // private onInputChange(): void {
@@ -105,6 +102,5 @@ export class TableFilterComponent implements OnInit, OnDestroy, ControlValueAcce
 
   writeValue(val: string): void {
     this.value = val;
-    console.log(val);
   }
 }

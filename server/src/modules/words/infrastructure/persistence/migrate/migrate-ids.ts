@@ -6,7 +6,7 @@ import mongoose, { Types } from 'mongoose';
 
 dotenv.config({ path: path.resolve(__dirname, '../../../../../../', '.env') });
 
-async function migrateWords() {
+async function migrateWords(): Promise<void> {
   const dbSource = process.env['DATABASE_SOURCE'];
   console.log(dbSource);
   if (!dbSource) throw new Error('Missing required environment variable: DATABASE_SOURCE');

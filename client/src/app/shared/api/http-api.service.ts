@@ -1,7 +1,8 @@
 import { API_DOMAIN } from '@shared/config/api-tokens';
+import { LoggerService } from '@shared/lib/logger/logger.service';
 
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
+import { Inject, inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -9,6 +10,8 @@ import { catchError } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class HttpApiService {
+  private readonly logger = inject(LoggerService).createLogger('HttpApiService');
+
   constructor(
     @Inject(API_DOMAIN) private apiDomain: string,
     private http: HttpClient,
@@ -21,22 +24,17 @@ export class HttpApiService {
     const options = params
       ? { params: params instanceof HttpParams ? params : new HttpParams({ fromObject: params }) }
       : {};
-    return this.http
-      .get<T>(`${this.apiDomain}/${endpoint}`, options)
-      .pipe
-      //retry(2), // Повторить запрос в случае ошибки (2 раза)
-      // catchError(this.handleError),
-      ();
+    return this.http.get<T>(`${this.apiDomain}/${endpoint}`, options).pipe(catchError(this.handleError));
+    //retry(2), // Повторить запрос в случае ошибки (2 раза)
   }
 
-  post<T, Body>(endpoint: string, body: Body): Observable<T> {
-    console.log(`${this.apiDomain}/${endpoint}`);
-    console.log(body);
-    return this.http.post<T>(`${this.apiDomain}/${endpoint}`, body); //.pipe(catchError(this.handleError));
+  post<TResponse, Body = unknown>(endpoint: string, body: Body): Observable<TResponse> {
+    this.logger.log(`post  url: ${this.apiDomain}/${endpoint}`);
+    return this.http.post<TResponse>(`${this.apiDomain}/${endpoint}`, body).pipe(catchError(this.handleError));
   }
 
-  put<T, Body>(endpoint: string, body: Body): Observable<T> {
-    return this.http.put<T>(`${this.apiDomain}/${endpoint}`, body).pipe(catchError(this.handleError));
+  put<TResponse, Body>(endpoint: string, body: Body): Observable<TResponse> {
+    return this.http.put<TResponse>(`${this.apiDomain}/${endpoint}`, body); //.pipe(catchError(this.handleError));
   }
 
   patch<T, Body>(endpoint: string, body: Body): Observable<T> {
@@ -48,7 +46,7 @@ export class HttpApiService {
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
-    console.error('HTTP Error:', error);
+    this.logger.error('HTTP Error:', error);
     return throwError(() => new Error('Something went wrong, please try again later.'));
   }
 }

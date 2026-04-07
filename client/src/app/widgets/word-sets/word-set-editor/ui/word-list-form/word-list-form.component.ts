@@ -1,11 +1,12 @@
-import { WordItemIsNew } from '@entities/word-set/models';
+import { WordItemIsNew } from '@entities/word-set';
 import { FloatButtonModule } from '@shared/directives/add-floating-button';
+import { generateCompactId } from '@shared/lib';
+import { LoggerService } from '@shared/lib/logger/logger.service';
 import { UiKitModule } from '@shared/ui/ui-kit';
-import { generateUuid } from '@shared/utils';
 
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList } from '@angular/cdk/drag-drop';
 import { NgForOf } from '@angular/common';
-import { ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
@@ -47,6 +48,8 @@ interface WordItemControl {
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
 export class WordListFormComponent implements OnInit {
+  private readonly loggerService = inject(LoggerService).createLogger('WordListFormComponent');
+
   @Input({ required: true }) public controlKey!: string;
   @Input({ required: true }) public listDataWords$!: Observable<WordItemIsNew[]>;
   @Output() termChange: EventEmitter<string> = new EventEmitter();
@@ -86,7 +89,7 @@ export class WordListFormComponent implements OnInit {
     if (!this.parentFormGroup.contains(this.controlKey)) {
       this.parentFormGroup.addControl(this.controlKey, arr);
     } else {
-      console.log('КОНТРОЛ words УЖЕ ЕСТЬ');
+      this.loggerService.log('КОНТРОЛ words УЖЕ ЕСТЬ');
       // this.wordGroup.
     }
   }
@@ -108,14 +111,14 @@ export class WordListFormComponent implements OnInit {
    */
   public addWordControl(data?: Partial<WordItemIsNew>): void {
     const newGroup = this.createWordGroup({
-      id: data?.id ?? generateUuid(),
+      id: data?.id ?? generateCompactId(),
       term: data?.term ?? '',
       definition: data?.definition ?? '',
       isNew: data?.isNew ?? true,
     });
 
     newGroup.controls['term'].valueChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((val) => {
-      console.log(val);
+      this.loggerService.log('val', val);
       if (val?.trim()) this.termChange.emit(val);
     });
 
@@ -163,7 +166,7 @@ export class WordListFormComponent implements OnInit {
    */
   public insertAfter = (index: number) => (): void => {
     const newGroup = this.createWordGroup({
-      id: generateUuid(),
+      id: generateCompactId(),
       term: '',
       definition: '',
       isNew: true,

@@ -1,6 +1,6 @@
 import { Word, WordTranslation } from '@core/domain/entities';
 import { ELangs, ELevels, ELexicalCategory } from '@core/domain/enums';
-import { WordTranslationError } from '@core/domain/errors/WordTranslationError';
+// import { WordTranslationError } from '@core/domain/errors/WordTranslationError';
 
 export type CreateWordDto = Pick<Word, 'text' | 'language' | 'relatedForms' | 'sentences'> & {
   translations: WordCreateTranslation[];
@@ -30,6 +30,7 @@ export type WordTranslationCreated = Omit<WordTranslation, 'id'>;
 export type WordTranslationUpdated = Partial<Omit<WordTranslation, 'id'>> & Required<Pick<WordTranslation, 'id'>>;
 export type WordTranslationDeleted = Pick<Required<WordTranslation>, 'id'>;
 
+// TODO Am I using this? !!!!!
 /** Word Update Response */
 export type WordUpdateOperationResult = WordUpdateBaseOperationResult & WordUpdateTranslationOperationResult;
 export type WordUpdateBaseOperationResult = Pick<Word, 'id' | 'text' | 'language'>;

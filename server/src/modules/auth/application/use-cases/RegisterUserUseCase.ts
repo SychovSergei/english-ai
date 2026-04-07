@@ -2,14 +2,15 @@ import { inject, injectable } from 'inversify';
 
 import { EventBus } from '@events/EventBus';
 
-import { User } from '@modules/auth/domain/entities';
-import { UserError } from '@modules/auth/domain/errors/UserError';
-import { Email, PasswordHash, UserId } from '@modules/auth/domain/value-objects';
+import { PasswordHash } from '@modules/auth/domain/value-objects';
+import { User } from '@modules/users/domain/entities/User';
+import { UserError } from '@modules/users/domain/errors/UserError';
+import { Email, UserId, UserSettings } from '@modules/users/domain/value-objects';
 
 import { IdGenerator } from '@core/application/ports';
 import { PasswordHasher } from '@core/application/ports/auth/PasswordHasher';
-import { UserRepositoryPort } from '@modules/auth/application/ports';
-import { RegisterUserDTO } from '@modules/auth/application/use-cases/dto';
+import { RegisterCommand } from '@modules/auth/application/commands/RegisterCommand';
+import { UserRepositoryPort } from '@modules/users/application/ports';
 
 import { CORE_TYPES } from '@core/constants/types';
 import { AUTH_TYPES } from '@modules/auth/constants/auth.types';
@@ -23,38 +24,39 @@ export class RegisterUserUseCase {
     @inject(AUTH_TYPES.UserRepository) private userRepo: UserRepositoryPort,
   ) {}
 
-  // TODO - Не DTO, а command !!!!
-  async execute(dto: RegisterUserDTO): Promise<UserId> {
-    const isEmailTaken = await this.userRepo.existsByEmail(dto.email);
+  async execute(cmd: RegisterCommand): Promise<User> {
+    const isEmailTaken = await this.userRepo.existsByEmail(cmd.email);
+    console.log('isEmailTaken', isEmailTaken);
 
     if (isEmailTaken) {
-      throw UserError.AlreadyExists(dto.email);
+      throw UserError.AlreadyExists(cmd.email);
     }
 
     // 2. Генерация всех ID (Application-driven ID generation)
     const userId = UserId.generate(() => this.idGenerator.generate());
-    const settingsId = this.idGenerator.generate();
     const activationId = this.idGenerator.generate();
 
     // 3. Подготовка Value Objects
-    const email = Email.create(dto.email);
-    const hashedString = await this.passwordHasher.hash(dto.password);
+    const email = Email.create(cmd.email);
+    const hashedString = await this.passwordHasher.hash(cmd.password);
     const passwordHash = PasswordHash.fromValue(hashedString);
+    const settings: UserSettings = UserSettings.createDefault();
 
-    const user = User.create({
+    const newUser = User.create({
       id: userId,
       email,
       password: passwordHash,
-      firstName: dto.firstName,
-      lastName: dto.lastName,
-      settingsId,
+      firstName: cmd.name.firstName,
+      lastName: cmd.name.lastName,
+      settings: settings,
       activationId,
     });
+    console.log('user', newUser);
 
-    await this.userRepo.create(user);
+    await this.userRepo.create(newUser);
 
-    await this.eventBus.publishMany(user.pullDomainEvents());
+    await this.eventBus.publishMany(newUser.pullDomainEvents());
 
-    return userId;
+    return newUser;
   }
 }

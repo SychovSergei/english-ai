@@ -1,28 +1,36 @@
-import { Word } from '@entities/word';
-import { WordSet, WordSetSettings } from '@entities/word-set';
-import { WordItem, WordItemIsNew } from '@entities/word-set/models';
+import { WordSet } from '@entities/word-set';
+import { WordSetSettings } from '@entities/word-set/model/vo';
 
-type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type MakeOptionalStrict<T, K extends keyof T> = Omit<T, K> & { [P in K]?: T[P] | undefined };
+// Базовые поля, общие для всех
+interface WordSetBase {
+  readonly title: string;
+  readonly description: string;
+  readonly settings: WordSetSettings; // Плоский объект настроек
+}
 
-/** DTO от сервера при получении */
-export type WordSetResponseDto = WordSet<Word>;
+export interface WordSetDto extends WordSetBase {
+  readonly id: string;
+  readonly ownerId: string;
+  readonly wordIds: string[]; // Ссылки по ID
+  readonly updatedAt?: number;
+}
 
-/** DTO для создания нового набора */
-type WordItemWithoutId = Omit<WordItem, 'id'>;
-export type CreateWordSetDto = Omit<WordSet<WordItemWithoutId>, 'id' | 'ownerId'>;
-
-/** DTO для обновления существующего */
-type WordItemWithPartialId = MakeOptional<WordItemIsNew, 'id'>;
-export type UpdateWordSetDto = Partial<Omit<WordSet<WordItemWithPartialId>, 'id' | 'ownerId'>> & {
-  id: string;
+/** for create entity */
+export type CreateWordSetPayload = WordSetBase & {
+  readonly wordIds?: string[];
 };
 
-// const ddd: UpdateWordSetDto = { words: [{ term: '', definition: '' }] };
+/** for update entity */
+export type UpdateWordSetPayload = WordSetBase & {
+  readonly id: string;
+  readonly wordIds: string[];
+};
 
-/** DTO только для настроек */
-export type WordSetSettingsDto = WordSetSettings;
+/** DTO от сервера при получении */
+export type WordSetResponseDto = WordSet;
 
-/** DTO для добавления/редактирования слова */
-// export type WordDto = Word;
+// export type CreateWordSetDto = Omit<WordSet, 'id' | 'ownerId'>;
+
+// export type UpdateWordSetDto = Partial<Omit<WordSet, 'id' | 'ownerId'>> & {
+//   id: string;
+// };

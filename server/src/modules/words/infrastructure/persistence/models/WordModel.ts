@@ -2,7 +2,7 @@ import { HydratedDocument, Model, model, Schema } from 'mongoose';
 
 import { ELangs, ELevels, ELexicalCategory } from '@core/domain/enums';
 
-import { WordPersistence, WordTranslationPersistence } from '@modules/words/infrastructure/db/mongoose/Word.schema';
+import { WordPersistence, WordTranslationPersistence } from '@modules/words/infrastructure/persistence/models';
 
 export type WordDocument = HydratedDocument<WordPersistence>;
 export const WORD_MODEL_NAME = 'Word';

@@ -1,0 +1,15 @@
+@mixin status-colors($is-online: true) {
+  @if $is-online {
+    color: var(--color-success, #4CAF50);
+    fill: var(--color-success, #4CAF50);
+  } @else {
+    color: var(--color-danger, #F44336);
+    fill: var(--color-danger, #F44336);
+  }
+}
+
+@mixin flex-center($gap: 4px) {
+  display: flex;
+  align-items: center;
+  gap: $gap;
+}

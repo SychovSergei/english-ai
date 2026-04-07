@@ -2,4 +2,4 @@
 export { SessionRepositoryPort } from './SessionRepositoryPort';
 export { TokenPayload, TokenServicePort } from './TokenServicePort';
 export { TokenVerifierPort } from './TokenVerifierPort';
-export { UserRepositoryPort } from './UserRepositoryPort';
+// export { UserRepositoryPort } from './UserRepositoryPort';

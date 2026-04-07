@@ -1,6 +1,6 @@
 import { GuestUsageRepositoryPort } from '@modules/words/application/ports';
 
-import { GuestUsageModel } from '@modules/words/infrastructure/persistence/models/GuestUsageModel';
+import { GuestUsageModel } from '@modules/words/infrastructure/persistence/models';
 
 export class MongoGuestUsageRepository implements GuestUsageRepositoryPort {
   async getWordCount(guestId: string): Promise<number> {

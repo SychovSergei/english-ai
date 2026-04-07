@@ -1,1 +1,1 @@
-// export { CreateWordSetComponent } from './components/create-word-set/create-word-set.component';
+export { WordSetsTableComponent } from './components/word-set-table/word-sets-table.component';

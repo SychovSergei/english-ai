@@ -1,4 +1,4 @@
-import { UserId } from '@modules/auth/domain/value-objects/UserId';
+import { UserId } from '@modules/users/domain/value-objects';
 
 export interface PasswordChangedPayload {
   userId: UserId;

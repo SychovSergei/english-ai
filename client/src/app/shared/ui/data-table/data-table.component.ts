@@ -1,7 +1,6 @@
-import { HasId } from '@shared/interfaces';
+import { LoggerService } from '@shared/lib/logger/logger.service';
 import { DetailExpand } from '@shared/ui/data-table/data-table.animations';
 import { ISort } from '@shared/ui/data-table/data-table.types';
-import { IDataTablePageInfo } from '@shared/ui/data-table/pagination-info.interface';
 import { UiKitModule } from '@shared/ui/ui-kit';
 
 import { SelectionModel } from '@angular/cdk/collections';
@@ -12,6 +11,7 @@ import {
   computed,
   effect,
   EventEmitter,
+  inject,
   Input,
   OnChanges,
   OnInit,
@@ -24,56 +24,97 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortHeader, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatTableModule } from '@angular/material/table';
 
-type HasIdType = HasId['id'];
-type Templates = { [key: string]: TemplateRef<unknown> };
+export type Template = { [key: string]: TemplateRef<unknown> };
+
+export interface ColumnDefinition<T> {
+  key: string;
+  header: string;
+  sortable?: boolean;
+  // Позволяет передать кастомный шаблон для ячейки
+  //// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  template?: TemplateRef<unknown>;
+}
 
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [JsonPipe, MatTableModule, MatSort, MatSortHeader, NgTemplateOutlet, NgIf, UiKitModule, MatPaginator],
+  imports: [JsonPipe, /*MatTableModule, */ MatSort, MatSortHeader, NgTemplateOutlet, NgIf, UiKitModule, MatPaginator],
   animations: [DetailExpand],
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.scss',
 })
-export class DataTableComponent<T extends HasId> implements OnChanges, OnInit, AfterViewInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
+// export class DataTableComponent<T extends WordEntity> implements OnChanges, OnInit, AfterViewInit {
+export class DataTableComponent<T extends object> implements OnChanges, OnInit, AfterViewInit {
+  private readonly loggerService = inject(LoggerService).createLogger('DataTableComponent');
+
+  // @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
+  @ViewChild(MatSort) sort!: MatSort;
 
   @Input() tableData: T[] = [];
-  @Input() totalCount: number = 0;
+  @Input() columns: ColumnDefinition<T>[] = [];
+  // @Input() totalCount: number = 0;
+  @Input() dataSource!: MatTableDataSource<T>;
+  // @Input() displayedColumns: string[] = [];
+  get columnsToDisplay(): string[] {
+    return this.columns.map((column) => column.key);
+  }
+
+  // get ceilTemplates(): Templates {
+  // get templates(): Templates {
+  //   const templatesObj: Templates = {};
+  //   for (const column of this.columns) {
+  //     // console.log(column);
+  //     if (column.template) {
+  //       templatesObj[column.key] = column.template;
+  //     }
+  //   }
+  //   // this.columns.map((column) => ({
+  //   //   [column.key]: column.template,
+  //   // }));
+  //   return templatesObj;
+  //   /*example::: this.displayedTemplates = {
+  //     text: this.textTemplate,
+  //     translations: this.translateValuesTemplate,
+  //     voice: this.voiceTemplate,
+  //     sync: this.syncStatusTemplate,
+  //     actions: this.actionsTemplate,
+  //   };*/
+  // }
+
+  @Input() ceilTemplates: Template = {};
+  templates: Template = {};
+  keys = Object.keys(this.templates);
+  /** get keys(): string[] {
+    return this.columns.map((column) => column.key);
+    // Object.keys(this.templates);
+  } */
 
   // Флаг для переключения между режимами
   @Input() isExpandable: WritableSignal<boolean> = signal(false);
   @Input() isShowSelection: WritableSignal<boolean> = signal(false);
 
-  @Input() ceilTemplates: Templates = {};
-  templates: { [key: string]: TemplateRef<unknown> } = {};
-  keys = Object.keys(this.templates);
-
-  @Input() displayedColumns: string[] = [];
-  @Input() columnsToDisplayWithExpandInput: string[] = [];
+  // @Input() columnsToDisplayWithExpand: string[] = [];
   @Input() sortedColumns: string[] = [];
 
-  columns: WritableSignal<string[]> = signal(['select']);
+  // columns: WritableSignal<string[]> = signal(['select']);
   columnsToDisplayWithExpand: WritableSignal<string[]> = signal([]);
 
   @Input() pageSizeOptions: number[] = [10, 20, 50, 100];
-  @Input() dataSource!: MatTableDataSource<T>;
   @Input() expandTemplate!: TemplateRef<unknown>;
   @Input() expandedElement!: T | null;
 
   @Input() selection: SelectionModel<T> = new SelectionModel<T>(true, []);
   @Output() selectionResult: EventEmitter<string[]> = new EventEmitter();
-  @Output() pageChange: EventEmitter<IDataTablePageInfo> = new EventEmitter<IDataTablePageInfo>();
+  /** @Output() pageChange: EventEmitter<IDataTablePageInfo> = new EventEmitter<IDataTablePageInfo>();*/
   @Output() sortChange: EventEmitter<ISort> = new EventEmitter<ISort>();
 
-  public selectedMemo: WritableSignal<Map<HasIdType, T>> = signal(new Map([]));
+  public selectedMemo: WritableSignal<Map<string, T>> = signal(new Map([]));
 
-  updateMap(operation: 'add' | 'delete', someId: HasIdType, someValue: T): void {
+  updateMap(operation: 'add' | 'delete', someId: string, someValue: T): void {
     this.selectedMemo.update((map) => {
       if (operation === 'add') map.set(someId, someValue);
       if (operation === 'delete') map.delete(someId);
@@ -83,34 +124,62 @@ export class DataTableComponent<T extends HasId> implements OnChanges, OnInit, A
   }
 
   trackById(index: number, item: T): string {
-    return item.id; // every element has unique `id`
+    return ''; //item.value.value; // every element has unique `id`
   }
 
   constructor() {
     effect(
       () => {
-        this.columnsToDisplayWithExpand.set(this.isExpandable() ? ['expand', ...this.columns()] : this.columns());
+        // this.columnsToDisplayWithExpand.set(this.isExpandable() ? ['expand', ...this.columns()] : this.columns());
+        const expandColumn = [{ key: 'expand', header: 'EEmpty' }];
+        const selectColumn = [{ key: 'select', header: 'Empty' }];
+
+        const expColumns = this.isExpandable() ? expandColumn.map((s) => s.key) : [];
+        const selColumns = this.isShowSelection() ? selectColumn : [];
+
+        this.columns = this.isShowSelection()
+          ? [...selColumns, ...this.columns]
+          : [...this.columns.filter((s) => s.key !== 'select')];
+
+        this.columnsToDisplayWithExpand.set(
+          // this.isExpandable() ? ['expand', ...this.displayedColumns] : [...this.displayedColumns],
+          this.isExpandable() ? [...expColumns, ...this.columnsToDisplay] : [...this.columnsToDisplay],
+        );
         // console.log(this.columnsToDisplayWithExpand());
       },
       { allowSignalWrites: true },
     );
     effect(
       () => {
+        const selectColumn = [{ key: 'select', header: 'Empty' }];
+
         const sel = this.isShowSelection() ? ['select'] : [];
         // console.log(sel);
-        this.columns.set(this.isShowSelection() ? [...sel, ...this.displayedColumns] : [...this.displayedColumns]);
+        // this.columns.set(this.isShowSelection() ? [...sel, ...this.displayedColumns] : [...this.displayedColumns]);
+        const oldColumns = this.columns;
+        // this.columns = [...(this.isShowSelection() ? selectColumn : []), ...oldColumns];
+        // this.columns = this.isShowSelection()
+        //   ? [...selectColumn, ...this.columns]
+        //   : [...this.columns.filter((s) => s.key !== 'select')];
+        // this.isShowSelection() ? [...sel, ...this.displayedColumns] : [...this.displayedColumns];
       },
       { allowSignalWrites: true },
     );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      const val = changes['displayedColumns'].currentValue;
+      // this.columns.set(val);
+      this.columns = val;
+    }
     if (changes['displayedColumns']) {
       const val = changes['displayedColumns'].currentValue;
-      this.columns.set(val);
+      // this.columns.set(val);
+      this.columns = val;
     }
-    if (changes['columnsToDisplayWithExpandInput']) {
-      const val = changes['columnsToDisplayWithExpandInput'].currentValue;
+    if (changes['columnsToDisplayWithExpand']) {
+      const val = changes['columnsToDisplayWithExpand'].currentValue;
       this.columnsToDisplayWithExpand.set(this.isExpandable() ? ['expand', ...val] : [...val]);
     }
     if (changes['ceilTemplates']) {
@@ -118,29 +187,31 @@ export class DataTableComponent<T extends HasId> implements OnChanges, OnInit, A
       this.keys = Object.keys(this.templates);
     }
     if (changes['tableData']) {
-      if (this.dataSource) {
-        this.dataSource.data = changes['tableData'].currentValue;
-        if (this.paginator) {
+      // if (this.dataSource) {
+      /** this.dataSource.data = changes['tableData'].currentValue;*/
+      this.dataSource.data = this.tableData;
+      this.dataSource.sort = this.sort;
+      /**----- if (this.paginator) {
           this.paginator.length = this.totalCount;
-        }
-        this.selection.clear();
-        this.dataSource.data.forEach((item) => {
-          if (this.selectedMemo().has(item.id)) {
-            // update selection values from cash - selectedMemo
-            this.selection.select(item);
-          }
-        });
-      }
+        } */
+      this.selection.clear();
+      // this.dataSource.data.forEach((item) => {
+      //   // if (this.selectedMemo().has(item.value.value)) {
+      //   //   // update selection values from cash - selectedMemo
+      //   //   this.selection.select(item);
+      //   // }
+      // });
+      // }
     }
 
-    if (changes['totalCount']) {
-      // при изменении размера полученных данных переводим на первую страницу
-      if (this.paginator) this.paginator.pageIndex = 0;
-    }
+    // if (changes['totalCount']) {
+    //   // при изменении размера полученных данных переводим на первую страницу
+    //   /**----- if (this.paginator) this.paginator.pageIndex = 0;*/
+    // }
   }
 
   ngOnInit(): void {
-    this.dataSource.paginator = this.paginator;
+    /**----- this.dataSource.paginator = this.paginator;*/
     // this.updateAllSelectedState();
     // this.updateIndeterminateState();
     this.updateCheckboxState();
@@ -180,7 +251,8 @@ export class DataTableComponent<T extends HasId> implements OnChanges, OnInit, A
       numSelected === numRows &&
       numSelected > 0 &&
       this.selection.selected.every((item) => {
-        return this.selectedMemo().has(item.id);
+        // return this.selectedMemo().has(item.value.value);
+        return true;
       })
     );
   }
@@ -212,14 +284,15 @@ export class DataTableComponent<T extends HasId> implements OnChanges, OnInit, A
     if (!this.rowLabelCache.has(row)) {
       this.rowLabelCache.set(
         row,
-        computed(() => (this.selection.isSelected(row) ? `deselect row ${row.id}` : `select row ${row.id}`)),
+        computed(() => (this.selection.isSelected(row) ? `deselect row {row.value}` : `select row {row.value}`)),
       );
     }
     return this.rowLabelCache.get(row)!;
   }
 
   public isRowSelected(row: T): boolean {
-    return this.selectedMemo().has(row.id); //this.selection.isSelected(row) ||
+    // return this.selectedMemo().has(row.value.value); //this.selection.isSelected(row) ||
+    return true;
   }
 
   public onCheckboxChange(event: MatCheckboxChange, row: T): void {
@@ -234,24 +307,24 @@ export class DataTableComponent<T extends HasId> implements OnChanges, OnInit, A
   }
 
   toggleSelectionMemoSet(obj: T): void {
-    if (this.selectedMemo().has(obj.id)) this.deleteSelectionMemoSet(obj);
-    else this.addSelectionMemoSet(obj);
+    /** if (this.selectedMemo().has(obj.value.value)) this.deleteSelectionMemoSet(obj);
+    else this.addSelectionMemoSet(obj);*/
     // console.log(Array.from(this.selectedMemo().keys()));
   }
 
   addSelectionMemoSet(obj: T): void {
-    this.updateMap('add', obj.id, obj);
+    /** this.updateMap('add', obj.value.value, obj);*/
   }
   deleteSelectionMemoSet(obj: T): void {
-    this.updateMap('delete', obj.id, obj);
+    /** this.updateMap('delete', obj.value.value, obj);*/
   }
 
-  onPageChange(event: PageEvent): void {
+  /** onPageChange(event: PageEvent): void {
     this.pageChange.emit({ pageSize: event.pageSize, length: event.length, pageIndex: event.pageIndex });
-  }
+  }*/
 
-  announceSortChange(event: Sort): void {
-    console.log(event);
+  onSort(event: Sort): void {
+    this.loggerService.log('onSort event', event);
     this.sortChange.emit(event);
   }
 }

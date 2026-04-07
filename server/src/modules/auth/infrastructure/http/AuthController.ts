@@ -25,6 +25,8 @@ import { MongoSessionRepository } from '@modules/auth/infrastructure/db/mongo/pe
 
 import { CORE_TYPES } from '@core/constants/types';
 import { AUTH_TYPES } from '@modules/auth/constants/auth.types';
+import { RegisterCommand } from '@modules/auth/application/commands/RegisterCommand';
+import { RegisterResponseDTO } from '@modules/auth/application/use-cases/dto/RegisterUserDTO';
 
 export interface AuthInitResponseDto {
   actor: {
@@ -189,8 +191,28 @@ export class AuthController {
   }
 
   async register(req: Request, res: Response): Promise<void> {
-    const dto: RegisterUserDTO = req.body; //TODO verify by class-transformer or class-validator ???
-    const result = await this.registerUC.execute(dto);
+    //TODO verify by class-transformer or class-validator ???
+    const dto: RegisterUserDTO = req.body;
+    console.log('REGISTER ----- dto', dto);
+
+    const command = RegisterCommand.create({
+      email: dto.email,
+      password: dto.password,
+      name: {
+        firstName: dto.name.firstName,
+        lastName: dto.name.lastName,
+      },
+    });
+
+    const resUser = await this.registerUC.execute(command);
+
+    const result: RegisterResponseDTO = {
+      email: resUser.email.value,
+      name: {
+        firstName: resUser.firstName,
+        lastName: resUser.lastName,
+      },
+    };
 
     res.status(201).json(result);
   }
@@ -205,8 +227,8 @@ export class AuthController {
     const command = LoginCommand.create({
       email: dto.email,
       password: dto.password,
-      ip: req.ip ?? '',
-      userAgent: req.headers['user-agent'] ?? '',
+      ip: req.ip ?? 'unknown',
+      userAgent: req.headers['user-agent'] ?? 'unknown',
       fingerprint,
     });
 

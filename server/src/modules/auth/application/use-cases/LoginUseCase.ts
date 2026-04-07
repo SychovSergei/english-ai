@@ -2,16 +2,18 @@ import { inject, injectable } from 'inversify';
 
 import { EventBus } from '@events/EventBus';
 
-import { Session, User } from '@modules/auth/domain/entities';
+import { Session } from '@modules/auth/domain/entities';
 import { AuthError } from '@modules/auth/domain/errors/AuthError';
 import { TokenLifetime } from '@modules/auth/domain/value-objects/TokenLifetime';
+import { User } from '@modules/users/domain/entities/User';
 
 import { ConfigServicePort, IdGenerator } from '@core/application/ports';
-import { PasswordHasher } from '@core/application/ports/auth/PasswordHasher';
-import { BaseUseCase } from '@core/application/use-cases/BaseUseCase';
-import { LoginCommand } from '@modules/auth/application/commands/LoginCommand';
-import { SessionRepositoryPort, TokenServicePort, UserRepositoryPort } from '@modules/auth/application/ports';
+import { PasswordHasher } from '@core/application/ports/auth';
+import { BaseUseCase } from '@core/application/use-cases';
+import { LoginCommand } from '@modules/auth/application/commands';
+import { SessionRepositoryPort, TokenServicePort } from '@modules/auth/application/ports';
 import { AuthResult } from '@modules/auth/application/use-cases/dto';
+import { UserRepositoryPort } from '@modules/users/application/ports';
 
 import { CORE_TYPES } from '@core/constants/types';
 import { AUTH_TYPES } from '@modules/auth/constants/auth.types';
