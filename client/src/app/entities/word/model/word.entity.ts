@@ -1,15 +1,18 @@
 import {
   CreateWordPayload,
+  ImageAssociation,
   UpdateWordPayload,
   WordDto,
+  WordId,
   WordMetadata,
+  WordTranslation,
   WordTranslationDto,
-} from '@entities/word/api/word.dto';
-import { ImageAssociation, WordId, WordTranslation, WordValue } from '@entities/word/model/vo';
+  WordValue,
+} from '@entities/word';
 import { ELangs } from '@shared/enums';
+import { generateCompactId } from '@shared/lib';
 import { OwnerId } from '@shared/lib/auth/owner-id.vo';
 import { EntityBase } from '@shared/lib/domain/entity.base';
-import { generateCompactId } from '@shared/lib';
 
 export interface WordEntityProps {
   readonly value: WordValue;
@@ -54,7 +57,6 @@ export class WordEntity extends EntityBase<WordId, WordEntityProps> {
    * CREATE: Используем для создания НОВЫХ слов (из формы)
    */
   static create(data: CreateWordPayload, currentOwner: OwnerId): WordEntity {
-    // TODO: generateId maybe should be in utils???
     const wordId = WordId.generate();
 
     if (data.translations.length === 0) {
@@ -84,13 +86,13 @@ export class WordEntity extends EntityBase<WordId, WordEntityProps> {
    * RESTORE: Восстановление из БД (DTO -> Entity)
    */
   // { synced: boolean; isDeleted?: boolean }
-  static restore(data: WordDto & { metadata: WordMetadata }): WordEntity {
+  static restore(data: WordDto & { metadata: WordMetadata }, currentOwner: OwnerId): WordEntity {
     // console.log('WordEntity static restore data', data);
     // if (data.value === undefined) this.loggerService.log('>>>>>> WordEntity restore data = ', data);
     // if (data.value === undefined) this.loggerService.log('>> ID >>>> WordEntity restore data = ', data.id, 'VALUE', data.value);
     const props: WordEntityProps = {
       value: WordValue.create(data.value, data.language as ELangs),
-      ownerId: OwnerId.from(data.ownerId),
+      ownerId: OwnerId.fromRaw({ kind: currentOwner.kind, id: currentOwner.id, role: currentOwner.role }),
       language: data.language as ELangs,
       sense: data.sense,
       translations: data.translations.map(WordTranslation.restore),

@@ -1,4 +1,5 @@
-import { EntityId } from '@entities/word/model/entity-id';
+import { generateCompactId } from '@shared/lib';
+import { EntityId } from '@shared/model/entity-id';
 
 export class WordId extends EntityId {
   private constructor(value: string) {
@@ -9,7 +10,7 @@ export class WordId extends EntityId {
     return new WordId(value);
   }
 
-  static generate(generator: () => string): WordId {
+  static generate(generator: () => string = generateCompactId): WordId {
     return new WordId(generator());
   }
 }

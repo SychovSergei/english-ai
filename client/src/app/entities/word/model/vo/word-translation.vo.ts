@@ -1,7 +1,7 @@
-import { UpdateWordTranslationPayload, WordTranslationPayload } from '@entities/word/api';
-import { EntityId } from '@entities/word/model/entity-id';
+import { UpdateWordTranslationPayload, WordTranslationPayload } from '@entities/word';
 import { ELangs, ELevels, ELexicalCategory } from '@shared/enums';
 import { generateCompactId } from '@shared/lib';
+import { EntityId } from '@shared/model/entity-id';
 
 export class WordTranslation {
   private constructor(
