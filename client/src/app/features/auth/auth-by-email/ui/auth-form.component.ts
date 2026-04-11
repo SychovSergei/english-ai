@@ -1,5 +1,5 @@
-import { LoginPayload } from '@entities/session/api';
-import { SessionFacade } from '@entities/session/model/session.facade';
+import { LoginPayload, SessionFacade } from '@entities/session';
+import { ToLoginComponent } from '@features/auth';
 import { CustomSpinnerDirective } from '@shared/directives/custom-spinner.directive';
 import { ErrorMessageModule } from '@shared/ui/error-message/error-message.module';
 import { UiKitModule } from '@shared/ui/ui-kit';
@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
   templateUrl: './auth-form.component.html',
   styleUrls: ['./auth-form.component.scss'],
   standalone: true,
-  imports: [UiKitModule, NgIf, ReactiveFormsModule, ErrorMessageModule, CustomSpinnerDirective],
+  imports: [UiKitModule, NgIf, ReactiveFormsModule, ErrorMessageModule, CustomSpinnerDirective, ToLoginComponent],
 })
 export class AuthByEmailFormComponent {
   private sessionFacade = inject(SessionFacade);
