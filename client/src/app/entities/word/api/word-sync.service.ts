@@ -1,18 +1,14 @@
-import { SessionFacade } from '@entities/session/model/session.facade';
-import { WordFacade } from '@entities/word';
-import { WordDto } from '@entities/word/api/word.dto';
-import { WordApiService } from '@entities/word/api/word-api.service';
-import { WordMapper } from '@entities/word/libs/word.mapper';
+import { SessionFacade } from '@entities/session';
+import { WordApiService, WordDto } from '@entities/word';
 import { OfflineStorageService } from '@shared/api/offline/offline-storage.service';
-import { Syncable, SyncManagerService } from '@shared/api/sync/sync-manager.service';
-import { ApiErrorInterface } from '@shared/errors/error-types';
-import { CustomHttpErrorResponse } from '@shared/interfaces';
+import { Syncable, SyncEventsService, SyncManagerService } from '@shared/api/sync';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { ApiErrorInterface, CustomHttpErrorResponse } from '@shared/errors';
 import { LoggerService } from '@shared/lib/logger/logger.service';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { SyncEventsService } from '@shared/api/sync/sync-events.service';
 
 @Injectable({ providedIn: 'root' })
 export class WordSyncService implements Syncable {
@@ -25,15 +21,9 @@ export class WordSyncService implements Syncable {
     private readonly offlineStorage: OfflineStorageService,
     private readonly wordApiService: WordApiService,
     private readonly session: SessionFacade,
-    // TODO:::: private readonly wordFacade: WordFacade,
     private readonly syncEvents: SyncEventsService,
   ) {
     // Регистрируем себя в менеджере при создании сервиса
-    // this.logger.log('>>>>>> syncManager.register(this) ***********');
-    // this.syncManager.register({
-    //   priority: this.priority,
-    //   sync: () => this.sync(),
-    // });
     this.syncManager.register(this);
   }
 
@@ -41,7 +31,6 @@ export class WordSyncService implements Syncable {
     this.logger.log('sync() >>>>>>>>>>>>');
 
     const ownerId = this.session.getOwnerId();
-    this.logger.log('sync() ownerId', ownerId);
     if (!ownerId) return;
 
     // 1. Сначала обрабатываем удаления (важно делать это до обновлений)
@@ -56,9 +45,8 @@ export class WordSyncService implements Syncable {
         await this.offlineStorage.permanentlyDelete('words', entry.id);
       } catch (e: unknown | HttpErrorResponse) {
         this.logger.error(`Error deletion ${entry.id}`, e);
-        // Если 404, то просто удаляем из IndexedDB
+        // Если слова уже нет на сервере / 404, то просто удаляем из IndexedDB
         if ((e as HttpErrorResponse).status === 404) {
-          // TODO разобраться с ошибками
           await this.offlineStorage.permanentlyDelete('words', entry.id);
         }
       }
@@ -78,8 +66,6 @@ export class WordSyncService implements Syncable {
         await this.offlineStorage.markAsSynced('words', res.id);
 
         this.syncEvents.emit('words-changed');
-        // TODO:::: const wordEntity = WordMapper.toDomain({ ...entry.data, synced: entry.synced, isDeleted: entry.isDeleted });
-        // TODO:::: this.wordFacade.replaceInState(wordEntity.id, wordEntity);
       } catch (e: unknown | CustomHttpErrorResponse<ApiErrorInterface<unknown>>) {
         this.logger.error(`Error syncing ${entry.id}`, e);
         if (e instanceof CustomHttpErrorResponse) {
@@ -94,8 +80,6 @@ export class WordSyncService implements Syncable {
             await this.offlineStorage.markAsSynced('words', res.id);
 
             this.syncEvents.emit('words-changed');
-            // TODO:::: const wordEntity = WordMapper.toDomain({ ...entry.data, synced: entry.synced, isDeleted: entry.isDeleted });
-            // TODO:::: this.wordFacade.replaceInState(wordEntity.id, wordEntity);
           }
         } else {
           this.logger.log('e', e);

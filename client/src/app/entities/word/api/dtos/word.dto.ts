@@ -4,14 +4,6 @@ import { ELangs, ELevels, ELexicalCategory } from '@shared/enums';
 //   translations: PatchChange<WordTranslation>;
 // };
 
-export type WithId = { id: string };
-
-export type PatchChange<T extends WithId> = {
-  created: Omit<T, 'id'>[];
-  updated: Partial<T>[];
-  deleted: Pick<T, 'id'>[];
-};
-
 interface WordBase {
   readonly value: string;
   readonly language: ELangs;
@@ -23,7 +15,6 @@ interface WordBase {
   } | null;
 }
 
-// entities/word/api/word.dto.ts
 export interface WordDto extends WordBase {
   readonly id: string;
   readonly ownerId: string;
