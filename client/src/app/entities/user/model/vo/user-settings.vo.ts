@@ -1,3 +1,4 @@
+import { UserSettingsDto } from '@entities/user';
 import { ELangs } from '@shared/enums/langs.enum';
 
 export class UserSettings {
@@ -14,5 +15,9 @@ export class UserSettings {
 
   isDefault(lang: ELangs): boolean {
     return this.defaultLanguage === lang;
+  }
+
+  static restore(settings: UserSettingsDto): UserSettings {
+    return new UserSettings(settings.defaultLanguage, settings.translationLanguage, settings.interfaceLanguage);
   }
 }
