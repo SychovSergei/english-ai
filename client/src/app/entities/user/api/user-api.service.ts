@@ -1,64 +1,58 @@
-import { TokenService } from '@entities/session/api';
-import { UpdateUserSettingsData, UserSettings } from '@entities/user';
-import { environment } from '@environments/environment';
-import { LoggerService } from '@shared/lib/logger/logger.service';
+import { UserDto, UserSettingsDto } from '@entities/user';
+import { HttpApiService } from '@shared/api';
 
-import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserApiService {
-  // TODO переименовать в UserApiService
-  //  только для запросов на сервер, остальные методы и свойства выделить отдельно
-  private readonly loggerService = inject(LoggerService).createLogger('UserSettingsService');
-  private readonly apiDomain = environment.apiDomain;
-  private readonly apiUrl = 'api/user-settings';
+  private readonly httpService = inject(HttpApiService);
+  private readonly API_URL = 'api/users';
 
-  private settingsSubject = new BehaviorSubject<UpdateUserSettingsData | null>(null);
-  settings$ = this.settingsSubject.asObservable();
+  updateSettings(settings: UserSettingsDto): Observable<UserSettingsDto> {
+    return this.httpService.put<UserSettingsDto, UserSettingsDto>(`${this.API_URL}/settings`, settings);
+  }
 
-  constructor(
-    private http: HttpClient,
-    private tokenService: TokenService,
-  ) {}
+  getProfile(): Observable<UserDto> {
+    return this.httpService.get<UserDto>(`${this.API_URL}/profile`);
+  }
 
-  loadConfig(): Observable<UserSettings | null> {
+  /**loadConfig(): Observable<UserSettings | null> {
     console.log('>>> UserSettingsService loadSettings');
-    return this.http.get<UserSettings>(`${this.apiDomain}${this.apiUrl}`).pipe(
+    return this.httpService.get<UserSettings>(`${this.API_URL}`).pipe(
       tap((config) => {
         this.settingsSubject.next(config);
       }),
       catchError((error) => {
-        this.loggerService.error('Failed to load config:', error);
-        this.loggerService.log('Must show empty page or some another page');
+        this.logger.error('Failed to load config:', error);
+        this.logger.log('Must show empty page or some another page');
         return of(null); // Возврат пустых настроек, чтобы приложение продолжило работать
       }),
     );
-  }
+  }*/
 
-  updateConfig(newConfig: UpdateUserSettingsData): Observable<UpdateUserSettingsData> {
-    return this.http
-      .put<UpdateUserSettingsData>(`${this.apiDomain}${this.apiUrl}`, newConfig)
+  /**updateConfig(newConfig: UpdateUserSettingsData): Observable<UpdateUserSettingsData> {
+    return this.httpService
+      .put<UpdateUserSettingsData>(`${this.API_URL}`, newConfig)
       .pipe(tap((updatedSettings: UpdateUserSettingsData) => this.settingsSubject.next(updatedSettings)));
-  }
+  }*/
 
-  get currentSettings(): UpdateUserSettingsData | null {
+  /**get currentSettings(): UpdateUserSettingsData | null {
     return this.settingsSubject.value;
-  }
+  }*/
 
-  get loadSettings(): Observable<UserSettings | null> {
+  /**get loadSettings(): Observable<UserSettings | null> {
     return this.tokenService.getUserDataFromToken().pipe(
       map((user) => user?.settings as unknown as UserSettings),
       tap((setting) => {
         this.settingsSubject.next(setting);
       }),
     );
-  }
+  }*/
 
-  isDefaultLanguage(lang: string): boolean {
+  /**isDefaultLanguage(lang: string): boolean {
     return this.currentSettings?.defaultLanguage === lang;
-  }
+  }*/
 }
