@@ -1,18 +1,21 @@
 import {
   CheckWordExistsResponseDto,
+  CheckWordRequest,
   CreateWordResponseDto,
   UpdateWordDto,
-  WordCheckRequest,
   WordDto,
-} from '@entities/word/api/word.dto';
+} from '@entities/word';
 import { HttpApiService } from '@shared/api';
+import { LoggerService } from '@shared/lib/logger/logger.service';
 
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 // TODO это НОВЫЙ сервис
 @Injectable({ providedIn: 'root' })
 export class WordApiService {
+  private loggerService = inject(LoggerService).createLogger('WordApiService');
+
   private readonly API_URL = 'api/words';
 
   constructor(private readonly httpService: HttpApiService) {}
@@ -29,11 +32,11 @@ export class WordApiService {
   }
 
   getAll(): Observable<WordDto[]> {
-    console.log('wordApiService.getAll');
+    this.loggerService.log('getAll');
     return this.httpService.get<WordDto[]>(`${this.API_URL}`);
   }
 
-  checkWordExists(payload: WordCheckRequest): Observable<CheckWordExistsResponseDto> {
+  checkWordExists(payload: CheckWordRequest): Observable<CheckWordExistsResponseDto> {
     // const params = new HttpParams().set('words', wordValues);
 
     return this.httpService.post<CheckWordExistsResponseDto>(`${this.API_URL}/check-exists`, payload);
