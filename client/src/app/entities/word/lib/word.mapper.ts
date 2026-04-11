@@ -1,5 +1,4 @@
-import { WordDto } from '@entities/word/api';
-import { WordEntity } from '@entities/word/model/word.entity';
+import { WordDto, WordEntity } from '@entities/word';
 import { OfflineEntry } from '@shared/api/offline/offline-storage.service';
 import { OwnerId } from '@shared/lib/auth/owner-id.vo';
 
