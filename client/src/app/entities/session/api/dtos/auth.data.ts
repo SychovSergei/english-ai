@@ -1,4 +1,5 @@
 import { EUserRole } from '@shared/enums';
+import { UserRole } from '@shared/enums/user-roles.enum';
 
 export type LoginPayload = {
   email: string;
@@ -23,7 +24,7 @@ export interface RegisterPayload {
   password: string;
 }
 
-export type RegisterResponse = {
+export type RegisterResponseDto = {
   email: string;
   name: {
     firstName: string;
@@ -35,5 +36,5 @@ export interface SessionResponse {
   userId?: string;
   guestId?: string;
   accessToken: string;
-  role?: 'admin' | 'teacher' | 'student' | 'guest';
+  role?: UserRole; //'admin' | 'teacher' | 'student' | 'guest';
 }

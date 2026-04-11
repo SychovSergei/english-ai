@@ -1,4 +1,4 @@
-import { IUserTokenPayload } from '@shared/api/auth/token-payload.model';
+import { IUserTokenPayload } from '@entities/session';
 import { LoggerService } from '@shared/lib/logger/logger.service';
 import { jwtDecode } from 'jwt-decode';
 
@@ -21,7 +21,7 @@ interface ITokenInfo {
   providedIn: 'root',
 })
 export class TokenService {
-  private readonly loggerService = inject(LoggerService);
+  private readonly loggerService = inject(LoggerService).createLogger('TokenService');
 
   constructor() {}
 

@@ -1,4 +1,4 @@
-export interface AuthInitResponseDto {
+export interface AuthInitData {
   actor: {
     id: string;
     role: 'admin' | 'teacher' | 'student' | 'guest';

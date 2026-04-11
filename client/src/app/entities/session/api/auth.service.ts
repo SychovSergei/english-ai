@@ -1,52 +1,28 @@
-import { LoginDto, AuthResult, RegisterDto } from '@entities/session/api/auth.dto';
+import {
+  AuthData,
+  AuthInitData,
+  LoginPayload,
+  RegisterPayload,
+  RegisterResponseDto,
+  TokenService,
+} from '@entities/session';
 import { HttpApiService } from '@shared/api';
-import { TokenService } from '@shared/infrastructure/auth';
 
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, filter, map, Observable, retry, share, take, tap, throwError, timer } from 'rxjs';
-
-export interface SessionResponse {
-  userId?: string;
-  guestId?: string;
-  accessToken: string;
-  role?: 'admin' | 'teacher' | 'student' | 'guest';
-}
-
-export interface AuthInitResponseDto {
-  actor: {
-    id: string;
-    role: 'admin' | 'teacher' | 'student' | 'guest';
-    email?: string; // только для авторизованного пользователя
-    name?: string; // только для авторизованного пользователя
-  };
-  accessToken?: string;
-  // Лимиты важны для логики "Гостя", о которой ты говорил в начале
-  limits?: {
-    maxWords: number;
-    availableExercises: string[];
-  };
-  // Настройки пользователя (тема, язык интерфейса)
-  settings?: {
-    theme: string;
-    uiLang: string;
-  };
-}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly httpService = inject(HttpApiService);
+  private readonly tokenService = inject(TokenService);
   private readonly API_URL = 'api/auth';
 
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
   public refreshToken$ = this.refreshTokenSubject.asObservable(); //.pipe(share());
-  // private refreshTokenSubject = new BehaviorSubject<SessionResponse | null>(null);
 
-  constructor(
-    private httpService: HttpApiService,
-    private tokenService: TokenService,
-  ) {}
+  constructor() {}
 
-  // refreshToken(): Observable<SessionResponse> {
   refreshTokens(): Observable<string> {
     // if refresh is in progress -> new request is not created
     if (this.isRefreshing) {
@@ -61,7 +37,7 @@ export class AuthService {
     this.isRefreshing = true;
     this.refreshTokenSubject.next(null); // Сбрасываем старое значение
 
-    return this.httpService.post<AuthResult>(`${this.API_URL}/refresh`, {}).pipe(
+    return this.httpService.post<AuthData>(`${this.API_URL}/refresh`, {}).pipe(
       retry({
         count: 3,
         delay: (error) => {
@@ -94,20 +70,20 @@ export class AuthService {
   }
 
   // for APP_INITIALIZER (using now)
-  initSession(fingerprint: string): Observable<AuthInitResponseDto> {
-    return this.httpService.post<AuthInitResponseDto, string>(`${this.API_URL}/init`, fingerprint);
+  initSession(fingerprint: string): Observable<AuthInitData> {
+    return this.httpService.post<AuthInitData, string>(`${this.API_URL}/init`, fingerprint);
   }
 
   /** register(userData: IUserRegisterDTO): Observable<IUserRegisterResponse> {*/
-  register(dto: RegisterDto): Observable<SessionResponse> {
+  register(dto: RegisterPayload): Observable<RegisterResponseDto> {
     /** return this.httpService.post<IUserRegisterResponse, IUserRegisterDTO>(`${this.API_URL}/registration`, userData);*/
-    return this.httpService.post<SessionResponse, RegisterDto>(`${this.API_URL}/registration`, dto);
+    return this.httpService.post<RegisterResponseDto, RegisterPayload>(`${this.API_URL}/register`, dto);
   }
 
   /** login(userData: IUserLoginDTO): Observable<IUserLoginResponse> {*/
-  login(dto: LoginDto): Observable<AuthResult> {
+  login(dto: LoginPayload): Observable<AuthData> {
     /** return this.httpService.post<SessionResponse, IUserLoginDTO>(`${this.API_URL}/login`, userData);*/
-    return this.httpService.post<AuthResult, LoginDto>(`${this.API_URL}/login`, dto);
+    return this.httpService.post<AuthData, LoginPayload>(`${this.API_URL}/login`, dto);
   }
 
   logout(): Observable<void> {
