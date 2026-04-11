@@ -1,26 +1,23 @@
-import { AuthService } from '@entities/session/api/auth.service';
-import { TokenService } from '@shared/api/auth';
+import { FingerprintService, TokenService } from '@entities/session';
+import { LoggerService } from '@shared/lib/logger/logger.service';
 
 import { HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { LoggerService } from '@shared/lib/logger/logger.service';
-import { FingerprintService } from '@shared/api/auth/fingerprint.service';
 
 export const authInitialiseInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> => {
   const tokenService = inject(TokenService);
-  const authService = inject(AuthService);
-  const loggerService = inject(LoggerService);
   const fpService = inject(FingerprintService);
+  const loggerService = inject(LoggerService).createLogger('authInitialiseInterceptor');
 
   const token = tokenService.getAccessToken();
   const fp = fpService.visitorId() ?? '';
 
-  loggerService.log('[authInitialiseInterceptor]: token =', token);
-  if (token) loggerService.log('[authInitialiseInterceptor]: token Expire In =', tokenService.tokenWillExpireIn(token));
+  // loggerService.log('[authInitialiseInterceptor]: token =', token);
+  /** if (token) loggerService.log('[authInitialiseInterceptor]: token Expire In =', tokenService.tokenWillExpireIn(token));*/
 
   // Простая проверка: если токен есть, проверяем его срок годности (библиотека jwt-decode)
   if (token && tokenService.isTokenExpired(token)) {
