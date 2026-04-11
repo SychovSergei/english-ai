@@ -1,26 +1,52 @@
-import { AuthResult, LoginDto, RegisterDto } from '@entities/session/api/auth.dto';
-import { AuthInitResponseDto, AuthService } from '@entities/session/api/auth.service';
-import { OwnerId } from '@entities/word/model/vo';
-import { FingerprintService, TokenService } from '@shared/api/auth';
-import { AuthStatusProvider } from '@shared/lib/auth/auth-status.provider';
-import { LoggerService } from '@shared/lib/logger/logger.service';
+import {
+  AuthData,
+  AuthInitData,
+  AuthService,
+  FingerprintService,
+  LoginPayload,
+  RegisterPayload,
+  TokenService,
+} from '@entities/session';
+import { EGuestRole, UserRole } from '@shared/enums';
+import { ApiErrorInterface, CustomHttpErrorResponse } from '@shared/errors';
+import { AuthOwner, AuthStatusProvider, OwnerId } from '@shared/lib';
+import { LoggerService } from '@shared/lib/logger';
 
 import { inject, Injectable } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, tap } from 'rxjs';
-
-// export interface SessionState {
-//   ownerId: OwnerId | null;
-//   isInitialized: boolean;
-// }
+import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class SessionFacade implements AuthStatusProvider {
-  private loggerService = inject(LoggerService);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private tokenService = inject(TokenService);
+  private fpService = inject(FingerprintService);
+  // private syncManager = inject(SyncManagerService);
+  private loggerService = inject(LoggerService).createLogger('SessionFacade');
 
   private readonly _currentOwner$ = new BehaviorSubject<OwnerId | null>(null);
-  public readonly currentOwner$ = this._currentOwner$.asObservable();
+  /**
+   * Реализация интерфейса. TypeScript позволит это, так как
+   * OwnerId расширяет AuthOwner.
+   */
+  public readonly currentOwner$: Observable<AuthOwner | null> = this._currentOwner$.asObservable();
+
+  isAuthenticated(): boolean {
+    // Проверяем, что это не просто owner, а именно USER
+    // return !!this._currentOwner$.value;
+    return this._currentOwner$.value?.kind === 'user';
+  }
+
+  getOwnerId(): string | null {
+    return this._currentOwner$.value?.value || null;
+  }
+
+  // Метод для получения ID без подписки (для синхронных проверок в коде)
+  get snapshot(): OwnerId | null {
+    return this._currentOwner$.value || null;
+  }
 
   // TODO заменить сигналами ???
   /** private currentUserSignal = signal<OwnerId | null>(null);
@@ -28,19 +54,6 @@ export class SessionFacade implements AuthStatusProvider {
   // Вычисляемое состояние
   /** readonly isAuthenticated = computed(() => !!this.currentUserSignal());
   readonly userRole = computed(() => this.currentUserSignal()?.role || EUserRole.GUEST); */
-
-  // Метод для получения ID без подписки (для синхронных проверок в коде)
-  get snapshot(): OwnerId | null {
-    return this._currentOwner$.value || null;
-  }
-
-  getOwnerId(): string | null {
-    return this._currentOwner$.value?.value || null;
-  }
-
-  isAuthenticated(): boolean {
-    return !!this._currentOwner$.value;
-  }
 
   // readonly usrRole = this._currentOwner$.value?.value;
 
@@ -56,28 +69,21 @@ export class SessionFacade implements AuthStatusProvider {
   // public readonly ownerId$ = this.state$.pipe(map((s) => s.ownerId));
   // public readonly isInitialized$ = this.state$.pipe(map((s) => s.isInitialized)); //
 
-  constructor(
-    private authService: AuthService,
-    private tokenService: TokenService,
-    private fpService: FingerprintService,
-    private router: Router,
-  ) {}
+  constructor() {}
 
   /**
-   * Инициализация сессии
+   * Инициализация сессии (вызывается при старте приложения, APP_INITIALISE)
    * Берет fingerprint и передает на сервер.
    * Сервер возвращает ownerId (userId или guestId)
    **/
   async initializeSession(): Promise<void> {
-    // TODO то что СЕЙЧАС в APP_INITIALISE
     // 1. Сначала ЖДЕМ получения фингерпринта
     // Это гарантирует, что сигнал в FingerprintService обновится ДО запроса
     const fingerprint = await this.getFingerprint();
 
     try {
       // 2. Делаем запрос на инициализацию.
-      // Благодаря inject(FingerprintService) в интерцепторе,
-      // заголовок X-Fingerprint теперь точно будет в запросе.
+      // Благодаря inject(FingerprintService) в интерцепторе, заголовок X-Fingerprint теперь точно будет в запросе.
       const session = await firstValueFrom(
         this.authService.initSession(fingerprint).pipe(
           tap((res) => {
@@ -89,110 +95,120 @@ export class SessionFacade implements AuthStatusProvider {
       // 3. Если успех — сохраняем сессию в localStorage для будущего оффлайна
       this.persistSession(session);
 
-      this.loggerService.log('session', JSON.stringify(session, null, 2));
+      /** this.loggerService.log('session', JSON.stringify(session, null, 2));*/
       // 4. Устанавливаем OwnerId на основе ответа (DTO -> Domain Entity)
-      // const owner = session.actor.role === 'guest' ? OwnerId.guest(session.actor.id) : OwnerId.user(session.actor.id);
       const owner = this.mapToOwner(session);
       this.loggerService.log(owner.kind, owner.value);
 
       /** if (data.limits) {
         TODO create service - this.limitsService.setLimits(data.limits);
       } */
-
       this._currentOwner$.next(owner);
-    } catch (error) {
+
+      // 🚀 Если мы онлайн и получили сессию — запускаем общую синхронизацию
+      // this.syncManager.runSync();
+    } catch (error: unknown | CustomHttpErrorResponse<ApiErrorInterface<undefined>>) {
       console.error('Session initialization failed', error);
       console.warn('Network error during init, trying to restore from cache', error);
 
-      // 3. Если сети нет — достаем последнюю известную сессию
-      const cachedSession = this.getPersistedSession();
-
-      if (cachedSession) {
-        this._currentOwner$.next(this.mapToOwner(cachedSession));
-      } else {
-        // 4. Если даже кэша нет (первый запуск оффлайн),
-        // создаем стабильный GuestId на основе фингерпринта.
-        this._currentOwner$.next(OwnerId.guest(`guest_${fingerprint.slice(0, 8)}`));
-      }
+      this.handleInitError(fingerprint, error);
 
       // В случае ошибки можно установить фолбек-значение
       // this._currentOwner$.next(OwnerId.guest('offline_temporary'));
     }
   }
 
-  async register(credentials: RegisterDto): Promise<void> {
+  async register(registerPayload: RegisterPayload): Promise<void> {
     try {
-      const response = await firstValueFrom(this.authService.register(credentials));
+      const response = await firstValueFrom(this.authService.register(registerPayload));
 
-      if (response.accessToken) this.tokenService.setAccessToken(response.accessToken);
-
-      const userOwner = OwnerId.user(response.userId!);
-      this._currentOwner$.next(userOwner);
-
-      // 3. Редирект в админку (альтернатива)
-      this.router.navigate(['/dashboard']);
-      /** redirect to the link that was remembered when logout process executed.
-       *  It is returning customer to the same link before logout process. */
-      // TODO navigate to success page ?????
-      // this.router.navigate(['/auth/success-register'], {
-      //   queryParams: {
-      //     email: result.email,
-      //     name: result.name,
-      //     firstName: result.name.firstName,
-      //     lastName: result.name.lastName,
-      //   },
-      // });
+      this.router.navigate(['/auth/success-register'], {
+        state: {
+          email: response.email,
+          fullName: `${response.name.firstName} ${response.name.lastName}`,
+        },
+      });
     } catch (e) {
       console.error('Register error:', e); // TODO нужно ли разделять ошибки???
       throw new Error('Register failed. Please try again.');
     }
   }
 
-  async login(credentials: LoginDto): Promise<void> {
+  async login(loginPayload: LoginPayload): Promise<void> {
     try {
-      // const response = await firstValueFrom(
-      const response: AuthResult = await firstValueFrom(this.authService.login(credentials));
+      const response: AuthData = await firstValueFrom(this.authService.login(loginPayload));
 
-      // TODO нужен ли при логине refresh token в ответе ?????
       if (response.accessToken) this.tokenService.setAccessToken(response.accessToken);
 
-      const userOwner = OwnerId.user(response.user.id);
-      this._currentOwner$.next(userOwner);
+      const userOwner = OwnerId.user(response.user.id, response.user.role);
 
-      /** redirect to the link that was remembered when logout process executed.
-       *  It is returning customer to the same link before logout process. */
-      if (this.redirectUrl) {
-        const redirectUrl = this.redirectUrl;
-        this.redirectUrl = null;
-        this.router.navigateByUrl(redirectUrl);
-      } else {
-        this.loggerService.log(`this.router.navigate([['words', 'word-sets']])`);
-        // this.router.navigate(['words', 'word-set', 'create']); // TODO create default route token
-        this.router.navigate(['words', 'my-words']);
-      }
-      // 3. Редирект в админку (альтернатива)
-      // this.router.navigate(['/dashboard']);
+      this._currentOwner$.next(userOwner); // Триггер для SyncManager
+
+      // 🚀 После логина ВАЖНО запустить синхронизацию,
+      // чтобы подтянуть слова пользователя с сервера в IndexedDB
+      // Этот процесс запускается в SyncManager автоматически при подписке на изменение currentOwner
+
+      this.navigateAfterAuth();
     } catch (e) {
       this.loggerService.error('Login error:', e); // TODO нужно ли разделять ошибки???
       throw new Error('Login failed. Please try again.');
     }
   }
 
+  private handleInitError(
+    fingerprint: string,
+    error: unknown | CustomHttpErrorResponse<ApiErrorInterface<undefined>>,
+  ): void {
+    this.loggerService.log('handleInitError', error);
+
+    // 3. Если сети нет — достаем последнюю известную сессию
+    const cachedSession = this.getPersistedSession();
+
+    if (cachedSession) {
+      this._currentOwner$.next(this.mapToOwner(cachedSession));
+    } else {
+      // 4. Если даже кэша нет (первый запуск оффлайн),
+      // создаем стабильный GuestId на основе фингерпринта.
+      const stableGuestId = `guest_${fingerprint}`.padEnd(32, '0').slice(0, 32);
+      this._currentOwner$.next(OwnerId.guest(`guest_${stableGuestId}`));
+    }
+
+    // В оффлайне синхронизацию не зовем
+  }
+
+  /** redirect to the link that was remembered when logout process executed.
+   *  It is returning customer to the same link before logout process. */
+  private navigateAfterAuth(): void {
+    if (this.redirectUrl) {
+      const redirectUrl = this.redirectUrl;
+      this.redirectUrl = null;
+      this.router.navigateByUrl(redirectUrl);
+    } else {
+      this.loggerService.log(`this.router.navigate([['words', 'word-sets']])`);
+      // this.router.navigate(['words', 'word-set', 'create']); // TODO create default route token
+      this.router.navigate(['words', 'my-words']);
+    }
+    // 3. Редирект в админку (альтернатива)
+    // this.router.navigate(['/dashboard']);
+  }
+
   /**
    * Завершение сессии
    */
-  async logout(): Promise<void> {
+  public async logout(): Promise<void> {
     // 1. Очищаем локальное хранилище (токены и т.д.)
     this.tokenService.clearAccessToken();
 
     // 2. Уведомляем всё приложение о смене владельца
+    // Сначала зануляем, чтобы фасады (Word, User) очистили стейт
     this._currentOwner$.next(null);
-
-    await firstValueFrom(this.authService.logout());
-
+    try {
+      await firstValueFrom(this.authService.logout());
+    } finally {
+      // В любом случае переинициализируем как гостя
+      await this.initializeSession(); // Переинициализация сессии для получения guestId
+    }
     // После логаута мы снова можем стать гостем (или редирект на логин)
-    this.initializeSession(); // Переинициализация сессии для получения guestId
-
     // this.router.navigate(['/auth/login']);
   }
 
@@ -200,16 +216,22 @@ export class SessionFacade implements AuthStatusProvider {
     return await this.fpService.identify();
   }
 
-  private persistSession(session: AuthInitResponseDto): void {
+  private persistSession(session: AuthInitData): void {
     localStorage.setItem('last_session', JSON.stringify(session));
   }
 
-  private mapToOwner(session: AuthInitResponseDto): OwnerId {
+  private mapToOwner(session: AuthInitData): OwnerId {
     this.loggerService.log('mapToOwner', session);
-    return session.actor.role === 'guest' ? OwnerId.guest(session.actor.id) : OwnerId.user(session.actor.id);
+    const { id, role } = session.actor;
+
+    if (role === EGuestRole.GUEST) {
+      return OwnerId.guest(id);
+    }
+
+    return OwnerId.user(id, role as UserRole);
   }
 
-  private getPersistedSession(): AuthInitResponseDto | null {
+  private getPersistedSession(): AuthInitData | null {
     const data = localStorage.getItem('last_session');
     return data ? JSON.parse(data) : null;
   }
