@@ -1,4 +1,4 @@
-import { SessionFacade } from '@entities/session/model/session.facade';
+import { LoginPayload, SessionFacade } from '@entities/session';
 import { CustomSpinnerDirective } from '@shared/directives/custom-spinner.directive';
 import { ErrorMessageModule } from '@shared/ui/error-message/error-message.module';
 import { UiKitModule } from '@shared/ui/ui-kit';
@@ -9,7 +9,6 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink } from '@angular/router';
-import { LoginPayload } from '@entities/session/api';
 
 @Component({
   selector: 'app-login',
