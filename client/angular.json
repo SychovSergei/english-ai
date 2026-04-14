@@ -39,7 +39,7 @@
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
-                "src"
+                "src/app"
               ]
             },
             "scripts": []

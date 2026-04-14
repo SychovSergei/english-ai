@@ -1,1 +1,1 @@
-export type { CreateWordSetDto, UpdateWordSetDto, WordSetResponseDto, WordSetSettingsDto } from './word-set.dto';
+export type { CreateWordSetPayload, UpdateWordSetPayload, WordSetDto, WordSetResponseDto } from './word-set.dto';

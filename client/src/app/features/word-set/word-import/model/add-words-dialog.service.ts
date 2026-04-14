@@ -1,4 +1,4 @@
-import { WordItem, WordItemIsNew } from '@entities/word-set/models';
+import { WordItem, WordItemIsNew } from '@entities/word-set';
 import { mapToWordItemIsNew } from '@features/word-set/word-import/libs';
 import { WordImportDialogComponent } from '@features/word-set/word-import/ui';
 

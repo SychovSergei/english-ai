@@ -1,5 +1,5 @@
-export { ApiErrorInterface, BaseApiError, ErrorBody, ValidationError } from './api.error';
-export { AuthError } from './auth.error';
-export { SettingsError } from './settings.error';
-export { UserError } from './user.error';
-export { WordError } from './word.error';
+export { AppValidationError } from './AppValidationError';
+export { BaseApiError } from './BaseApiError';
+export { EErrorCodes } from './EErrorCodes';
+export { SettingsError } from './SettingsError';
+export { ApiError, ErrorBody, IValidationError } from './types';

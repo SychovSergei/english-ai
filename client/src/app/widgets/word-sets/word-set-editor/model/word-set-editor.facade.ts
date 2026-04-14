@@ -1,36 +1,37 @@
-import { WordSet, WordSetService } from '@entities/word-set';
-import { WordItem, WordItemIsNew } from '@entities/word-set/models';
+import { SessionFacade } from '@entities/session';
+import { EWordSetVisibility, WordItem, WordItemIsNew, WordSet, WordSetSettings } from '@entities/word-set';
 import { AddWordsDialogService } from '@features/word-set/word-import/model';
-import { WordService } from '@features/words/model';
-import { ELangs, EWordSetVisibility } from '@shared/enums';
-import { generateUuid, markAllControlsAsTouchedAndDirty } from '@shared/utils';
-import { WordSetEditorMode } from '@widgets/word-sets/word-set-editor/model/model';
+import { ELangs } from '@shared/enums';
+import { OwnerId } from '@shared/lib/auth/owner-id.vo';
+import { markAllControlsAsTouchedAndDirty } from '@shared/utils';
+import { WordSetEditorMode } from '@widgets/word-sets';
 
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, filter, Observable, of, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class WordSetEditorFacade {
+  private sessionFacade = inject(SessionFacade);
+
   private mode: WordSetEditorMode = 'create';
   wordSetForm!: FormGroup;
 
   private _dataWords$ = new BehaviorSubject<WordItemIsNew[]>([]);
   public readonly dataWords$ = this._dataWords$.asObservable();
 
-  INITIAL_WORD_SET: WordSet<WordItemIsNew> = {
-    id: generateUuid(),
-    title: '', //'create title initial in facade',
-    settings: {
-      allowCopy: false,
-      language: ELangs.EN, //TODO get from config service ???
-      visibility: EWordSetVisibility.Private,
-    },
-    words: [
-      { id: generateUuid(), term: '', definition: '', isNew: true },
-      { id: generateUuid(), term: '', definition: '', isNew: true },
-    ],
-  };
+  // ({},generateCompactId(),{
+  //   title: '', //'create title initial in facade',
+  //   settings: {
+  //     allowCopy: false,
+  //     language: ELangs.EN, //TODO get from config service ???
+  //     visibility: EWordSetVisibility.PRIVATE,
+  //   },
+  //   words: [
+  //     { id: generateCompactId(), term: '', definition: '', isNew: true },
+  //     { id: generateCompactId(), term: '', definition: '', isNew: true },
+  //   ],
+  // });
 
   private setInitialWords(words: WordItemIsNew[]): void {
     this._dataWords$.next(words);
@@ -42,12 +43,36 @@ export class WordSetEditorFacade {
     this.wordGroup.clear();
   }
 
+  // INITIAL_WORD_SET: WordSet<WordItemIsNew> | null = null;
+  INITIAL_WORD_SET: WordSet | null = null;
+
   constructor(
     private fb: FormBuilder,
-    private wordSetService: WordSetService, //TODO через интерфейс
-    private wordService: WordService, //TODO через интерфейс
+
     private wordImportService: AddWordsDialogService,
   ) {
+    const owner = this.sessionFacade.snapshot;
+    if (!owner) {
+      throw new Error('Owner not found');
+    }
+    this.INITIAL_WORD_SET = WordSet.create(
+      {
+        description: 'new word set description',
+        title: 'new word set title',
+        settings: WordSetSettings.create({
+          allowCopy: false,
+          language: ELangs.EN,
+          visibility: EWordSetVisibility.PRIVATE,
+        }),
+        wordIds: [],
+      },
+      OwnerId.fromRaw({
+        id: owner.id,
+        role: owner.role,
+        kind: owner.kind,
+      }),
+    );
+
     this.wordSetForm = this.fb.group({
       title: this.fb.control('', { validators: [Validators.required, Validators.min(2)], updateOn: 'change' }),
       description: this.fb.control('', []),
@@ -72,7 +97,7 @@ export class WordSetEditorFacade {
     console.log('submitForm', this.wordSetForm.valid);
     console.log('submitForm value', this.wordSetForm.getRawValue());
     console.log('submitForm controls', this.wordSetForm.controls);
-    console.log(Object.keys(this.wordSetForm.controls));
+    console.log('Object.keys(this.wordSetForm.controls)', Object.keys(this.wordSetForm.controls));
 
     markAllControlsAsTouchedAndDirty(this.wordSetForm);
 
@@ -92,26 +117,26 @@ export class WordSetEditorFacade {
     }
 
     if (this.wordSetForm.valid) {
-      const formValue = this.wordSetForm.getRawValue();
-      const words = this.wordGroup.getRawValue() as WordItemIsNew[];
-      const fullData: WordSet<WordItemIsNew> = {
-        id: this.INITIAL_WORD_SET.id,
-        title: formValue.title,
-        description: formValue.description,
-        settings: this.INITIAL_WORD_SET.settings, // или взять из конфига
-        words,
-      };
-
-      // вызов сервиса или диспатч в ngrx
-      if (this.mode === 'edit') {
-        this.wordSetService.updateWordSet(fullData).subscribe(() => {
-          console.log('updated!');
-        });
-      } else {
-        this.wordSetService.createWordSet(fullData).subscribe(() => {
-          console.log('created!');
-        });
-      }
+      // const formValue = this.wordSetForm.getRawValue();
+      // const words = this.wordGroup.getRawValue() as WordItemIsNew[];
+      // const fullData: WordSet = {
+      //   id: this.INITIAL_WORD_SET.id,
+      //   title: formValue.title,
+      //   // description: formValue.description,
+      //   // settings: this.INITIAL_WORD_SET.getProps().settings, // или взять из конфига
+      //   // words,
+      // };
+      //
+      // // вызов сервиса или диспатч в ngrx
+      // if (this.mode === 'edit') {
+      //   this.wordSetService.updateWordSet(fullData).subscribe(() => {
+      //     console.log('updated!');
+      //   });
+      // } else {
+      //   this.wordSetService.createWordSet(fullData).subscribe(() => {
+      //     console.log('created!');
+      //   });
+      // }
     }
   }
 
@@ -119,45 +144,48 @@ export class WordSetEditorFacade {
     return this.wordSetForm.get('words') as FormArray; //?.get(this.formArrayName) as FormGroup; //FormArray;
   }
 
-  loadSetForCreate(): Observable<WordSet<WordItemIsNew>> {
+  // loadSetForCreate(): Observable<WordSet<WordItemIsNew>> {
+  loadSetForCreate(): Observable<WordSet> {
     return of(this.INITIAL_WORD_SET).pipe(
+      filter((data) => !!data),
       tap((data) => {
         console.log('FacadeService: CREATE', data);
       }),
       tap((data) => {
         this.wordSetForm.patchValue({
           title: data.title,
-          description: data.description,
+          description: data.getProps().description,
         });
-        this.setInitialWords(
-          data.words.map((word) => {
-            word.isNew = true;
-            return word;
-          }),
-        );
+        // this.setInitialWords(
+        //   data.wordIds.map((word) => {
+        //     // word.isNew = true;
+        //     return word;
+        //   }),
+        // );
       }),
     );
   }
 
-  loadSetForEdit(wordSetId: string): Observable<WordSet<WordItemIsNew>> {
-    return this.wordSetService.getWordSetById(wordSetId).pipe(
-      tap((data) => {
-        console.log('FacadeService: EDIT', data);
-      }),
-      tap((data) => {
-        this.wordSetForm.patchValue({
-          title: data.title,
-          description: data.description,
-        });
-        this.setInitialWords(
-          data.words.map((word) => {
-            word.isNew = false;
-            return word;
-          }),
-        );
-      }),
-    );
-  }
+  // loadSetForEdit(wordSetId: string): Observable<WordSet<WordItemIsNew>> {
+  // loadSetForEdit(wordSetId: string): Observable<WordSet> {
+  //   return this.wordSetService.getWordSetById(wordSetId).pipe(
+  //     tap((data) => {
+  //       console.log('FacadeService: EDIT', data);
+  //     }),
+  //     // tap((data) => {
+  //     //   this.wordSetForm.patchValue({
+  //     //     title: data.title,
+  //     //     description: data.getProps().description,
+  //     //   });
+  //     //   // this.setInitialWords(
+  //     //   //   data.words.map((word) => {
+  //     //   //     word.isNew = false;
+  //     //   //     return word;
+  //     //   //   }),
+  //     //   // );
+  //     // }),
+  //   );
+  // }
 
   /**
    * Open dialog and get data close dialog

@@ -1,3 +1,18 @@
 <div class="footer">
-  <p>EnglishAiEasy LLC &copy; 2023-{{ dateNow() }}</p>
+  <span class="footer__copyright">
+    EnglishAiEasy LLC &copy; 2023-{{ dateNow()}}
+  </span>
+
+  <div class="footer__status">
+    <mat-icon
+      class="footer__status-icon"
+      [class]="{'footer__status-icon--online': isOnline(), 'footer__status-icon--offline': !isOnline()}">
+      wifi_tethering
+    </mat-icon>
+    <span
+      class="footer__status-text"
+      [class]="{'footer__status-text--online': isOnline(),'footer__status-text--offline': !isOnline()}">
+        {{ connectionStatus() }}
+    </span>
+  </div>
 </div>

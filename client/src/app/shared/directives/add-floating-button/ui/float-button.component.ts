@@ -2,8 +2,10 @@ import { FadeScale } from './fade-scale.animation';
 
 type TVisible = 'hidden' | 'visible';
 
+import { LoggerService } from '@shared/lib/logger/logger.service';
+
 import { AnimationEvent } from '@angular/animations';
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, inject, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-float-button',
@@ -12,6 +14,8 @@ import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Outpu
   animations: [FadeScale],
 })
 export class FloatButtonComponent implements AfterViewInit {
+  private readonly loggerService = inject(LoggerService).createLogger('FloatButtonComponent');
+
   @Input() visibleState: TVisible = 'hidden';
   isVisible = false;
 
@@ -26,7 +30,7 @@ export class FloatButtonComponent implements AfterViewInit {
   }
 
   buttonClick(): void {
-    console.log('FloatButtonComponent buttonClick');
+    this.loggerService.log('FloatButtonComponent buttonClick');
     this.clicked.emit();
   }
 

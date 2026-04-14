@@ -1,12 +1,11 @@
-import { WordItemIsNew } from '@entities/word-set/models';
+import { WordItemIsNew } from '@entities/word-set';
+import { LoggerService } from '@shared/lib/logger/logger.service';
 import { UiKitModule } from '@shared/ui/ui-kit';
-import { WordSetEditorFacade } from '@widgets/word-sets/word-set-editor';
-import { WordSetEditorMode } from '@widgets/word-sets/word-set-editor/model/model';
-import { WordListFormComponent } from '@widgets/word-sets/word-set-editor/ui';
+import { WordListFormComponent, WordSetEditorFacade, WordSetEditorMode } from '@widgets/word-sets';
 
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { JsonPipe, NgIf } from '@angular/common';
-import { Component, DestroyRef, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -19,6 +18,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
   styleUrl: './word-set-editor.component.scss',
 })
 export class WordSetEditorComponent implements OnInit, OnDestroy {
+  private readonly loggerService = inject(LoggerService).createLogger('WordSetEditorComponent');
+
   @Input({ required: true }) mode: WordSetEditorMode = 'create';
   @Input() wordSetId?: string;
 
@@ -47,21 +48,21 @@ export class WordSetEditorComponent implements OnInit, OnDestroy {
         .loadSetForCreate()
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((data) => {
-          console.log('component CREATE get data.words', data.words);
+          this.loggerService.log('component CREATE get data.words', data.wordIds);
         });
     }
     if (this.mode === 'edit' && this.wordSetId) {
-      this.facade
-        .loadSetForEdit(this.wordSetId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((data) => {
-          console.log('component EDIT get data.words', data.words);
-        });
+      // this.facade
+      //   .loadSetForEdit(this.wordSetId)
+      //   .pipe(takeUntilDestroyed(this.destroyRef))
+      //   .subscribe((data) => {
+      //     this.loggerService.log('component EDIT get data.words', data.wordIds);
+      //   });
     }
   }
 
   ngOnDestroy(): void {
-    console.log('DESTROY WIDGET.....');
+    this.loggerService.log('DESTROY WIDGET.....');
     this.facade.wordSetForm.controls['words'].patchValue([]);
     this.facade.resetDataWords(); //TODO при удалении компонента -> очищать данные (и вообще надо ли форму держать в сервисе???????)
   }

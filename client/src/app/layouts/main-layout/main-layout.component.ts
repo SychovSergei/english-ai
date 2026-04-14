@@ -1,8 +1,8 @@
-import { ToolbarComponent } from '@features/user/ui';
-import { SwipeDirective } from '@shared/directives';
 import { BreakpointService, EBreakpoints } from '@shared/services/breakpoint.service';
+import { SwipeDirective } from '@shared/directives';
 import { FooterComponent } from '@shared/ui/footer/footer.component';
 import { Config, MenuComponent, MenuItem } from '@widgets/menu';
+import { ToolbarComponent } from '@widgets/toolbar';
 
 import { Component, ViewChild } from '@angular/core';
 import { MatDrawer, MatDrawerContainer, MatDrawerContent } from '@angular/material/sidenav';

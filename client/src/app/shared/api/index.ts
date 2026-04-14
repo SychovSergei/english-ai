@@ -1,3 +1,5 @@
-export { AuthApiService } from './auth.api.service';
+export { ConnectivityService } from './connectivity.service';
 export { HttpApiService } from './http-api.service';
-export type { IUserLoginDTO, IUserLoginResponse, IUserRegisterDTO, IUserRegisterResponse } from './types/auth.dto';
+export { NotificationService } from './notification.service';
+export type { OfflineEntry } from './offline';
+export { OfflineStorageService } from './offline';

@@ -1,0 +1,42 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button class="example-icon" (click)="menuClick()" aria-label="Example icon-button with menu icon">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span class="example-spacer"></span>
+
+  <ng-container *ngIf="isOver600px">
+    <div class="user-info" *ngIf="user$ | async as user">
+      <div class="user-info-name text-base">{{ user.firstName + " " + user.lastName }}</div>
+<!--      <div class="user-info-name text-base">{{ user | json }}</div>-->
+<!--      <div class="user-info-email">{{ user.email }}</div>-->
+    </div>
+  </ng-container>
+
+  <div class="user-info">
+    <div class="user-info-name">{{ (user$ | async) ? 'User' : 'Guest' }}</div>
+  </div>
+
+  <ng-container *ngIf="user$ | async as user">
+    <p class="text-base" matTooltip="Main / Translation">{{ user.settings.defaultLanguage }}/{{ user.settings.translationLanguage }}</p>
+  </ng-container>
+
+<!--  <ng-container *ngIf="sessionFacade.currentOwner$ | async as user">-->
+<!--  <ng-container *ngIf="user$ | async as user">-->
+<!--    <p class="text-base" matTooltip="User type">{{ user === null ? 'Guest' : 'User' }}</p>-->
+<!--  </ng-container>-->
+
+<!--  <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">-->
+<!--    <mat-icon>favorite</mat-icon>-->
+<!--  </button>-->
+  <ng-container *ngIf="sessionFacade.ownerSignal()?.isGuest">
+    <button mat-icon-button class="example-icon" (click)="login()" aria-label="Example icon-button with login icon">
+      <mat-icon>login</mat-icon>
+    </button>
+  </ng-container>
+  <ng-container *ngIf="!sessionFacade.ownerSignal()?.isGuest">
+    <button mat-icon-button class="example-icon" (click)="logout()" aria-label="Example icon-button with logout icon">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </ng-container>
+</mat-toolbar>

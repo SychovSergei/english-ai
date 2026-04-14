@@ -1,16 +1,22 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { ConnectivityService } from '@shared/api/connectivity.service';
+
+import { Component, computed, inject, signal } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [],
+  imports: [MatIcon],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })
-export class FooterComponent implements OnInit {
-  dateNow = signal<string>('');
+export class FooterComponent {
+  private connectivity = inject(ConnectivityService);
 
-  ngOnInit(): void {
-    this.dateNow.set(new Date().getFullYear().toString());
-  }
+  readonly dateNow = signal<string>(new Date().getFullYear().toString());
+  readonly isOnline = this.connectivity.isOnline;
+
+  readonly connectionStatus = computed(() => {
+    return this.connectivity.isOnline() ? 'Online' : 'Offline';
+  });
 }

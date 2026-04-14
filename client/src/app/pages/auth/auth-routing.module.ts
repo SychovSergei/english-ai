@@ -1,15 +1,11 @@
-import { RegisterComponent } from '@features/auth';
-import {
-  LoginPageComponent,
-  RegisterPageComponent,
-  SuccessRegisterPageComponent,
-  UserActivatePageComponent,
-} from '@pages/auth';
-
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { AuthLayoutComponent } from '../../layouts';
+import { LoginPageComponent } from './ui/login/login.page.component';
+import { RegisterPageComponent } from './ui/register/register.page.component';
+import { SuccessRegisterPageComponent } from './ui/success-register/success-register-page.component';
+import { UserActivatePageComponent } from './ui/user-activate/user-activate-page.component';
 
 const authRoutes: Routes = [
   {
@@ -32,7 +28,7 @@ const authRoutes: Routes = [
       },
       {
         path: 'confirm-email/:token',
-        component: RegisterComponent,
+        component: RegisterPageComponent,
         data: {
           title: 'Confirm Email',
         },

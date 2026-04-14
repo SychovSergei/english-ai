@@ -93,12 +93,11 @@
           <div>
             <button mat-raised-button color="primary"
                     type="submit"
-                    [disabled]="regForm.invalid"
-                    class="w-100"
-            >
+                    [disabled]="regForm.invalid || isLoading()"
+                    class="w-100">
               <div class="d-flex">
                 <span>Register</span>
-                <span *ngIf="isLoading" class="ms-2">
+                <span *ngIf="isLoading()" class="ms-2">
                   <mat-spinner diameter="20" customSpinner customColor="#fff"></mat-spinner>
                 </span>
               </div>
@@ -108,28 +107,28 @@
 
       </form>
 
-      <section class="mt-4">
-        <div class="links">
-          <p>or enter with: </p>
-          <div class="social">
-            <a routerLink="/">
-              <mat-icon>face</mat-icon>
-            </a>
-            <a routerLink="/">
-              <mat-icon>face</mat-icon>
-            </a>
-          </div>
-        </div>
-      </section>
+<!--      <section class="mt-4">-->
+<!--        <div class="links">-->
+<!--          <p>or enter with: </p>-->
+<!--          <div class="social">-->
+<!--            <a routerLink="/">-->
+<!--              <mat-icon>face</mat-icon>-->
+<!--            </a>-->
+<!--            <a routerLink="/">-->
+<!--              <mat-icon>face</mat-icon>-->
+<!--            </a>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </section>-->
 
-      <section class="mt-4">
-        <div class="another-links">
-          <p>Already have an account?
-            <button mat-button (click)="toLogin()">Log in</button>
-            <!--            <a routerLink="/auth/login">Log in</a>-->
-          </p>
-        </div>
-      </section>
+<!--      <section class="mt-4">-->
+<!--        <div class="another-links">-->
+<!--          <p>Already have an account?-->
+<!--            <button mat-button (click)="toLogin()">Log in</button>-->
+<!--            &lt;!&ndash;            <a routerLink="/auth/login">Log in</a>&ndash;&gt;-->
+<!--          </p>-->
+<!--        </div>-->
+<!--      </section>-->
 
     </mat-card-content>
   </mat-card>

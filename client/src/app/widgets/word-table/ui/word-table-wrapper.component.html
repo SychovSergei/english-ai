@@ -1,0 +1,108 @@
+<!--           [totalCount]="totalCount"-->
+<!--           [totalCount]="tableWordData().length"-->
+<!--           (pageChange)="onPageChange($event)"-->
+<!--           [columnsToDisplayWithExpandInput]="columnsToDisplayWithExpand"-->
+<app-data-table [dataSource]="dataSource"
+           [tableData]="tableWordData()"
+
+           [selection]="selection"
+           [isExpandable]="isExpandable"
+           [isShowSelection]="isShowSelection"
+
+           [columns]="tableColumns"
+           [ceilTemplates]="displayedTemplates"
+
+           [sortedColumns]="sortedColumns"
+           [expandedElement]="expandedElement"
+           [expandTemplate]="expandTemplate"
+           [pageSizeOptions]="pageSizeOptions"
+           (sortChange)="onSortChange($event)"
+           (selectionResult)="onSelectionResult($event)">
+</app-data-table>
+
+<!--               [length]="totalCount"-->
+<!--               (page)="onPageChange($event)"-->
+<mat-paginator [pageSizeOptions]="pageSizeOptions"
+               showFirstLastButtons
+               aria-label="Select page of periodic elements">
+</mat-paginator>
+
+<ng-template #expandTpl let-data>
+<!--  <p i18n class="text-xl">{{ data?.text }}-->
+  <p i18n class="text-xl">Template: {{ data | json}}
+    <!--    <span class="text-sm">{{data?.id}}</span>-->
+  </p>
+</ng-template>
+
+<ng-template #wordValueTpl let-data>
+<!--  <p i18n class="text-xl">{{ data?.text }}-->
+  <p i18n class="text-xl">{{ data?.wordValue }}
+    <!--    <span class="text-sm">{{data?.id}}</span>-->
+  </p>
+</ng-template>
+
+<ng-template #translationsTpl let-data>
+  <p i18n>{{ data?.mainTranslation }}@if(data?.translations.length > 1) {;
+       {{data?.translations[1]}}; ... - ({{ data?.translations.length }})
+    }
+  </p>
+</ng-template>
+
+<ng-template #voiceTpl>
+  <button i18n mat-icon-button aria-label="Example icon button with a volume icon"
+          (click)="getVoice($event)">
+    <mat-icon>volume_up</mat-icon>
+  </button>
+</ng-template>
+
+<ng-template #syncStatusTpl let-data>
+  <div i18n><pre>{{ (data.synced | json) || '*' }}</pre></div>
+</ng-template>
+
+<ng-template #actionsTpl let-data>
+<!--  <button mat-raised-button  (click)="editWord($event, data)">Edit<mat-icon>edit</mat-icon></button>-->
+  <button mat-icon-button [matMenuTriggerFor]="menu"
+          (click)="preventMenu($event)"
+          aria-label="icon-button with a menu">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu" yPosition="below">
+    <button mat-menu-item (click)="editWord($event, data)">
+      <mat-icon>edit</mat-icon>
+      Edit
+    </button>
+
+    <button  mat-menu-item (click)="addToWordSet($event, data)">
+      <mat-icon>add</mat-icon>
+      <span>Add to Set</span>
+    </button>
+
+    <button mat-menu-item (click)="deleteWord($event, data)">
+      <mat-icon color="warn">delete_outline</mat-icon>
+      <span>Delete</span>
+    </button>
+  </mat-menu>
+</ng-template>
+
+<ng-template #syncTpl let-row>
+  <mat-icon [color]="row.synced ? 'primary' : 'warn'">
+    {{ row.synced ? 'done' : 'sync_problem' }}
+  </mat-icon>
+</ng-template>
+
+<ng-template #expandTpl let-translation>
+  <div class="flex sm:flex-row md:flex-col w-full mb-2 flex-col items-center justify-between" style="border: 1px solid red;">
+    <div class="w-full md:w-1/3 h-fit p-2 pl-10 " style="border: 1px solid blue;">
+      <p class="text-xl">{{ translation.text }}</p>
+    </div>
+    <div class="w-full md:w-2/3 h-fit p-2" style="border: 1px solid blue;">
+      <p class="text-xl">{{ translation?.description }}</p>
+    </div>
+  </div>
+  <hr>
+</ng-template>
+
+<div>
+<!--  <pre>{{ (tableData$ | async)?.[0] | json }}</pre>-->
+<!--  <pre>{{ totalCount | json }}</pre>-->
+</div>

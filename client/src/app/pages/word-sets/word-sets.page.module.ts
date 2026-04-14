@@ -1,5 +1,4 @@
-import { CreateWordSetComponent } from '@pages/word-sets/create-word-set/ui/create-word-set.component';
-import { WordSetsPage } from '@pages/word-sets/word-sets.page';
+import { CreateWordSetComponent, WordSetsPage } from '@pages/word-sets';
 
 import { NgModule } from '@angular/core';
 

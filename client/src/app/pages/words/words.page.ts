@@ -1,3 +1,5 @@
+import { WordManagementComponent } from '@widgets/word-management';
+
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
@@ -5,6 +7,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   templateUrl: './words.page.html',
   styleUrls: ['./words.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [WordManagementComponent],
 })
 export class WordsPage {
   // filterId = 'word-data-table-filter';
