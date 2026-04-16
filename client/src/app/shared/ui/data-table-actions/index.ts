@@ -1,2 +1,2 @@
-export type { ITableActions } from './interfaces/table-actions.interface';
-export { TableActionsComponent } from './table-actions.component';
+export type { ITableActions } from './model/table-actions.interface';
+export { TableActionsComponent } from './ui/table-actions.component';

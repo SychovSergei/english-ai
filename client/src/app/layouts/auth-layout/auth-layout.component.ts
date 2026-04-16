@@ -1,4 +1,4 @@
-import { FooterComponent } from '@shared/ui/footer/footer.component';
+import { FooterComponent } from '@shared/ui';
 
 import { Component } from '@angular/core';
 import { Router, RouterOutlet, Routes } from '@angular/router';

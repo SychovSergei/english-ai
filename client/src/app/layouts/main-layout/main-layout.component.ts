@@ -1,10 +1,9 @@
 import { BreakpointService, EBreakpoints } from '@shared/services/breakpoint.service';
-import { SwipeDirective } from '@shared/directives';
 import { FooterComponent } from '@shared/ui/footer/footer.component';
 import { Config, MenuComponent, MenuItem } from '@widgets/menu';
 import { ToolbarComponent } from '@widgets/toolbar';
 
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDrawer, MatDrawerContainer, MatDrawerContent } from '@angular/material/sidenav';
 import { RouterOutlet } from '@angular/router';
 
@@ -19,14 +18,11 @@ import { RouterOutlet } from '@angular/router';
     FooterComponent,
     ToolbarComponent,
     MenuComponent,
-    SwipeDirective,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
 })
 export class MainLayoutComponent {
-  @ViewChild('drawer') drawer!: MatDrawer;
-
   isMobile: boolean = false;
 
   options: Config = {
@@ -94,12 +90,5 @@ export class MainLayoutComponent {
     this.breakpointService.getBreakpointState(EBreakpoints.XSmall)?.subscribe((res) => {
       this.isMobile = res;
     });
-  }
-
-  onSwipe(event: 'left' | 'right' | 'up' | 'down'): void {
-    console.log(event);
-    if (event === 'left') {
-      this.drawer.close();
-    }
   }
 }
