@@ -1,6 +1,13 @@
-import { PatchChange, WithId } from '@entities/word/api/word.dto';
-
 import { FormArray, FormGroup } from '@angular/forms';
+
+export type WithId = { id: string };
+
+// TODO нужно ли???
+export type PatchChange<T extends WithId> = {
+  created: Omit<T, 'id'>[];
+  updated: Partial<T>[];
+  deleted: Pick<T, 'id'>[];
+};
 
 /**
  * Recursively compares two form value objects (or arrays) and returns `true` if any field has changed.

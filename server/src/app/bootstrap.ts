@@ -1,0 +1,52 @@
+import { bootstrapAuthModule } from '@modules/auth/bootstrapAuthModule';
+import { bootstrapUserModule } from '@modules/users/bootstrapUserModule';
+import { bootstrapWordModule } from '@modules/words/bootstrapWordModule';
+import { Express, Request, Response, Router } from 'express';
+import { Container } from 'inversify';
+
+import { AUTH_TYPES } from '@modules/auth/constants/auth.types';
+import { WORDS_TYPES } from '@modules/words/constants/words.types';
+
+import { bindCommon } from '@ioc/bindings/common.bindings';
+import { bindConfig } from '@ioc/bindings/config.bindings';
+import { bindEventBus } from '@ioc/bindings/event-bus.bindings';
+
+import { bootstrapDatabase } from './bootstrapDatabase';
+import { createApp } from './createApp';
+import { USER_TYPES } from '@modules/users/constants/user.types';
+
+export async function bootstrapApplication(container: Container): Promise<Express> {
+  // DB connection
+  await bootstrapDatabase();
+
+  bindConfig(container);
+  bindEventBus(container);
+  bindCommon(container);
+
+  // Modules
+  bootstrapAuthModule(container);
+  bootstrapWordModule(container);
+  bootstrapUserModule(container);
+  // TODO: const trainingModule = bootstrapTrainingModule(eventBus);
+
+  const authRouter = container.get<Router>(AUTH_TYPES.AuthRouter);
+  const wordsRouter = container.get<Router>(WORDS_TYPES.WordsRouter);
+  const usersRouter = container.get<Router>(USER_TYPES.UsersRouter);
+  // const actorResolver = container.get<ActorResolver>(CORE_TYPES.ActorResolver);
+
+  const app = createApp(
+    container,
+    /*actorResolver,*/ (app: Express) => {
+      app.use('/api/auth', authRouter);
+      app.use('/api/words', wordsRouter);
+      app.use('/api/users', usersRouter);
+      // TODO: app.use('/api/training', trainingModule.router);
+
+      app.get('/', (req: Request, res: Response) => {
+        res.send('Server is working!');
+      });
+    },
+  );
+
+  return app;
+}

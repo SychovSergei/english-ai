@@ -1,15 +1,12 @@
-import { ToolbarComponent } from '@features/user/ui';
-import { AuthRoutingModule } from '@pages/auth/auth-routing.module';
-import { FooterComponent } from '@shared/ui';
-
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { AuthLayoutComponent } from '../../layouts';
+import { AuthRoutingModule } from './auth-routing.module';
 
 @NgModule({
-  imports: [CommonModule, RouterOutlet, AuthRoutingModule, AuthLayoutComponent, FooterComponent, ToolbarComponent],
+  imports: [CommonModule, RouterOutlet, AuthRoutingModule, AuthLayoutComponent],
   declarations: [],
   exports: [AuthLayoutComponent],
   providers: [],

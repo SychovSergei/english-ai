@@ -1,5 +1,4 @@
-import { RegisterService } from '@features/auth/register/api/register.service';
-import { IUserRegisterDTO, IUserRegisterResponse } from '@shared/api/types/auth.dto';
+import { RegisterPayload, SessionFacade } from '@entities/session';
 import { CustomSpinnerDirective } from '@shared/directives/custom-spinner.directive';
 import { ErrorMessageModule } from '@shared/ui/error-message/error-message.module';
 import { UiKitModule } from '@shared/ui/ui-kit';
@@ -7,7 +6,7 @@ import { CustomValidators } from '@shared/utils/custom-validators';
 
 import { NgIf } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -20,12 +19,12 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class RegisterComponent implements OnInit {
   regForm!: FormGroup;
-  isLoading: boolean = false;
+  protected isLoading = signal(false);
 
   errors: string[] = [];
 
   constructor(
-    private registerService: RegisterService,
+    private sessionFacade: SessionFacade,
     private router: Router,
   ) {}
 
@@ -56,11 +55,10 @@ export class RegisterComponent implements OnInit {
   }
 
   register(): void {
-    this.errors = [];
+    if (this.regForm.valid && !this.isLoading()) {
+      this.isLoading.set(true);
 
-    if (this.regForm.valid && !this.isLoading) {
-      this.isLoading = true;
-      const user: IUserRegisterDTO = {
+      const user: RegisterPayload = {
         name: {
           firstName: this.regForm.get('firstName')!.value,
           lastName: this.regForm.get('lastName')!.value,
@@ -69,31 +67,31 @@ export class RegisterComponent implements OnInit {
         password: this.regForm.get('password')!.value,
       };
 
-      this.registerService.registration(user).subscribe({
-        next: (result: IUserRegisterResponse) => {
-          this.errors = [];
-          this.isLoading = false;
-          console.log('REGISTER SUCCESS -> redirect', result);
-        },
-        error: (error: HttpErrorResponse) => {
-          this.isLoading = false;
-          this.errors = [];
+      this.errors = [];
 
-          if (error.status === 0) {
-            this.errors.push('Network error. Check your internet connection and try again.');
-          }
-          if (error.error.code === 'user/already-exists') {
-            this.regForm.controls['email'].setErrors({ wrongUserEmail: true });
-            this.errors.push('user-model with this email already registered');
-          }
+      this.sessionFacade
+        .register(user)
+        .catch((error) => this.handleError(error))
+        .finally(() => {
+          this.errors = [];
+          this.isLoading.set(false);
+        });
+    }
+  }
 
-          if (error.status == 504) {
-            this.errors.push(
-              `Sorry, the server didn't respond in time. Please try your request again later or contact the administrator if the problem persists.`,
-            );
-          }
-        },
-      });
+  private handleError(error: HttpErrorResponse): void {
+    if (error.status === 0) {
+      this.errors.push('Network error. Check your internet connection and try again.');
+    }
+    if (error.error.code === 'user/already-exists') {
+      this.regForm.controls['email'].setErrors({ wrongUserEmail: true });
+      this.errors.push('user-model with this email already registered');
+    }
+
+    if (error.status == 504) {
+      this.errors.push(
+        `Sorry, the server didn't respond in time. Please try your request again later or contact the administrator if the problem persists.`,
+      );
     }
   }
 

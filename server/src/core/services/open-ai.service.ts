@@ -1,7 +1,6 @@
+import openai from '@core/services/open-ai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
-
-import openai from '@core/services/open-ai';
 
 // TODO Schema GenerateSentencesResponseSchema - переместить
 export const GenerateSentencesResponseSchema = z

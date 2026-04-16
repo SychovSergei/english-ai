@@ -1,13 +1,14 @@
-import { WordItem } from '@entities/word-set/models';
+import { WordItem } from '@entities/word-set';
 import { FloatButtonModule } from '@shared/directives/add-floating-button';
-import { DialogComponent } from '@shared/ui/dialog';
+import { generateCompactId } from '@shared/lib';
+import { LoggerService } from '@shared/lib/logger/logger.service';
+import { DialogComponent } from '@shared/ui';
 import { UiKitModule } from '@shared/ui/ui-kit';
-import { generateUuid } from '@shared/utils';
 
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { JsonPipe, NgForOf, NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -40,6 +41,8 @@ interface ListFormControl {
   ],
 })
 export class WordImportDialogComponent implements OnInit {
+  private readonly loggerService = inject(LoggerService).createLogger('WordImportDialogComponent');
+
   /** TODO Отвечает за импорт слов —
    *    открывает диалог, обрабатывает импорт и добавляет слова.
    */
@@ -63,10 +66,10 @@ export class WordImportDialogComponent implements OnInit {
     this.wordImportForm.controls['wordList'].valueChanges
       .pipe(debounceTime(1000), distinctUntilChanged())
       .subscribe((value) => {
-        console.log('<<<<<<<<');
-        console.log(value);
+        this.loggerService.log('<<<<<<<<');
+        this.loggerService.log('value', value);
         this.resultWordArray = this.createList(this.formatText(value || ''));
-        console.log('>>>>>>>>');
+        this.loggerService.log('>>>>>>>>');
         // this.cdr.detectChanges();
       });
 
@@ -86,7 +89,7 @@ export class WordImportDialogComponent implements OnInit {
 
   private createItem(line: string[]): WordItem {
     return {
-      id: generateUuid(),
+      id: generateCompactId(),
       term: line[0],
       definition: line[1],
     };

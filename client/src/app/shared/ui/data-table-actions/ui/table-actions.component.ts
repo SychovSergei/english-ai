@@ -1,22 +1,26 @@
-import { ITableActions } from '@shared/ui/data-table-actions';
+import { ITableActions } from '@shared/ui';
 import { IconFactoryService } from '@shared/ui/icon-factory';
-import { UiKitModule } from '@shared/ui/ui-kit';
 
-import { AfterViewInit, Component, Input, QueryList, ViewChildren, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, QueryList, ViewChildren, ViewContainerRef } from '@angular/core';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-data-table-actions',
   templateUrl: './table-actions.component.html',
   styleUrls: ['./table-actions.component.scss'],
   standalone: true,
-  imports: [UiKitModule],
+  imports: [MatButton],
 })
 export class TableActionsComponent implements AfterViewInit {
+  // TODO INFO: использую для создания кнопок в header таблицы
+
+  private iconFactoryService = inject(IconFactoryService);
+
   @ViewChildren('iconContainer', { read: ViewContainerRef }) iconContainers!: QueryList<ViewContainerRef>;
 
   @Input() actions: ITableActions[] = [];
 
-  constructor(private iconFactoryService: IconFactoryService) {}
+  constructor() {}
 
   ngAfterViewInit(): void {
     this.iconContainers.forEach((container, index) => {

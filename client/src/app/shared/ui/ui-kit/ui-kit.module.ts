@@ -24,6 +24,7 @@ import { MatInput } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatSnackBarAction, MatSnackBarActions, MatSnackBarLabel } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
 
@@ -60,6 +61,7 @@ import { MatTooltip } from '@angular/material/tooltip';
     MatDialogActions,
     MatDialogContent,
     MatDialogTitle,
+    MatTableModule,
   ],
   exports: [
     MatProgressSpinner,
@@ -97,6 +99,7 @@ import { MatTooltip } from '@angular/material/tooltip';
     MatDialogContent,
     MatDialogTitle,
     MatAccordion,
+    MatTableModule,
   ],
 })
 export class UiKitModule {}

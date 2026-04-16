@@ -1,3 +1,4 @@
+import { LoggerService } from '@shared/lib/logger/logger.service';
 import { SnackBarMessage } from '@shared/services/error.service';
 import { UiKitModule } from '@shared/ui/ui-kit';
 
@@ -13,6 +14,7 @@ import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar'
   styleUrl: './snack-bar.component.scss',
 })
 export class SnackBarComponent {
+  private readonly loggerService = inject(LoggerService).createLogger('SnackBarComponent');
   snackBarRef = inject(MatSnackBarRef);
   type: string = '';
 
@@ -31,10 +33,10 @@ export class SnackBarComponent {
         this.type = '';
     }
     if (this.data.type === 'success') {
-      console.log('success');
+      this.loggerService.log('success');
     } else {
-      console.log('else');
+      this.loggerService.log('else');
     }
-    console.log('data.type', this.data.type);
+    this.loggerService.log('data.type', this.data.type);
   }
 }

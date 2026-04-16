@@ -1,38 +1,40 @@
-import { WordUpdateOperationResult, WordUpdateTranslationOperationResult } from '@entities/word/api/word.api';
-import { WordTranslation } from '@entities/word/model/word.types';
-import { WordFormFacade } from '@features/words/add-word-dialog/facade';
+import {
+  CheckWordVariantResponseDto,
+  CreateWordPayload,
+  UpdateWordPayload,
+  WordFacade,
+  WordTranslation,
+} from '@entities/word';
 import {
   checkIsFormChanged,
+  OpenDialogWordData,
   removeFormGroupsWithEmptyValuesIn,
-} from '@features/words/add-word-dialog/model/form.helpers';
-import {
   WordFormBaseControls,
   WordFormTranslation,
   WordFormValue,
-} from '@features/words/add-word-dialog/model/word-form.types';
-import { OpenDialogWordData } from '@features/words/types';
+} from '@features/words';
+// } from '@features/words/add-word-dialog/model/form.helpers';
 import { CustomSpinnerDirective } from '@shared/directives/custom-spinner.directive';
 import { ELangs, ELevels, ELexicalCategory } from '@shared/enums';
-import { ApiErrorInterface } from '@shared/errors/error-types';
-import { CustomHttpErrorResponse } from '@shared/interfaces';
-import { INotificationService } from '@shared/services/notification/notification.interface';
-import { NOTIFICATION_SERVICE_TOKEN } from '@shared/services/notification/notification-service.token';
-import { DialogComponent } from '@shared/ui/dialog';
+import { INotificationService } from '@shared/lib/notification-service.interface';
+import { NOTIFICATION_SERVICE_TOKEN } from '@shared/lib/tokens/notification-service.token';
+import { DialogComponent } from '@shared/ui';
 import { UiKitModule } from '@shared/ui/ui-kit';
 import { addControlError, removeControlError } from '@shared/utils';
 
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
-import { JsonPipe, NgForOf, NgIf } from '@angular/common';
+import { AsyncPipe, JsonPipe, NgForOf, NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   Inject,
   inject,
-  OnDestroy,
   OnInit,
   signal,
   WritableSignal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormArray,
@@ -43,24 +45,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import {
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  of,
-  Subject,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, take, tap } from 'rxjs';
+// import { WordTranslation } from '@entities/word/model/vo';
 
 type PropertyType<T, K extends keyof T> = T[K];
 
 type IdType = PropertyType<WordFormValue, 'id'>;
-type TextType = PropertyType<WordFormValue, 'text'>;
+type TextType = PropertyType<WordFormValue, 'value'>;
 type LanguageType = PropertyType<WordFormValue, 'language'>;
 
 type WordTranslationForm = FormGroup<{
@@ -69,7 +60,7 @@ type WordTranslationForm = FormGroup<{
 
 type WordForm = FormGroup<{
   id: FormControl<IdType>;
-  text: FormControl<TextType>;
+  value: FormControl<TextType>;
   language: FormControl<LanguageType>;
   translations: FormArray<WordTranslationForm>; // FormArray содержит FormControls или FormGroups
 }>;
@@ -85,14 +76,20 @@ type WordForm = FormGroup<{
     JsonPipe,
     CustomSpinnerDirective,
     CdkTextareaAutosize,
+    AsyncPipe,
   ],
   selector: 'app-add-word-dialog',
   templateUrl: './add-word-dialog.component.html',
   styleUrls: ['./add-word-dialog.component.scss'],
   standalone: true,
+  providers: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddWordDialogComponent implements OnInit, OnDestroy {
+export class AddWordDialogComponent implements OnInit {
+  // TODO Am I using this component??????
+  private destroyRef = inject(DestroyRef);
+  private fb = inject(FormBuilder);
+
   public isEditMode: WritableSignal<boolean> = signal(false);
 
   public isLoading: WritableSignal<boolean> = signal(false);
@@ -101,27 +98,27 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
   public isButtonDisabled: WritableSignal<boolean> = signal(false);
   public isFormChanged: WritableSignal<boolean> = signal(false);
 
-  private _destroy$ = new Subject<void>();
+  private variants: WritableSignal<CheckWordVariantResponseDto[]> = signal([]);
+
   private _isWordLoaded: boolean = false;
   private _loadedWord: string = '';
   private _isDataChangedSuccessful: boolean = false;
   private _translateDefaultLang: ELangs = ELangs.UA; // TODO - must load from config
 
-  private fb = inject(FormBuilder);
-
-  wordForm!: WordForm;
+  wordForm: WordForm;
 
   get idCtrl(): FormControl<IdType> {
     return this.wordForm.get('id') as FormControl;
   }
   get textCtrl(): FormControl<TextType> {
-    return this.wordForm.get('text') as FormControl;
+    return this.wordForm.get('value') as FormControl;
   }
   get languageCtrl(): FormControl<LanguageType> {
     return this.wordForm.get('language') as FormControl;
   }
   get translationsCtrl(): FormArray {
-    return this.wordForm.get('translations') as FormArray;
+    //<WordTranslationForm> {
+    return this.wordForm.get('translations') as FormArray; //<WordTranslationForm>;
   }
 
   private _levelSelector: string[] | null = null;
@@ -137,16 +134,16 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
 
   private initialValues: WordFormValue = {
     id: '',
-    text: '',
+    value: '',
     language: ELangs.EN,
     translations: [
       {
-        id: '',
+        id: '', // TODO сгенерировать начальный индекс для перевода ?????
         translText: '',
         description: '',
         lexicalCategory: ELexicalCategory.Empty,
         difficultyLevel: ELevels.Empty,
-        language: ELangs.EN,
+        language: this._translateDefaultLang,
       },
     ],
   };
@@ -156,19 +153,21 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
     private dialogRef: MatDialogRef<AddWordDialogComponent>,
     @Inject(NOTIFICATION_SERVICE_TOKEN) private notificationService: INotificationService,
     // @Inject(WORD_SERVICE_TOKEN) private wordService: WordServiceInterface,
-    private wordFormFacade: WordFormFacade,
+    // private wordFormFacadeOld: WordFormFacade,
+    public wordFormFacade: WordFacade, // TODO public
   ) {
     const { data, mode } = this.wordData;
+    // const initVal = mode === 'edit' && data ? WordFormMapper.toForm(data) : this.initialValues;
     const initVal = mode === 'edit' && data ? data : this.initialValues;
 
     this.wordForm = this.createForm(initVal);
 
     if (mode === 'edit') {
       this.isEditMode.set(true);
-      this._loadedWord = data.text ?? '';
-      this.updateBaseControls(data);
+      this._loadedWord = initVal.value ?? '';
+      this.updateBaseControls(initVal);
       // this.updateTranslationControls(data.translations, !this.isEditMode());
-      this.updateTranslationControls(data.translations);
+      this.updateTranslationControls(initVal.translations);
     }
 
     this.memorizeInitialValues(this.wordForm.getRawValue() as WordFormValue);
@@ -178,11 +177,6 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
     // this.resetFormState();
     this.listenToFormChanges();
     this.listenToTextControlChanges();
-  }
-
-  ngOnDestroy(): void {
-    this._destroy$.next();
-    this._destroy$.complete();
   }
 
   private listenToFormChanges(): void {
@@ -200,7 +194,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
         map(() => {
           return checkIsFormChanged<WordFormValue>(this.wordForm.getRawValue() as WordFormValue, this.initialValues);
         }),
-        takeUntil(this._destroy$),
+        takeUntilDestroyed(this.destroyRef),
         tap((changed) => {
           // console.log('wordForm changed:', changed);
           this.isFormChanged.set(changed);
@@ -212,33 +206,48 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
   private listenToTextControlChanges(): void {
     this.textCtrl.valueChanges
       .pipe(
-        takeUntil(this._destroy$),
-        debounceTime(500),
+        takeUntilDestroyed(this.destroyRef),
+        debounceTime(1500),
         distinctUntilChanged(), // ignore if value don't change
         map((val) => val?.toString().trim() as string),
         filter((val) => val !== this._loadedWord),
-        filter((val) => val.length > 2),
+        filter((val) => val.length >= 2),
         tap(() => this.isLoading.set(true)),
-        switchMap((wordValue) =>
-          this.wordFormFacade.checkIfWordExists(wordValue).pipe(
-            tap(() => {
-              this.isLoading.set(false);
-            }),
-            catchError((err) => {
-              console.error('checkWord error', err);
-              this.isLoading.set(false);
-              return of(null);
-            }),
-          ),
+        switchMap(
+          (wordValue) =>
+            this.wordFormFacade.checkWordExistence(wordValue).pipe(
+              tap((res) => {
+                this.isLoading.set(false);
+                console.log('res', res);
+                // console.log('res.variants', res.variants);
+                if (res.exists) {
+                  this.variants.set(res.variants); // Сохраняем омонимы в сигнал
+
+                  // Назначаю в контрол значение id слова
+                  this.idCtrl.setValue(res.variants[0].id, { emitEvent: false });
+                  if (res.variants.length)
+                    this.notificationService.showInfo(`Найдено омонимов: ${res.variants.length}`);
+                } else {
+                  if (res.variants.length)
+                    this.notificationService.showInfo(`Найдено омонимов: ${res.variants.length}`);
+                }
+              }),
+              catchError((err) => {
+                console.error('checkWord error', err);
+                this.isLoading.set(false);
+                return of(null);
+              }),
+            ),
+          // .subscribe(),
         ),
       )
       .subscribe((res) => {
         this.isLoading.set(false);
-        const alreadyExists = !!res?.id;
+        const alreadyExists = !!res?.exists;
 
         if (alreadyExists) {
           /** if word exists in DB, and we are in CREATE MODE => set idCtrl  */
-          if (!this._isWordLoaded && !this.isEditMode()) this.idCtrl.setValue(res.id ?? '', { emitEvent: false });
+          // if (!this._isWordLoaded && !this.isEditMode()) this.idCtrl.setValue(res?.wordId ?? '', { emitEvent: false });
 
           addControlError(this.textCtrl, 'alreadyExists', true);
           // this.textControl.setErrors({ alreadyExists: true });
@@ -256,28 +265,71 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
-    if (this.wordForm.invalid) {
-      this.wordForm.markAllAsTouched();
-      this.wordForm.markAsDirty();
-      this.focusFirstInvalidControl(this.wordForm);
-      // console.log('FORM INVALID => CANCEL');
-      return;
-    }
+    console.log(this.wordForm.invalid, this.isSubmitting());
+    if (this.wordForm.invalid || this.isSubmitting()) return;
+    console.log('onSubmit BUTTON');
 
     this.isSubmitting.set(true);
-    // const translations = this.mapTranslations();
+
+    // Собираем данные из формы обратно в структуру Payload
+    const formRaw = this.wordForm.getRawValue() as WordFormValue;
+
+    // TODO надо ли?
+    //  if (this.wordForm.invalid) {
+    //   this.wordForm.markAllAsTouched();
+    //   this.wordForm.markAsDirty();
+    //   this.focusFirstInvalidControl(this.wordForm);
+    //   // console.log('FORM INVALID => CANCEL');
+    //   return;
+    //  }
+
+    const translations = formRaw.translations.map((t) => ({
+      id: t.id || '',
+      value: t.translText.trim(),
+      language: t.language as ELangs,
+      description: t.description,
+      lexicalCategory: t.lexicalCategory,
+      difficultyLevel: t.difficultyLevel,
+    }));
+    // TODO не надо трансформировать, недо просто передать данные формы
+    //  Трансформация будет происходить в фасаде???????
 
     if (this.isEditMode() && this.idCtrl.value) {
       // const updateWordDto = this.toWordUpdateDTO(); //TODO надо в ФАСАД переместить
-      // console.log('UPDATE data:', this.idCtrl.value, updateWordDto);
-      this.wordFormFacade //TODO этот ли сервис или FACADE !!!!!!!!!!!!!!!!!!!!
-        // .updateWord(this.idCtrl.value, updateWordDto)
-        .updateWord(this.wordForm.getRawValue() as WordFormValue, this.initialValues)
-        .pipe(takeUntil(this._destroy$))
+      console.log('UPDATE data:', this.idCtrl.value /*, updateWordDto*/);
+
+      const updatePayload: UpdateWordPayload = {
+        id: this.idCtrl.value,
+        value: this.wordForm.get('value')?.value as string,
+        language: this.wordForm.get('language')?.value as ELangs,
+        translations: translations,
+        //   this.translationsCtrl.value.map((t) => ({
+        //   id: t.id || '',
+        //   value: t.translText ? t.translText.toString().trim() : '',
+        //   language: t.language as ELangs,
+        //   description: t.description ?? '',
+        //   lexicalCategory: t.lexicalCategory as ELexicalCategory,
+        //   difficultyLevel: t.difficultyLevel as ELevels,
+        //   /* sense: null,
+        //   isPublic: false,
+        //   image: null,*/
+        // })),
+        sense: null, // TODO Добавьте поля, если они есть в форме
+        isPublic: false,
+        image: null,
+      };
+      // Вызываем фасад и НЕ ЖДЕМ ответа сервера для закрытия
+      this.wordFormFacade
+        .updateWord(updatePayload)
+        .then(() => {
+          this._isDataChangedSuccessful = true;
+          this.isSubmitting.set(false);
+          // this.closeDialog();
+        })
+        .catch(() => this.isSubmitting.set(false))
+        .finally(() => this.isSubmitting.set(false));
+      // .updateWord(this.wordForm.getRawValue() as WordFormValue, this.initialValues)
+      /**.pipe(takeUntil(this._destroy$))
         .subscribe({
           next: (res: WordUpdateOperationResult) => {
             // console.log(res);
@@ -298,18 +350,49 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
             this.isSubmitting.set(false);
             this.notificationService.showError('Something went wrong... UPDATE');
           },
-        });
-    } else {
+        });*/
+    }
+    if (!this.isEditMode()) {
       /** CREATE mode (submit) */
+      console.log('CREATE WORD BUTTON CLICK');
+      const createPayload: CreateWordPayload = {
+        // id: this.idCtrl.value, // ??????
+        value: formRaw.value,
+        language: formRaw.language,
+        translations: translations,
+        //   this.translationsCtrl.value.map((t) => ({
+        //   id: t.id || '',
+        //   value: t.translText ? t.translText.toString().trim() : '',
+        //   language: t.language as ELangs,
+        //   description: t.description ?? '',
+        //   lexicalCategory: t.lexicalCategory as ELexicalCategory,
+        //   difficultyLevel: t.difficultyLevel as ELevels,
+        //   /* sense: null,
+        //   isPublic: false,
+        //   image: null,*/
+        // })),
+        sense: null,
+        isPublic: false,
+        image: null,
+      };
 
       this.wordFormFacade
-        .createWord(this.wordForm.getRawValue() as WordFormValue)
-        .pipe(takeUntil(this._destroy$))
+        .createWord(createPayload)
+        .then((res) => {
+          this._isDataChangedSuccessful = true;
+          // this.closeDialog();
+          this.isEditMode.set(true);
+          if (res) this.idCtrl.setValue(res, { emitEvent: false });
+        })
+        .catch(() => this.isSubmitting.set(false))
+        .finally(() => this.isSubmitting.set(false));
+      /** this.wordFormFacade.createWord(this.wordForm.getRawValue() as WordFormValue);
+      .pipe(takeUntil(this._destroy$))
         .subscribe({
           next: (res) => {
             // console.log(res);
             // console.log('res.id', res.id);
-            this._loadedWord = res.text;
+            this._loadedWord = res.value;
 
             this.updateBaseControls(res);
             this.updateTranslationControls(res.translations);
@@ -326,38 +409,38 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
             this.isSubmitting.set(false);
             this.notificationService.showError('Something went wrong...');
           },
-        });
+        }); */
     }
   }
 
   /** add translation to existing word */
-  public addTranslationItem(translationControl: AbstractControl, index: number): void {
-    const transData = translationControl.value as WordFormTranslation<WordTranslation>;
-    if (this.idCtrl.value) {
-      this.wordFormFacade
-        .addTranslation(this.idCtrl.value, transData)
-        .pipe(takeUntil(this._destroy$))
-        .subscribe({
-          next: (translation: WordFormTranslation<WordTranslation>) => {
-            this.updateTranslationControl(translation, index);
-            this.memorizeInitialValues(this.wordForm.getRawValue() as WordFormValue);
-
-            this._isDataChangedSuccessful = true;
-            this.notificationService.showSuccess('Translation was added successful!');
-          },
-          error: (error: CustomHttpErrorResponse<ApiErrorInterface>) => {
-            // console.log(error.error);
-            if (error.error.code === 'word-translation/already-exists') {
-              this.notificationService.showError(error.error.message || 'Translation was not added! Try again.');
-              this.translationsCtrl
-                .at(index)
-                .get('text')
-                ?.setErrors({ translationError: { message: error.error.message } });
-            }
-          },
-        });
-    }
-  }
+  // public addTranslationItem(translationControl: AbstractControl, index: number): void {
+  //   const transData = translationControl.value as WordFormTranslation<WordTranslation>;
+  //   if (this.idCtrl.value) {
+  //     // this.wordFormFacade // TODO implement ?????
+  //     //   .addTranslation(this.idCtrl.value, transData)
+  //     //   .pipe(takeUntil(this._destroy$))
+  //     //   .subscribe({
+  //     //     next: (translation: WordFormTranslation<WordTranslation>) => {
+  //     //       this.updateTranslationControl(translation, index);
+  //     //       this.memorizeInitialValues(this.wordForm.getRawValue() as WordFormValue);
+  //     //
+  //     //       this._isDataChangedSuccessful = true;
+  //     //       this.notificationService.showSuccess('Translation was added successful!');
+  //     //     },
+  //     //     error: (error: CustomHttpErrorResponse<ApiErrorInterface>) => {
+  //     //       // console.log(error.error);
+  //     //       if (error.error.code === 'word-translation/already-exists') {
+  //     //         this.notificationService.showError(error.error.message || 'Translation was not added! Try again.');
+  //     //         this.translationsCtrl
+  //     //           .at(index)
+  //     //           .get('text')
+  //     //           ?.setErrors({ translationError: { message: error.error.message } });
+  //     //       }
+  //     //     },
+  //     //   });
+  //   }
+  // }
 
   public removeTranslationItem(index: number): void {
     // this.isFormChanged.set(true);
@@ -365,23 +448,28 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
   }
 
   public loadWord(): void {
+    console.log('loadWord -> idCtrl =', this.idCtrl.value);
+
+    // TODO Выбрать из загруженных variants(), передать id варианта и по нему загрузить слово из базы
     if (!this.idCtrl.value || this.isEditMode()) return;
     this.isWordLoading.set(true);
 
+    // TODO implement getById()
     this.wordFormFacade
-      .getWordById(this.idCtrl.value)
+      .getWordFromStorageById(this.idCtrl.value)
       .pipe(
         take(1),
-        takeUntil(this._destroy$),
+        takeUntilDestroyed(this.destroyRef),
         tap(() => {
           this.isEditMode.set(true);
           this.isButtonDisabled.set(false);
         }),
       )
       .subscribe({
-        next: (result: WordFormValue) => {
+        next: (result) => {
+          console.log('Word loaded = ', result);
           this._isWordLoaded = true;
-          if (!this._loadedWord) this._loadedWord = result.text;
+          if (!this._loadedWord) this._loadedWord = result.value;
 
           this.updateBaseControls(result);
           /** update error list for textControl */
@@ -390,11 +478,27 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
           /** remove empty Translate Input groups */
           removeFormGroupsWithEmptyValuesIn(this.translationsCtrl, 'translText');
 
-          const translations: WordFormTranslation<WordTranslation>[] = result.translations;
-          translations.forEach((translation: WordFormTranslation<WordTranslation>) => {
+          // const translations: WordFormTranslation<WordTranslation>[] = result.translations;
+          const translations = result.translations;
+          console.log('translations', translations);
+          const res: WordFormValue = {
+            id: result.id,
+            value: result.value,
+            language: result.language,
+            translations: translations.map((t) => ({
+              id: t.id,
+              translText: t.value, // TODO
+              language: t.language,
+              description: t.description,
+              lexicalCategory: t.lexicalCategory,
+              difficultyLevel: t.difficultyLevel,
+            })),
+          };
+          // translations.forEach((translation: WordFormTranslation<WordTranslation>) => {
+          // translations.forEach((translation) => {
+          res.translations.forEach((translation) => {
             this.addTranslationControls(translation);
           });
-          const res: WordFormValue = { id: result.id, text: result.text, language: result.language, translations };
           this.memorizeInitialValues(res);
           this.isWordLoading.set(false);
         },
@@ -412,12 +516,13 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
    */
   public addTranslationControls({
     id = '',
-    language = this._translateDefaultLang,
+    language, // = this._translateDefaultLang,
     translText = '',
     description = '',
     lexicalCategory = ELexicalCategory.Empty,
     difficultyLevel = ELevels.Empty,
   }: Partial<WordFormTranslation<WordTranslation>> = {}): void {
+    /** добавляем новую группу перевода */
     const newItemGroup = this.fb.group({
       id: [id],
       language: [language],
@@ -460,7 +565,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
     this.wordForm.patchValue(
       {
         id: word.id,
-        text: word.text,
+        value: word.value,
         language: word.language,
       },
       { emitEvent: false },
@@ -490,64 +595,64 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-  private updateTranslationCtrls({ translations }: WordUpdateTranslationOperationResult): void {
-    for (const operationKey of Object.keys(translations)) {
-      // console.log(operationKey);
-      switch (operationKey) {
-        case 'created':
-          // console.log('translations.created', translations.created);
-          for (const keyElement of translations.created) {
-            // console.log('keyElement', keyElement);
-            if (keyElement.status === 'success') {
-              const ctrl = this.translationsCtrl.controls.find(
-                (ctrl) => ctrl.get('translText')?.value === keyElement.value?.text,
-              );
-              if (ctrl && keyElement) {
-                ctrl.patchValue(
-                  {
-                    translText: keyElement.value?.text,
-                    id: keyElement.value?.id,
-                    language: keyElement.value?.language,
-                    description: keyElement.value?.description,
-                    lexicalCategory: keyElement.value?.lexicalCategory,
-                    difficultyLevel: keyElement.value?.difficultyLevel,
-                  },
-                  { emitEvent: true },
-                );
-              }
-              console.log('<><><>', ctrl?.getRawValue());
-            }
-          }
-          break;
-        case 'updated':
-          console.log('translations.updated', translations.updated);
-          break;
-        case 'deleted':
-          console.log('translations.deleted', translations.deleted);
-          break;
-        case 'skipped':
-          console.log('translations.skipped', translations.skipped);
-
-          for (const keyElement of translations.skipped) {
-            // console.log('keyElement', keyElement);
-            if (keyElement.status === 'error') {
-              const ctrl = this.translationsCtrl.controls.find(
-                (ctrl) => ctrl.get('translText')?.value === keyElement.id && ctrl.get('id')?.value === '',
-              );
-              if (ctrl && keyElement) {
-                ctrl.get('translText')?.setErrors({ alreadyExists: keyElement.reason!.message! || 'Already...' });
-              }
-              console.log('<><><>', ctrl?.getRawValue());
-            }
-          }
-
-          break;
-        default:
-          console.log('------default-------');
-          break;
-      }
-    }
-  }
+  // private updateTranslationCtrls({ translations }: WordUpdateTranslationOperationResult): void {
+  //   for (const operationKey of Object.keys(translations)) {
+  //     // console.log(operationKey);
+  //     switch (operationKey) {
+  //       case 'created':
+  //         // console.log('translations.created', translations.created);
+  //         for (const keyElement of translations.created) {
+  //           // console.log('keyElement', keyElement);
+  //           if (keyElement.status === 'success') {
+  //             const ctrl = this.translationsCtrl.controls.find(
+  //               (ctrl) => ctrl.get('translText')?.value === keyElement.value?.value,
+  //             );
+  //             if (ctrl && keyElement) {
+  //               ctrl.patchValue(
+  //                 {
+  //                   translText: keyElement.value?.value,
+  //                   id: keyElement.value?.id,
+  //                   language: keyElement.value?.language,
+  //                   description: keyElement.value?.description,
+  //                   lexicalCategory: keyElement.value?.lexicalCategory,
+  //                   difficultyLevel: keyElement.value?.difficultyLevel,
+  //                 },
+  //                 { emitEvent: true },
+  //               );
+  //             }
+  //             console.log('<><><>', ctrl?.getRawValue());
+  //           }
+  //         }
+  //         break;
+  //       case 'updated':
+  //         console.log('translations.updated', translations.updated);
+  //         break;
+  //       case 'deleted':
+  //         console.log('translations.deleted', translations.deleted);
+  //         break;
+  //       case 'skipped':
+  //         console.log('translations.skipped', translations.skipped);
+  //
+  //         for (const keyElement of translations.skipped) {
+  //           // console.log('keyElement', keyElement);
+  //           if (keyElement.status === 'error') {
+  //             const ctrl = this.translationsCtrl.controls.find(
+  //               (ctrl) => ctrl.get('translText')?.value === keyElement.id && ctrl.get('id')?.value === '',
+  //             );
+  //             if (ctrl && keyElement) {
+  //               ctrl.get('translText')?.setErrors({ alreadyExists: keyElement.reason!.message! || 'Already...' });
+  //             }
+  //             console.log('<><><>', ctrl?.getRawValue());
+  //           }
+  //         }
+  //
+  //         break;
+  //       default:
+  //         console.log('------default-------');
+  //         break;
+  //     }
+  //   }
+  // }
 
   private updateTextErrorList(): void {
     // TODO нужна ли?
@@ -565,7 +670,7 @@ export class AddWordDialogComponent implements OnInit, OnDestroy {
   private createForm(data: WordFormValue): WordForm {
     const form: WordForm = this.fb.group({
       id: this.fb.control(data.id, { nonNullable: true }),
-      text: this.fb.control(data.text, {
+      value: this.fb.control(data.value, {
         nonNullable: true,
         validators: [Validators.required, Validators.minLength(2)],
       }),

@@ -1,4 +1,4 @@
-import { WordManagementComponent } from '@widgets/word-management/ui/word-management.component';
+import { WordManagementComponent } from '@widgets/word-management';
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 

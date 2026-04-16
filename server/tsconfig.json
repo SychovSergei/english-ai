@@ -31,10 +31,12 @@
     "baseUrl": "./src",                                  /* Specify the base directory to resolve non-relative module names. */
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     "paths": {
-      "@shared/*": ["shared/*"],
       "@core/*": ["core/*"],
-      "@application/*": ["application/*"],
-      "@infrastructure/*": ["infrastructure/*"]
+      "@modules/*": ["modules/*"],
+      "@infrastructure/*": ["infrastructure/*"],
+//      "@shared/*": ["shared/*"],
+      "@ioc/*": ["ioc/*"],
+      "@events/*": ["app/events/*"],
     },
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */

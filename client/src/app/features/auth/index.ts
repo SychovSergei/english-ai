@@ -1,4 +1,6 @@
-export { LoginService } from '@features/auth/login/api/login.service';
-export { LoginComponent } from '@features/auth/login/ui/login/login.component';
-export { RegisterService } from '@features/auth/register/api/register.service';
-export { RegisterComponent } from '@features/auth/register/ui/register/register.component';
+// export { AuthActionService } from './auth-action.service';
+export { AuthByEmailFormComponent } from './auth-by-email/ui/auth-form.component';
+export { RegisterComponent } from './register/ui/register/register.component';
+export { SocialAuthComponent } from './social-auth/ui/social-auth.component';
+export { ToLoginComponent } from './to-login/to-login.component';
+export { ToRegisterComponent } from './to-register/to-register.component';

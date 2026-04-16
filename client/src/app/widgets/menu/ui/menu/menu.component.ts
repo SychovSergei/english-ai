@@ -1,6 +1,7 @@
+import { SessionFacade } from '@entities/session';
 import { Config, MenuItem } from '@widgets/menu/model';
 
-import { NgForOf, NgIf } from '@angular/common';
+import { AsyncPipe, JsonPipe, NgForOf, NgIf } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { Route, Router, RouterLink, RouterLinkActive, Routes } from '@angular/router';
@@ -8,7 +9,7 @@ import { Route, Router, RouterLink, RouterLinkActive, Routes } from '@angular/ro
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [MatIcon, RouterLink, NgForOf, NgIf, RouterLinkActive],
+  imports: [MatIcon, RouterLink, NgForOf, NgIf, RouterLinkActive, JsonPipe, AsyncPipe],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.scss',
 })
@@ -17,7 +18,10 @@ export class MenuComponent implements OnInit {
   @Input() options = {};
   @Input() menuItems: MenuItem[] = [];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    public sessionFacade: SessionFacade,
+  ) {}
 
   ngOnInit(): void {
     this.config = this.mergeConfig(this.options);

@@ -1,7 +1,6 @@
 <mat-drawer-container [hasBackdrop]="isMobile">
   <mat-drawer #drawer mode="side" [opened]="!isMobile">
-    <div class="layout-menu-container"
-         appSwipe (swipeDirection)="onSwipe($event)">
+    <div class="layout-menu-container">
 
       <div class="layout-menu-logo">
         <span>LOGO</span>
@@ -18,10 +17,7 @@
     <div class="layout-main-wrapper">
 
       <div class="toolbar">
-        <app-toolbar (topbarMenuClicked)="drawer.toggle()"
-                     (loggedIn)="onLoggedIn()"
-                     (loggedOut)="onLoggedOut()"
-        ></app-toolbar>
+        <app-toolbar (topbarMenuClick)="drawer.toggle()"></app-toolbar>
       </div>
 
       <!--      <main class="container">-->

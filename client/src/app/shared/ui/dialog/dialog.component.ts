@@ -10,4 +10,9 @@ import { MatDialogModule } from '@angular/material/dialog';
 })
 export class DialogComponent {
   @Input() title: string = 'Title';
+  @Input() showActions: boolean = true;
+
+  constructor() {
+    console.log('DialogComponent constructor');
+  }
 }

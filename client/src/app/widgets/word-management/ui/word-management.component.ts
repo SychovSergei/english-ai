@@ -1,6 +1,8 @@
-import { WordTableActionsComponent, WordTableComponent } from '@features/words';
-import { TableFilterComponent, TableFilterService } from '@shared/ui/table-filter';
+import { LoggerService } from '@shared/lib/logger/logger.service';
+import { TableFilterComponent } from '@shared/ui/table-filter';
 import { UiKitModule } from '@shared/ui/ui-kit';
+import { WordTableWrapperComponent } from '@widgets/word-table';
+import { WordTableActionsComponent } from '@widgets/word-table-actions';
 
 import { JsonPipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
@@ -15,12 +17,14 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
     UiKitModule,
     TableFilterComponent,
     WordTableActionsComponent,
-    WordTableComponent,
     ReactiveFormsModule,
     JsonPipe,
+    WordTableWrapperComponent,
   ],
 })
 export class WordManagementComponent implements OnInit {
+  private readonly logger = inject(LoggerService).createLogger('WordManagementComponent');
+
   filterId = 'word-data-table-filter';
 
   private fb = inject(FormBuilder);
@@ -32,7 +36,8 @@ export class WordManagementComponent implements OnInit {
   }
   // $filter: Observable<string>; // = signal('');
 
-  constructor(private tableFilterService: TableFilterService) {
+  // private tableFilterService: TableFilterService
+  constructor() {
     this.form = this.fb.group({
       filter: [''],
     });
@@ -51,7 +56,7 @@ export class WordManagementComponent implements OnInit {
   }
 
   onFilterChange(value: string): void {
-    console.log('value', value);
+    // this.logger.log('value', value);
     this.filterDelayValue = value;
   }
 }

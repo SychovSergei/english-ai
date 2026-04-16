@@ -2,4 +2,5 @@
 /tasks-info/
 /shared/
 /client-fsd/
-/ngx-indexed-db/
+.stfolder/
+/client_/

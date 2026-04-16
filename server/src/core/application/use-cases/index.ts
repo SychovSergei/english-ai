@@ -1,0 +1,1 @@
+export { BaseUseCase } from './BaseUseCase';

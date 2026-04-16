@@ -2,6 +2,8 @@
 <mat-dialog-content class="mat-typography mt-3">
   <ng-content select="content"></ng-content>
 </mat-dialog-content>
-<mat-dialog-actions align="end">
-  <ng-content select="actions"></ng-content>
-</mat-dialog-actions>
+@if (showActions) {
+  <mat-dialog-actions align="end">
+    <ng-content select="actions"></ng-content>
+  </mat-dialog-actions>
+}

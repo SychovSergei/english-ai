@@ -6,8 +6,8 @@
 
           <div class="w-full flex-row md:flex-col mt-3">
             <mat-form-field class="w-full flex-row md:flex-col">
-              <mat-label>Word</mat-label><!--  - {{ idCtrl.value | json }} -->
-              <input matInput formControlName="text" autocapitalize="off">
+              <mat-label>Word</mat-label>
+              <input matInput formControlName="value" autocapitalize="off">
               <mat-icon matSuffix >
                 <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
               </mat-icon>
@@ -39,7 +39,6 @@
                   <div *ngIf="i > 0 && translationsCtrl.controls.length > 1" class="mt-5"></div>
                   <mat-divider *ngIf="i > 0"></mat-divider>
                   <div *ngIf="i > 0 && translationsCtrl.controls.length > 1" class="mb-5"></div>
-
                   <mat-form-field class="w-full flex-row md:flex-col">
                     <mat-label>Translation {{ i+1 }}</mat-label>
                     <input matInput formControlName="translText" autocapitalize="off">
@@ -88,14 +87,6 @@
                     <button type="button" mat-mini-fab (click)="addTranslationControls()" class="mx-2"
                             aria-label="Add new translation button">
                       <mat-icon>add</mat-icon>
-                    </button>
-
-                    <button *ngIf="!translItem.get('id')?.value && isEditMode()" type="button"
-                            mat-button mat-raised-button
-                            [disabled]="translItem.get('translText')?.invalid"
-                            (click)="addTranslationItem(translItem, i)">
-                      <mat-icon>add_circle</mat-icon>
-                      Add translation
                     </button>
 
                     @if((translationsCtrl.length > 0 && i > 0) || (translationsCtrl.length > 1)) {

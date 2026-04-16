@@ -1,4 +1,5 @@
-import { WordSetEditorComponent } from '@widgets/word-sets/word-set-editor';
+import { LoggerService } from '@shared/lib/logger/logger.service';
+import { WordSetEditorComponent } from '@widgets/word-sets';
 
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -13,6 +14,8 @@ import { filter, map, tap } from 'rxjs';
   styleUrl: './edit-word-set.component.scss',
 })
 export class EditWordSetComponent implements OnInit {
+  private readonly loggerService = inject(LoggerService).createLogger('EditWordSetComponent');
+
   public id?: string;
 
   private route = inject(ActivatedRoute);
@@ -27,7 +30,7 @@ export class EditWordSetComponent implements OnInit {
         filter((id): id is string => !!id),
         tap((id) => {
           this.id = id;
-          console.log(this.id);
+          this.loggerService.log(this.id);
         }),
         takeUntilDestroyed(this.destroyRef),
       )

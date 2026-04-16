@@ -1,4 +1,3 @@
-// import { AuthGuard } from '@core/guards/auth.guard';
 import { NotFoundPage } from '@pages/not-found';
 import { CreateWordSetComponent, EditWordSetComponent, WordSetsPage } from '@pages/word-sets';
 import { WordsPage } from '@pages/words';
@@ -12,9 +11,12 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: '/auth/login',
+    redirectTo: '/words/my-words',
   },
-  { path: 'auth', loadChildren: () => import('@pages/auth/auth.module').then((m) => m.AuthModule) },
+  {
+    path: 'auth',
+    loadChildren: () => import('@pages/auth').then((m) => m.AuthModule),
+  },
   {
     path: '',
     component: MainLayoutComponent,

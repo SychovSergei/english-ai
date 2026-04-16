@@ -1,4 +1,4 @@
-import { WordItem } from '@entities/word-set/models';
+import { WordItem } from '@entities/word-set';
 import { FloatButtonModule } from '@shared/directives/add-floating-button';
 import { UiKitModule } from '@shared/ui/ui-kit';
 
