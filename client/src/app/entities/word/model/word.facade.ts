@@ -29,6 +29,7 @@ import {
   Observable,
   of,
   scan,
+  take,
   tap,
 } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -115,6 +116,17 @@ export class WordFacade {
 
     // 2. Если мы онлайн, идем за свежими данными на сервер
     this.syncManager.runSync();
+
+    this.wordApiService
+      .getAll()
+      .pipe(take(1))
+      .subscribe((words) => {
+        this.logger.warn('Мгновенно обновляем UI с сервера...');
+        const mappedWords = words.map((word) =>
+          WordMapper.toDomain({ ...word, synced: true, isDeleted: false }, owner),
+        );
+        this._words$.next(mappedWords);
+      });
   }
 
   public async createWord(data: CreateWordPayload): Promise<string | null> {
