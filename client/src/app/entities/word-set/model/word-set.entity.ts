@@ -1,18 +1,8 @@
 import { WordId, WordMetadata } from '@entities/word/@x/word-set';
 import { CreateWordSetPayload, UpdateWordSetPayload, WordSetDto } from '@entities/word-set/api';
-import { WordSetId, WordSetSettings } from '@entities/word-set/model/vo';
+import { WordSetId, WordSetProps, WordSetSettings } from '@entities/word-set/model';
 import { OwnerId } from '@shared/lib/auth/owner-id.vo';
 import { EntityBase } from '@shared/lib/domain/entity.base';
-
-export interface WordSetProps {
-  readonly ownerId: OwnerId;
-  readonly title: string;
-  readonly wordIds: WordId[]; // Ссылки по ID
-  readonly settings: WordSetSettings; // VO
-  readonly description?: string;
-  readonly metadata: WordMetadata; // Сеты тоже нужно синхронизировать!
-  readonly updatedAt: number;
-}
 
 export class WordSet extends EntityBase<WordSetId, WordSetProps> {
   private constructor(id: WordSetId, props: WordSetProps) {
@@ -40,9 +30,9 @@ export class WordSet extends EntityBase<WordSetId, WordSetProps> {
     const id = WordSetId.generate(); //WordSetId.generate(generateId);
 
     const wordSetProps: WordSetProps = {
-      ownerId: currentOwner,
       title: payload.title,
-      description: payload.description,
+      description: payload.description || '',
+      ownerId: currentOwner,
       wordIds: (payload.wordIds || []).map((id) => WordId.from(id)),
       // settings: new WordSetSettings(EWordSetVisibility.PRIVATE, ELangs.EN, false),
       settings: WordSetSettings.create(payload.settings),
@@ -57,23 +47,23 @@ export class WordSet extends EntityBase<WordSetId, WordSetProps> {
   }
 
   /**
-   * RESTORE: Восстановление из локальной базы или API
+   * REHYDRATION: Восстановление из БД
    */
-  static restore(data: WordSetDto & { metadata: WordMetadata }, currentOwner: OwnerId): WordSet {
+  static restore(dto: WordSetDto & { metadata: WordMetadata }, currentOwner: OwnerId): WordSet {
     const props: WordSetProps = {
+      title: dto.title,
+      description: dto.description,
       ownerId: OwnerId.fromRaw({ kind: currentOwner.kind, id: currentOwner.id, role: currentOwner.role }),
-      title: data.title,
-      description: data.description,
-      wordIds: data.wordIds.map((id) => WordId.from(id)),
-      settings: WordSetSettings.restore(data.settings),
+      wordIds: dto.wordIds.map((id) => WordId.from(id)),
+      settings: WordSetSettings.restore(dto.settings),
       metadata: {
-        synced: data.metadata.synced,
-        isDeleted: data.metadata.isDeleted,
+        synced: dto.metadata.synced,
+        isDeleted: dto.metadata.isDeleted,
       },
-      updatedAt: data.updatedAt ?? Date.now(),
+      updatedAt: dto.updatedAt ?? Date.now(),
     };
 
-    return new WordSet(WordSetId.from(data.id), props);
+    return new WordSet(WordSetId.from(dto.id), props);
   }
 
   /**
@@ -94,5 +84,31 @@ export class WordSet extends EntityBase<WordSetId, WordSetProps> {
     };
 
     return new WordSet(this.id, newProps);
+  }
+
+  /**
+   * DOMAIN LOGIC: Иммутабельное добавление слов
+   * */
+  public addWord(wordId: WordId): WordSet {
+    if (this.props.wordIds.some((id) => id.equals(wordId))) return this;
+
+    return new WordSet(this.id, {
+      ...this.props,
+      wordIds: [...this.props.wordIds, wordId],
+      metadata: { ...this.props.metadata, synced: false },
+      updatedAt: Date.now(),
+    });
+  }
+
+  /**
+   *   DOMAIN LOGIC: Иммутабельное изменение названия
+   *  */
+  public rename(newTitle: string): WordSet {
+    return new WordSet(this.id, {
+      ...this.props,
+      title: newTitle,
+      metadata: { ...this.props.metadata, synced: false },
+      updatedAt: Date.now(),
+    });
   }
 }
