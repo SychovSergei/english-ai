@@ -1,5 +1,5 @@
 import { WordSet } from '@entities/word-set';
-import { WordSetSettings } from '@entities/word-set/model/vo';
+import { WordSetSettings } from '@entities/word-set/model';
 
 // Базовые поля, общие для всех
 interface WordSetBase {

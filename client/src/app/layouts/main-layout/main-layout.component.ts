@@ -53,6 +53,7 @@ export class MainLayoutComponent {
       active: false,
       submenu: [
         { title: 'My Words', url: '/words/my-words' },
+        { title: 'Word Sets', url: '/words/word-sets' },
         { title: 'Create Word Sets', url: '/words/word-set/create' },
         { title: 'Edit Word Sets', url: '/words/word-set/edit/123456' }, // TODO MENU ID
         // { title: 'Add Word/Sets', url: '/words/manage' },

@@ -30,7 +30,20 @@ export const routes: Routes = [
           title: 'Words',
         },
         children: [
-          { path: 'my-words', component: WordsPage },
+          {
+            path: 'my-words',
+            component: WordsPage,
+            data: {
+              title: 'Words',
+            },
+          },
+          {
+            path: 'word-sets',
+            component: WordSetsPage,
+            data: {
+              title: 'Word Sets',
+            },
+          },
           {
             path: 'word-set',
             children: [
