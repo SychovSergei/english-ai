@@ -1,4 +1,43 @@
 /* You can add global styles to this file, and also import other style files */
 
+@import "./app/shared/styles/notification.scss";
+@import "./app/shared/styles/tailwind.scss";
+
+@import "./app/shared/styles/vars";
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+:root {
+  .notification-bg {
+    --mdc-snackbar-container-color: red;
+  }
+}
+
+//.fullscreen-dialog .mat-dialog-container {
+//  border-radius: 0 !important;
+//  padding: 0 !important;
+//  height: 100vh !important;
+//}
+
+.app-loader {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 300px;
+  height: 200px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+//для того чтобы контент в диалоге не скроллился
+.no-scroll-dialog {
+  .mat-mdc-dialog-content {
+    overflow: hidden !important; /* Убираем скролл */
+    max-height: 100vh !important; /* Позволяем контенту занимать сколько нужно (опционально) */
+  }
+}

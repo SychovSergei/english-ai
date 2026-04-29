@@ -1,0 +1,13 @@
+[build]
+  # Указываем, в какой папке запускать сборку
+  base = "client"
+
+  # Команда сборки (уже проверена, работает)
+  command = "npm run build:ci"
+
+  # Путь к готовым файлам ОТНОСИТЕЛЬНО папки base (client)
+  publish = "dist/client/browser"
+
+[build.environment]
+  # Фиксируем версию Node.js для Angular 18+
+  NODE_VERSION = "22"

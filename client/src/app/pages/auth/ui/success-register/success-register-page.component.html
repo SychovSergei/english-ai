@@ -1,0 +1,23 @@
+<div class="w-full md:w-2/3 lg:w-1/2 mx-auto mt-2 lg:mt-5">
+  <mat-card>
+    <mat-card-content>
+      <div class="mb-3 md:mb-1">
+        <div class="message-icon">
+          <div class="icon-block">
+            <i class="material-icons alert-success">check_circle_outline</i>
+          </div>
+        </div>
+        <div class="mt-6 mb-8 text-center sm:mt-4 sm:mb-8 sm:text-center">
+          <h1 class="">Registration success</h1>
+          <h2>Dear {{ clientName }}. Please check your email <strong>{{ email }}</strong> and click the link emailed to you!</h2>
+        </div>
+        <div class="message-action">
+          <button mat-raised-button color="primary" type="button" class="w-1/2" (click)="click()">Login</button>
+        </div>
+      </div>
+
+
+    </mat-card-content>
+  </mat-card>
+</div>
+

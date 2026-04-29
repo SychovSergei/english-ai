@@ -1,0 +1,37 @@
+@use 'shared/styles' as shared;
+
+.footer {
+  //display: flex;
+  //align-items: center;
+  @include shared.flex-center(1rem);
+  height: 50px;
+  justify-content: center;
+  background-color: var(--bs-body-bg);
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  margin-top: 1rem;
+
+  &__copyright {
+
+  }
+
+  &__status {
+    @include shared.flex-center(4px);
+    justify-content: center;
+
+    &-icon, &-text {
+      transition: color 1.3s ease; // Плавный переход при смене статуса
+
+      // Модификаторы
+      &--online {
+        @include shared.status-colors(true);
+      }
+      &--offline {
+        @include shared.status-colors(false);
+      }
+    }
+
+  }
+}
+.icon {
+  margin-left: .5rem;
+}

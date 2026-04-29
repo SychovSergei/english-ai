@@ -1,0 +1,31 @@
+<mat-card appearance="outlined">
+
+  <mat-card-header>
+    <div class="flex w-full flex-wrap">
+      <div class="w-full sm:w-1/2 lg:w-1/4">
+        <form [formGroup]="form">
+<!--            [filterId]="filterId"-->
+          <app-data-table-filter
+            formControlName="filter"
+            [delayVal]="2000"
+            [labelName]="'Filter'"
+            (valueChange)="onFilterChange($event)"
+          ></app-data-table-filter>
+<!--            name="filter"-->
+<!--            (valueChange)="onValueChange($event)"-->
+        </form>
+      </div>
+      <div class="w-full sm:w-1/2 lg:w-3/4">
+        <app-words-data-table-actions (refreshTable)="wordTable.refreshTable()"></app-words-data-table-actions>
+      </div>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="mat-elevation-z8">
+<!--      [filterId]="filterId"-->
+      <app-word-table-wrapper #wordTable [globalFilter]="filterDelayValue"></app-word-table-wrapper>
+    </div>
+  </mat-card-content>
+
+</mat-card>

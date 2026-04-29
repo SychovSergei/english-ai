@@ -1,0 +1,79 @@
+
+
+.word-set {
+  display: flex;
+  flex-direction: column;
+  //border: 1px solid red;
+  width: 100%;
+
+  &__header {
+    //border: 1px solid green;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1rem;
+
+    &-title {
+      font-size: 2rem;
+    }
+  }
+  &__header-buttons {
+  }
+  &__header-button {
+  }
+
+  &__content {
+    width: 100%;
+    padding: 0 1rem 1rem;
+    //border: 1px solid blue;
+  }
+  &__input {
+    width: 100%;
+    //border: 1px solid red;
+  }
+  &__input-field {
+    width: 100%;
+  }
+
+  &__actions {
+    width: 100%;
+    padding: 0 1rem 1rem;
+    border: 1px solid green;
+    display: flex;
+
+    &--right {
+      justify-content: right;
+    }
+  }
+
+  &__list {
+    padding: 0 1rem 1rem;
+    //border: 1px solid blue;
+  }
+
+}
+.word-set__button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+
+  border-radius: 10px;
+}
+
+.word-set__list-add {
+  width: 100%;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &-card {
+    width: 100%;
+  }
+}
+
+

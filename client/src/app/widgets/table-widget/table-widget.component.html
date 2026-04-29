@@ -1,0 +1,20 @@
+<mat-card appearance="outlined">
+
+  <mat-card-header>
+    <div class="flex w-full flex-wrap">
+      <div class="w-full sm:w-1/2 lg:w-1/4">
+        <ng-content select="filter"></ng-content>
+      </div>
+      <div class="w-full sm:w-1/2 lg:w-3/4">
+        <ng-content select="actions"></ng-content>
+      </div>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="mat-elevation-z8">
+      <ng-content select="content"></ng-content>
+    </div>
+  </mat-card-content>
+
+</mat-card>

@@ -1,0 +1,59 @@
+<div class="word-set">
+  <form [formGroup]="wordSetForm">
+    <header class="word-set__header">
+      <div class="word-set__header-title">
+        <h2 *ngIf="isEditMode; else createMode">Edit Word Set</h2>
+
+        <ng-template #createMode>
+          Create a new Word Set
+        </ng-template>
+      </div>
+      <div class="word-set__header-buttons">
+        <div class="word-set__header-button">
+          <button type="button"
+                  (click)="onSubmit()"
+                  mat-button mat-flat-button>Create</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="word-set__content">
+      <div class="word-set__input">
+        <mat-form-field class="word-set__input-field">
+          <mat-label>Title</mat-label>
+          <input matInput formControlName="title">
+        </mat-form-field>
+      </div>
+      <div class="word-set__input">
+        <mat-form-field class="word-set__input-field">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description"
+                    cdkTextareaAutosize #autosize="cdkTextareaAutosize"
+                    cdkAutosizeMinRows="2" cdkAutosizeMaxRows="10"></textarea>
+        </mat-form-field>
+      </div>
+    </section>
+
+    <section class="word-set__actions">
+      <div class="word-set__action-button">
+        <button type="button" (click)="importData()" mat-button mat-stroked-button>
+          Import
+        </button>
+      </div>
+    </section>
+
+    <app-word-list-form [controlKey]="'words'" [listDataWords$]="widgetDataWords$" (termChange)="checkTermValue($event)"></app-word-list-form>
+
+    <section class="word-set__actions word-set__actions--right">
+      <div class="word-set__action-button">
+        <button type="button" (click)="onSubmit()" mat-button mat-flat-button>
+          Create
+        </button>
+      </div>
+    </section>
+
+  </form>
+
+  <pre>{{ wordSetForm.getRawValue() | json }}</pre>
+
+</div>

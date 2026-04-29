@@ -1,0 +1,10 @@
+:host {
+  width: 100%;
+}
+
+:host ::ng-deep .mdc-button__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}

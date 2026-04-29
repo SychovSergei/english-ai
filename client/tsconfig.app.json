@@ -4,12 +4,20 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": []
+    "types": [
+      "@angular/localize"
+    ]
   },
   "files": [
     "src/main.ts"
   ],
   "include": [
+    "src/**/*.ts",
     "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "src/test.ts",
+    "**/*.spec.ts",
+    "src/app/shared/ui/OLD_components/**/*",
   ]
 }

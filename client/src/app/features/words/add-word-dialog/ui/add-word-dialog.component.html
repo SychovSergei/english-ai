@@ -1,0 +1,132 @@
+<app-dialog [title]="isEditMode() ? 'Edit word' : 'Add word'">
+  <div ngProjectAs="content">
+    <form [formGroup]="wordForm">
+      <mat-accordion class="example-headers-align" multi>
+        <div class="mt-2">
+
+          <div class="w-full flex-row md:flex-col mt-3">
+            <mat-form-field class="w-full flex-row md:flex-col">
+              <mat-label>Word</mat-label>
+              <input matInput formControlName="value" autocapitalize="off">
+              <mat-icon matSuffix >
+                <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
+              </mat-icon>
+              <mat-error *ngIf="textCtrl.hasError('required')">This field is required.</mat-error>
+              <mat-error *ngIf="textCtrl.hasError('alreadyExists')">The word with this value already exists.</mat-error>
+            </mat-form-field>
+            @if (textCtrl.hasError("alreadyExists") && !isEditMode()) {
+              <div class="w-full flex justify-center mb-5 mt-3">
+                <button type="button" mat-button mat-raised-button
+                        class="flex flex-row-reverse gap-2 items-center justify-center w-full sm:w-1/2 "
+                        (click)="loadWord()">
+                  <span class="mr-1">Load existing value</span>
+                  <mat-icon *ngIf="isWordLoading()"><mat-spinner diameter="16"></mat-spinner></mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="mb-2">
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Translations ({{ translationsCtrl.controls.length }})</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="w-full flex-row md:flex-col">
+              <div formArrayName="translations">
+                <div *ngFor="let translItem of translationsCtrl.controls; let i=index"
+                     [formGroupName]="i">
+
+                  <div *ngIf="i > 0 && translationsCtrl.controls.length > 1" class="mt-5"></div>
+                  <mat-divider *ngIf="i > 0"></mat-divider>
+                  <div *ngIf="i > 0 && translationsCtrl.controls.length > 1" class="mb-5"></div>
+                  <mat-form-field class="w-full flex-row md:flex-col">
+                    <mat-label>Translation {{ i+1 }}</mat-label>
+                    <input matInput formControlName="translText" autocapitalize="off">
+                    <mat-error *ngIf="translItem.get('translText')?.hasError('required')">
+                      This field is required.
+                    </mat-error>
+                    <mat-error *ngIf="translItem.get('translText')?.hasError('translationError')">
+                      {{ translItem.get('translText')?.getError('translationError').message }}
+                    </mat-error>
+                    <mat-error *ngIf="translItem.get('translText')?.errors?.['serverError']">
+                      {{ translItem.get('translText')?.errors?.['serverError'] }}
+                    </mat-error>
+                    <mat-error *ngIf="translItem.get('translText')?.errors?.['alreadyExists']">
+                      {{ translItem.get('translText')?.errors?.['alreadyExists'] }}
+                    </mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="w-full flex-row md:flex-col mt-3">
+                    <mat-label>Description</mat-label>
+                    <textarea matInput formControlName="description"
+                              cdkTextareaAutosize
+                              [cdkAutosizeMinRows]="2"
+                              [cdkAutosizeMaxRows]="5"
+                              class="resizable-textarea"
+                    ></textarea>
+                  </mat-form-field>
+                  <div class="flex flex-col sm:flex-row sm:space-x-4">
+                    <mat-form-field class="flex-1">
+                      <mat-label>Level</mat-label>
+                      <mat-select formControlName="difficultyLevel">
+                        @for (level of levelValues; track level) {
+                          <mat-option [value]="level">{{ level }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field class="flex-1">
+                      <mat-label>Lexical</mat-label>
+                      <mat-select formControlName="lexicalCategory">
+                        @for (lex of lexicalValues; track lex) {
+                          <mat-option [value]="lex">{{ lex }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="w-full flex flex-row justify-between mb-3">
+                    <button type="button" mat-mini-fab (click)="addTranslationControls()" class="mx-2"
+                            aria-label="Add new translation button">
+                      <mat-icon>add</mat-icon>
+                    </button>
+
+                    @if((translationsCtrl.length > 0 && i > 0) || (translationsCtrl.length > 1)) {
+                      <button type="button" mat-mini-fab (click)="removeTranslationItem(i)"
+                              aria-label="Example icon button with a menu icon">
+                        <mat-icon>remove</mat-icon>
+                      </button>
+                    }
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        </div>
+
+      </mat-accordion>
+    </form>
+  </div>
+
+  <div ngProjectAs="actions" style="width: 100%;">
+    <div>
+      <button type="button" mat-button mat-raised-button (click)="closeDialog()">Cancel</button>
+<!--                      for disable attr -> || isSubmitting()-->
+      <button type="button" color="primary"
+              [disabled]="isButtonDisabled() || !isFormChanged()"
+              (click)="onSubmit()" mat-button mat-flat-button>
+        {{ isEditMode() ? 'Update' : 'Create'}}
+        <mat-icon class="custom-icon" *ngIf="isSubmitting()">
+          <mat-spinner diameter="16" class="white-spinner"></mat-spinner>
+        </mat-icon>
+      </button>
+    </div>
+<!--    <div style="display: flex; flex-direction: column;">-->
+<!--      <span>isDisabled: {{isButtonDisabled()}}</span>-->
+<!--      <span>wordForm.invalid: {{wordForm.invalid}}</span>-->
+<!--      <span>isSubmitting: {{isSubmitting()}}</span>-->
+<!--      <span>-&#45;&#45;&#45;&#45;&#45;&#45;</span>-->
+<!--      <span>!isFormChanged: {{!isFormChanged()}}</span>-->
+<!--    </div>-->
+  </div>
+</app-dialog>
+

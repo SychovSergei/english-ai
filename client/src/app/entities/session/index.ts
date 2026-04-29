@@ -1,0 +1,11 @@
+export { AuthService } from './api/auth.service';
+export type { AuthData, LoginPayload, RegisterPayload } from './api/dtos/auth.data';
+export type { RegisterResponseDto, SessionResponse } from './api/dtos/auth.data';
+export type { AuthInitData } from './api/dtos/auth-init.data';
+export { FingerprintService } from './api/fingerprint.service';
+export { TokenService } from './api/token.service';
+export { AuthGuard } from './lib/auth.guard';
+export { authInitialiseInterceptor } from './lib/auth-initialise.interceptor';
+export { refreshInterceptor } from './lib/refresh.interceptor';
+export { SessionFacade } from './model/session.facade';
+export type { IUserTokenPayload } from './model/token-payload.model';

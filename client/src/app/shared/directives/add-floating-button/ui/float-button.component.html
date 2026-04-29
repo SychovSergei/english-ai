@@ -1,0 +1,7 @@
+<button mat-mini-fab
+        [@fadeScale]="visibleState"
+        (@fadeScale.done)="onAnimationDone($event)"
+        [style.display]="isVisible ? 'inline-flex' : 'none'"
+        (click)="buttonClick()">
+  <mat-icon>add</mat-icon>
+</button>

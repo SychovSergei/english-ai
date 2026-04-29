@@ -1,0 +1,59 @@
+<form [formGroup]="loginForm" (ngSubmit)="submit()">
+  <div class="flex flex-wrap mb-2">
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Email address:</mat-label>
+      <input matInput placeholder="pat@example.com" formControlName="email">
+      <mat-error *ngIf="loginForm.controls['email'].hasError('email') && !loginForm.controls['email'].hasError('required')">
+        Please enter a valid email address
+      </mat-error>
+      <mat-error *ngIf="loginForm.controls['email'].hasError('required')">
+        Email is required
+      </mat-error>
+      <mat-error *ngIf="loginForm.controls['email'].hasError('wrongUserEmail')">
+        User with this email not found
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-wrap mb-2">
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" formControlName="password">
+      <mat-error *ngIf="loginForm.controls['password'].hasError('required')">
+        Field is required
+      </mat-error>
+      <mat-error *ngIf="loginForm.controls['password'].hasError('minlength')">
+        Min length {{ loginForm.controls['password'].errors?.["minlength"]["requiredLength"] }}
+      </mat-error>
+      <mat-error *ngIf="loginForm.controls['password'].hasError('wrongPassword')">
+        Wrong password
+        {{ loginForm.controls['password'].errors?.["wrongPassword"]}}
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-wrap" *ngIf="errors.length">
+    <section>
+      <app-error-message [errors]="errors"></app-error-message>
+    </section>
+  </div>
+
+  <div class="flex flex-wrap mt-3 justify-between">
+    <section>
+      <button *ngIf="isDialog" type="button" mat-button (click)="cancel()">
+        Cancel
+      </button>
+    </section>
+
+    <section>
+      <button mat-raised-button color="primary"
+              type="submit"
+              [disabled]="loginForm.invalid || isLoading()"
+              class="w-full"
+      >Login</button>
+      <span *ngIf="isLoading()" class="ms-2">
+              <mat-spinner diameter="20" customSpinner customColor="#fff"></mat-spinner>
+            </span>
+    </section>
+  </div>
+</form>

@@ -1,28 +1,20 @@
-import mongoose from "mongoose";
+import { Container } from 'inversify';
 
-import app from "./bin/app";
-import config from "./config";
+import { bootstrapApplication } from './app/bootstrap';
+import config from './config';
 
-const dbConnect = async () => {
-  try {
-    // eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
-    const dbSource = config.mongo.db_source!;
-    await mongoose.connect(dbSource);
-    console.log("Connected to MongoDB success");
-  } catch (e) {
-    console.log("Error: connection to DB failed");
-  }
-};
+function main(): void {
+  const container = new Container();
 
-const start = async () => {
-  try {
-    await dbConnect();
+  bootstrapApplication(container)
+    .then((app) => {
+      const PORT = (config.port as unknown as number) || 3000;
+      app.listen(PORT, () => console.log(`[server]: Running on PORT:${PORT}`));
+    })
+    .catch((err) => {
+      console.error('Bootstrap failed:', err);
+      process.exit(1);
+    });
+}
 
-    const PORT = config.port;
-    app.listen(PORT, () => console.log(`[server]: Server is running at PORT:${PORT}`));
-  } catch (e) {
-    console.log("Start() ERROR, e");
-  }
-};
-
-start().catch((err) => console.log("err", err));
+main();

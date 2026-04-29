@@ -1,0 +1,12 @@
+@use '@angular/material' as mat;
+
+.white-spinner {
+  @include mat.progress-spinner-overrides((
+          active-indicator-color: white,
+  ));
+}
+
+.resizable-textarea {
+  resize: vertical;
+  overflow: auto;
+}

@@ -1,0 +1,24 @@
+<app-dialog [title]="'Login'" [showActions]="false">
+  <div ngProjectAs="content">
+<!--    <app-login-form-widget></app-login-form-widget>-->
+
+    <app-feature-auth-by-email-form ></app-feature-auth-by-email-form>
+
+    <app-to-register [dialogRef]="dialogRef"></app-to-register>
+
+    <app-feature-social-auth></app-feature-social-auth>
+
+  </div>
+  <div ngProjectAs="actions" style="width: 100%;">
+<!--    <div>-->
+<!--      <button type="button" mat-button mat-raised-button (click)="closeDialog()">Cancel</button>-->
+<!--      &lt;!&ndash;                      for disable attr -> || isSubmitting()&ndash;&gt;-->
+<!--      <button type="button" color="primary"-->
+<!--              [disabled]="isButtonDisabled()"-->
+<!--              (click)="onSubmit()" mat-button mat-flat-button>Login<mat-icon class="custom-icon" *ngIf="isSubmitting()">-->
+<!--          <mat-spinner diameter="16" class="white-spinner"></mat-spinner>-->
+<!--        </mat-icon>-->
+<!--      </button>-->
+<!--    </div>-->
+  </div>
+</app-dialog>

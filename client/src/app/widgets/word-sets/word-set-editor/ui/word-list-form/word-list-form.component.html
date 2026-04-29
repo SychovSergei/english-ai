@@ -1,0 +1,58 @@
+<form [formGroup]="parentFormGroup">
+  <section class="word-set__list" cdkDropList  (cdkDropListDropped)="drop($event)">
+    <div [formArrayName]="controlKey" >
+      <ng-container *ngFor="let wordItem of wordGroup.controls; let i = index; let isLast = last; trackBy trackById">
+        <div [formGroupName]="i" >
+          <article class="word-set__list-item" cdkDrag>
+            <mat-card class="word-set__card" appearance="outlined">
+              <mat-card-header class="word-set__card-header" cdkDragHandle>
+                <mat-card-title>
+                  <div class="word-set__card-header-title">
+                    <div class="word-set__card-header-index">{{ i + 1 }} - {{ wordGroup.controls[i].getRawValue().isNew }} - {{ wordGroup.controls[i].valid }} - {{ wordGroup.controls[i].updateOn }}</div>
+                    <div class="word-set__card-header-buttons" >
+                      <button mat-icon-button aria-label="icon"
+                              [disabled]="wordGroup.controls.length <= 2"
+                              (click)="removeCardByIndex(i)">
+                        <mat-icon class="material-symbols-outlined">delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content class="word-set__card-content">
+                <div class="word-set__card-field">
+                  <mat-form-field class="word-set__input-field">
+                    <mat-label>Term {{ wordItem.get('term')?.valid }} - {{ wordItem.get('term')?.updateOn }}</mat-label>
+                    <input matInput formControlName="term">
+                  </mat-form-field>
+                </div>
+                <div class="word-set__card-field">
+                  <mat-form-field class="word-set__input-field">
+                    <mat-label>Definition {{ wordItem.get('definition')?.valid }} - {{ wordItem.get('definition')?.updateOn }}</mat-label>
+                    <input matInput formControlName="definition">
+                  </mat-form-field>
+                  <button mat-stroked-button class="word-set__button word-set__button--image">
+                    Image
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </article>
+        </div>
+        @if (!isLast) {
+          <div class="word-set__list-item-add" appAddFloatingButton [buttonClick]="insertAfter(i)"></div>
+        }
+      </ng-container>
+    </div>
+    <div class="word-set__list-add">
+      <mat-card appearance="outlined" class="word-set__list-add-card">
+        <mat-card-content style="display: flex; justify-content: center;">
+          <button mat-button mat-stroked-button class="word-set__button"
+                  (click)="addWordControl()">
+            Add a Card
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+</form>
